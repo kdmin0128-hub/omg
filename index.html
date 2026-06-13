@@ -30,7 +30,6 @@
         body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; }
         .container { max-width: 500px; margin: 0 auto; padding-bottom: 30px; }
         
-        /* 상단 헤더 이미지 로고 레이아웃 스타일 */
         header { text-align: center; margin: 10px 0 20px 0; }
         .logo-img { max-width: 180px; height: auto; display: block; margin: 0 auto; }
 
@@ -56,20 +55,27 @@
         .btn-gps:disabled { background: #e9ecef; color: #adb5bd; cursor: not-allowed; font-weight: 600; }
 
         /* 반경 조절 레이아웃 구조 */
-        .range-container { margin-bottom: 18px; }
-        .range-block { display: flex; align-items: center; gap: 12px; }
-        .range-slider { flex: 1; height: 6px; -webkit-appearance: none; background: #e9ecef; border-radius: 3px; outline: none; }
-        .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--primary-color); cursor: pointer; }
-        .range-value { font-size: 15px; font-weight: 700; color: var(--primary-color); min-width: 55px; text-align: right; }
+        .range-container { margin-bottom: 18px; width: 100%; }
+        .range-block { display: flex; align-items: center; width: 100%; }
+        
+        /* 슬라이더 트랙 자체의 여백 제거 및 너비 정의 */
+        .range-slider { width: 100%; height: 6px; -webkit-appearance: none; background: #e9ecef; border-radius: 3px; outline: none; margin: 0; }
+        .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--primary-color); cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
 
-        /* 정밀 눈금 및 숫자 자 레이아웃 */
-        .range-ticks { display: flex; justify-content: space-between; padding: 0 65px 0 5px; margin-top: 6px; position: relative; }
-        .tick-item { display: flex; flex-direction: column; align-items: center; width: 0; position: relative; }
+        /* 눈금자 컨테이너: 슬라이더 좌우 패딩값(Thumb의 절반 크기인 11px)을 정확히 매칭 */
+        .range-ticks { display: flex; justify-content: space-between; margin-top: 8px; padding: 0 11px; }
+        
+        /* 눈금 아이템: width를 0으로 주고 넘치는 텍스트를 중앙 정렬하여 슬라이더 눈금 축과 완벽 일치 */
+        .tick-item { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 0; overflow: visible; }
         .tick-mark { width: 1px; height: 5px; background: #adb5bd; margin-bottom: 4px; }
-        .tick-label { font-size: 11px; color: #868e96; white-space: nowrap; font-weight: 500; }
+        .tick-label { font-size: 11px; color: #868e96; white-space: nowrap; font-weight: 500; text-align: center; }
+        
+        /* 선택된 수치 강조 효과 */
+        .tick-item.active .tick-label { color: var(--primary-color); font-weight: 700; }
+        .tick-item.active .tick-mark { background: var(--primary-color); height: 7px; width: 2px; }
 
-        /* 간결하게 수정 완료된 안내 문구 스타일 */
-        .privacy-notice { font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-top: 4px; }
+        /* 위치 수집 안내 문구 */
+        .privacy-notice { font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-top: 14px; }
 
         .checkbox-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .checkbox-item { position: relative; }
@@ -119,7 +125,7 @@
         <ol>
             <li>카카오 디벨로퍼스 ➡️ [플랫폼] ➡️ [Web] 메뉴에 등록한 주소의 오타를 확인하세요.<br>반드시 하위 경로를 전부 제외한 <code>https://본인아이디.github.io</code> 형태만 정확히 들어가 있어야 합니다.</li>
             <li>GitHub 배포가 완전히 끝날 때까지 최대 1~2분이 걸릴 수 있습니다.</li>
-            <li>브라우저에 예전 에러 캐시가 남아있을 수 있으므로 <b>Ctrl + F5 (Mac은 Cmd + Shift + R)</b>를 눌러 강력 새로고침을 해주세요.</li>
+            <li>브라우저에 예전 에러 캐시가 남아있을 수 있으므로 <b>Ctrl + F5</b>를 눌러 새로고침을 해주세요.</li>
         </ol>
     </div>
 
@@ -135,15 +141,15 @@
         
         <div class="range-container">
             <div class="range-block">
-                <input type="range" class="range-slider" id="radiusRange" min="100" max="1000" step="100" value="500" oninput="changeRadiusValue(this.value)">
-                <span class="range-value" id="radiusText">500m</span>
+                <input type="range" class="range-slider" id="radiusRange" min="0" max="1000" step="200" value="400" oninput="changeRadiusValue(this.value)">
             </div>
             <div class="range-ticks">
-                <div class="tick-item"><div class="tick-mark"></div><span class="tick-label">100m</span></div>
-                <div class="tick-item"><div class="tick-mark"></div><span class="tick-label">300m</span></div>
-                <div class="tick-item"><div class="tick-mark"></div><span class="tick-label">500m</span></div>
-                <div class="tick-item"><div class="tick-mark"></div><span class="tick-label">700m</span></div>
-                <div class="tick-item"><div class="tick-mark"></div><span class="tick-label">1km</span></div>
+                <div class="tick-item" id="tick-0"><div class="tick-mark"></div><span class="tick-label">0m</span></div>
+                <div class="tick-item" id="tick-200"><div class="tick-mark"></div><span class="tick-label">200m</span></div>
+                <div class="tick-item active" id="tick-400"><div class="tick-mark"></div><span class="tick-label">400m</span></div>
+                <div class="tick-item" id="tick-600"><div class="tick-mark"></div><span class="tick-label">600m</span></div>
+                <div class="tick-item" id="tick-800"><div class="tick-mark"></div><span class="tick-label">800m</span></div>
+                <div class="tick-item" id="tick-1000"><div class="tick-mark"></div><span class="tick-label">1km</span></div>
             </div>
         </div>
         <div class="privacy-notice">💡 위치 정보는 별도 수집하지 않습니다.</div>
@@ -251,10 +257,10 @@
     }
 
     function changeRadiusValue(val) { 
-        if (parseInt(val) === 1000) {
-            document.getElementById('radiusText').innerText = '1km';
-        } else {
-            document.getElementById('radiusText').innerText = val + 'm'; 
+        document.querySelectorAll('.tick-item').forEach(item => item.classList.remove('active'));
+        const targetTick = document.getElementById('tick-' + val);
+        if (targetTick) {
+            targetTick.classList.add('active');
         }
     }
 
@@ -267,13 +273,18 @@
 
     function fetchRealRestaurants() {
         if (!ps) { 
-            alert("카카오 지도 SDK 보안 승인이 거부되었거나 로딩 중입니다. 상단 안내판의 조치법을 적용해 주세요."); 
+            alert("카카오 지도 SDK 보안 승인이 거부되었거나 로딩 중입니다."); 
             return; 
         }
         if (!userLat || !userLng) { alert("위치 권한을 승인하거나 위치 인증을 완료해 주세요."); return; }
 
         const isRandom = document.getElementById('randomModeCheckbox').checked;
         const radius = parseInt(document.getElementById('radiusRange').value);
+
+        if (radius === 0) {
+            alert("검색 반경을 200m 이상으로 설정해 주세요!");
+            return;
+        }
 
         let keywords = [];
         if (!isRandom) {
