@@ -19,13 +19,20 @@
             --naver-color: #03c75a;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        
         body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; }
         .container { max-width: 500px; margin: 0 auto; padding-bottom: 30px; }
         header { text-align: center; margin-bottom: 20px; }
         header h1 { font-size: 24px; color: var(--primary-color); font-weight: 800; }
 
-        /* 연동 실패 시 나타나는 동적 안내 창 */
+        /* SDK 검증 에러 메시지창 */
         .error-guide-box {
             display: none; background: #fff5f5; border: 2px dashed #ff8787;
             border-radius: 16px; padding: 20px; margin-bottom: 20px; color: #c92a2a;
@@ -87,12 +94,12 @@
     <header><h1>🍽️ 실시간 내 주변 맛집</h1></header>
 
     <div id="sdkErrorBox" class="error-guide-box">
-        <h3>🚨 카카오 지도 라이브러리 차단됨</h3>
-        <p style="font-size: 13px; margin-bottom: 10px; font-weight: bold;">GitHub Pages 도메인 연동을 완료했음에도 이 창이 뜬다면 다음을 체크해 주세요.</p>
+        <h3>🚨 카카오 지도 SDK 로드 지연 또는 실패</h3>
+        <p style="font-size: 13px; margin-bottom: 10px; font-weight: bold;">GitHub Pages 도메인 등록을 마쳤는데도 이 창이 뜬다면 다음을 조치하세요.</p>
         <ol>
-            <li>카카오 디벨로퍼스 ➡️ [플랫폼]에 등록한 주소에 오타가 없는지 확인하세요.<br>(반드시 <code>https://본인아이디.github.io</code> 형태로 <code>https://</code>가 포함되어야 합니다.)</li>
-            <li>방금 도메인을 추가했다면 카카오 서버에 반영되기까지 약 1~2분이 걸릴 수 있습니다.</li>
-            <li>브라우저에 이전 에러 데이터가 남아있을 수 있으니 <b>Ctrl + F5 (맥은 Cmd + Shift + R)</b>를 눌러 강력 새로고침을 해주세요.</li>
+            <li>카카오 디벨로퍼스 ➡️ 플랫폼 설정에 주소가 정확한지 확인 (예: <code>https://유저네임.github.io</code>)</li>
+            <li>GitHub 배포 후 서버 동기화까지 최대 2분의 시간이 필요할 수 있습니다.</li>
+            <li>이전 오류 기록 삭제를 위해 브라우저에서 <b>Ctrl + F5 (Mac은 Cmd + Shift + R)</b>로 강력 새로고침을 수행하세요.</li>
         </ol>
     </div>
 
@@ -158,7 +165,7 @@
 
     const emojiMap = { "한식": "🍚", "중식": "🐼", "일식": "🍣", "양식": "🍝", "고기": "🥩", "회": "🐟", "치킨": "🍗", "면": "🍜", "탕": "🍲", "국밥": "🍲", "카페": "☕", "기타": "🍴" };
 
-    // GitHub Pages 비동기 환경을 고려한 명시적 로드 처리
+    // GitHub 환경의 비동기 로드 안정성 확보를 위한 초기화 구문
     window.onload = function() {
         if (typeof kakao !== 'undefined' && kakao.maps) {
             kakao.maps.load(function() {
@@ -201,7 +208,7 @@
 
     function fetchRealRestaurants() {
         if (!ps) { 
-            alert("카카오 지도 연동 승인이 거부된 상태입니다. 디벨로퍼스 플랫폼 설정을 재확인해 주세요."); 
+            alert("카카오 지도 SDK 보안 승인이 거부되었거나 로딩 중입니다. 상단 안내판을 참고하세요."); 
             return; 
         }
         if (!userLat || !userLng) { alert("위치 인증을 먼저 진행해 주세요."); return; }
@@ -232,7 +239,7 @@
         } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
             renderRealList([]); 
         } else {
-            alert("맛집 데이터를 검색하는 도중 카카오 API 서버 오류가 발생했습니다.");
+            alert("카카오 키워드 검색 서버 API 오류가 발생했습니다.");
         }
     }
 
@@ -242,7 +249,7 @@
         container.innerHTML = "";
 
         if (!places || places.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:14px;">현재 설정된 반경 내에 해당하는 실시간 식당이 없습니다. 🥲</div>`;
+            container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:14px;">설정하신 조건과 반경 내에 검색된 식당이 없습니다. 🥲</div>`;
         } else {
             places.forEach(place => {
                 let emoji = "✨";
