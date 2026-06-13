@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>오늘 뭐 먹지? | 실시간 주변 맛집 추천</title>
+    
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=566c59003be0a7db1292fbbc43b0fad0&libraries=services&autoload=false"></script>
+    
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #212529;
+            --text-muted: #868e96;
+            --border-color: #e9ecef;
+            --kakao-color: #fee500;
+            --naver-color: #03c75a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; }
+        .container { max-width: 500px; margin: 0 auto; padding-bottom: 30px; }
+        header { text-align: center; margin-bottom: 20px; }
+        header h1 { font-size: 24px; color: var(--primary-color); font-weight: 800; }
+
+        .card { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); margin-bottom: 16px; border: 1px solid var(--border-color); }
+        .section-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: #343a40; }
+
+        .gps-block { display: flex; gap: 10px; margin-bottom: 16px; }
+        .btn-gps { flex: 1; background: #4dabf7; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .gps-status { flex: 1.5; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; font-size: 13px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; text-align: center; }
+
+        .range-block { display: flex; align-items: center; gap: 12px; }
+        .range-slider { flex: 1; height: 6px; -webkit-appearance: none; background: #e9ecef; border-radius: 3px; outline: none; }
+        .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--primary-color); cursor: pointer; }
+        .range-value { font-size: 15px; font-weight: 700; color: var(--primary-color); min-width: 55px; text-align: right; }
+
+        .checkbox-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .checkbox-item { position: relative; }
+        .checkbox-item input { position: absolute; opacity: 0; width: 0; height: 0; }
+        .checkbox-label { display: block; text-align: center; background: #f1f3f5; padding: 12px 8px; border-radius: 10px; font-size: 13px; font-weight: 500; color: #495057; cursor: pointer; }
+        .checkbox-item input:checked + .checkbox-label { background: #fff0f0; color: var(--primary-color); border: 1px solid var(--primary-color); font-weight: 700; }
+        .checkbox-item input:disabled + .checkbox-label { background: #e9ecef; color: #adb5bd; cursor: not-allowed; }
+
+        .random-item { width: 100%; margin-bottom: 12px; }
+        .random-label { background: #343a40; color: white; font-weight: 600; padding: 14px; border-radius: 10px; text-align: center; display: block; cursor: pointer; }
+        .random-item input:checked + .random-label { background: #12b886; font-weight: 700; }
+
+        .btn-submit { width: 100%; background: var(--primary-color); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 6px rgba(255, 107, 107, 0.2); }
+
+        .result-section { margin-top: 24px; display: none; }
+        .result-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+        .restaurant-list { display: flex; flex-direction: column; gap: 12px; }
+        .restaurant-card { background: white; border-radius: 14px; border: 1px solid var(--border-color); padding: 12px; display: flex; gap: 12px; }
+        .restaurant-thumb { width: 80px; height: 80px; border-radius: 10px; background-size: cover; background-position: center; flex-shrink: 0; background-color: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .restaurant-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
+        .restaurant-name { font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .restaurant-category { font-size: 13px; color: var(--text-muted); }
+        .restaurant-meta { display: flex; align-items: center; justify-content: space-between; }
+        .distance { font-size: 13px; color: var(--primary-color); font-weight: 600; }
+        .btn-map-trigger { background: #f1f3f5; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal { background: white; width: 100%; max-width: 340px; border-radius: 16px; padding: 20px; text-align: center; }
+        .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+        .map-options { display: flex; flex-direction: column; gap: 10px; }
+        .map-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
+        .map-btn.kakao { background-color: var(--kakao-color); color: #3c1e1e; }
+        .map-btn.naver { background-color: var(--naver-color); color: white; }
+        .modal-close { background: none; border: none; color: var(--text-muted); margin-top: 14px; cursor: pointer; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header><h1>🍽️ 실시간 내 주변 맛집</h1></header>
+
+    <div class="card">
+        <div class="section-title">📍 내 주변 반경 설정</div>
+        <div class="gps-block">
+            <button class="btn-gps" onclick="getGPSLocation()">🎯 위치 인증</button>
+            <div class="gps-status" id="gpsStatusText">위치를 설정해 주세요</div>
+        </div>
+        <div class="range-block">
+            <input type="range" class="range-slider" id="radiusRange" min="100" max="3000" step="100" value="500" oninput="changeRadiusValue(this.value)">
+            <span class="range-value" id="radiusText">500m</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="section-title">🎲 메뉴 필터</div>
+        <div class="random-item">
+            <input type="checkbox" id="randomModeCheckbox" onchange="onRandomToggle(this)">
+            <label for="randomModeCheckbox" class="random-label">✨ 아무거나 맛집 검색 (랜덤)</label>
+        </div>
+
+        <div style="margin-top: 16px;">
+            <div class="section-title" style="font-size: 13px; color:#6c757d;">🥢 음식 종류</div>
+            <div class="checkbox-grid">
+                <div class="checkbox-item"><input type="checkbox" class="menu-filter-cb" id="t1" value="한식"><label for="t1" class="checkbox-label">한식</label></div>
+                <div class="checkbox-item"><input type="checkbox" class="menu-filter-cb" id="t2" value="중식"><label for="t2" class="checkbox-label">중식</label></div>
+                <div class="checkbox-item"><input type="checkbox" class="menu-filter-cb" id="t3" value="일식"><label for="t3" class="checkbox-label">일식</label></div>
+                <div class="checkbox-item"><input type="checkbox" class="menu-filter-cb" id="t4" value="양식"><label for="t4" class="checkbox-label">양식</label></div>
+                <div class="checkbox-item"><input type="checkbox" class="menu-filter-cb" id="t5" value="고기"><label for="t5" class="checkbox-label">고기구이</label></div>
+                <div class="checkbox-item"><input type="checkbox" class="menu-filter-cb" id="t6" value="회"><label for="t6" class="checkbox-label">회/수산물</label></div>
+                <div class="checkbox-item"><input type="checkbox" class="menu-filter-cb" id="t7" value="치킨"><label for="t7" class="checkbox-label">치킨</label></div>
+                <div class="checkbox-item"><input type="checkbox" class="menu-filter-cb" id="t8" value="면"><label for="t8" class="checkbox-label">국수/면</label></div>
+                <div class="checkbox-item"><input type="checkbox" class="menu-filter-cb" id="t9" value="국밥"><label for="t9" class="checkbox-label">탕/국밥</label></div>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-submit" onclick="fetchRealRestaurants()">실시간 맛집 검색하기 🔍</button>
+
+    <div class="result-section" id="resultSection">
+        <div class="result-title">🎯 실시간 주변 검색 결과</div>
+        <div class="restaurant-list" id="restaurantContainer"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="mapModal">
+    <div class="modal">
+        <div class="modal-title" id="modalTargetName">식당 이름</div>
+        <div class="map-options">
+            <button class="map-btn kakao" onclick="openMapApp('kakao')">💛 카카오맵으로 길찾기</button>
+            <button class="map-btn naver" onclick="openMapApp('naver')">💚 네이버지도로 길찾기</button>
+        </div>
+        <button class="modal-close" onclick="closeMapModal()">닫기</button>
+    </div>
+</div>
+
+<script>
+    let userLat = null;
+    let userLng = null;
+    let selectedPlace = null;
+    let ps = null;
+
+    const emojiMap = { "한식": "🍚", "중식": "🐼", "일식": "🍣", "양식": "🍝", "고기": "🥩", "회": "🐟", "치킨": "🍗", "면": "🍜", "탕": "🍲", "국밥": "🍲", "카페": "☕", "기타": "🍴" };
+
+    // autoload=false 상태이므로 kakao.maps.load 콜백 내부에서 안전하게 객체를 생성합니다.
+    window.onload = function() {
+        if (typeof kakao !== 'undefined' && kakao.maps) {
+            kakao.maps.load(function() {
+                if (kakao.maps.services) {
+                    ps = new kakao.maps.services.Places();
+                } else {
+                    console.error("카카오 서비스 라이브러리가 로드되지 않았습니다.");
+                }
+            });
+        } else {
+            alert("카카오 지도 SDK 로드 실패! 카카오 개발자 센터에서 발급받은 'JavaScript 키'가 맞는지 확인하시고, [플랫폼] 설정에 현재 접속 중인 주소(도메인)를 등록해 주세요.");
+        }
+    }
+
+    function getGPSLocation() {
+        const statusText = document.getElementById('gpsStatusText');
+        if (navigator.geolocation) {
+            statusText.innerText = "GPS 수신 중...";
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    userLat = position.coords.latitude;
+                    userLng = position.coords.longitude;
+                    statusText.innerText = "수신 완료 ✔";
+                    statusText.style.color = "#12b886";
+                },
+                () => { statusText.innerText = "GPS 권한 필요"; statusText.style.color = "#fa5252"; }
+            );
+        } else { statusText.innerText = "GPS 미지원"; }
+    }
+
+    function changeRadiusValue(val) { document.getElementById('radiusText').innerText = val + 'm'; }
+
+    function onRandomToggle(target) {
+        document.querySelectorAll('.menu-filter-cb').forEach(cb => {
+            cb.checked = false;
+            cb.disabled = target.checked;
+        });
+    }
+
+    function fetchRealRestaurants() {
+        if (!ps) { 
+            alert("카카오 지도 서비스가 아직 준비되지 않았습니다. 카카오 개발자 센터 설정을 확인해 주시거나 잠시 후 다시 시도해 주세요."); 
+            return; 
+        }
+        if (!userLat || !userLng) { alert("위치 인증을 먼저 진행해 주세요."); return; }
+
+        const isRandom = document.getElementById('randomModeCheckbox').checked;
+        const radius = parseInt(document.getElementById('radiusRange').value);
+
+        let keywords = [];
+        if (!isRandom) {
+            document.querySelectorAll('.menu-filter-cb:checked').forEach(cb => keywords.push(cb.value));
+        }
+
+        let query = keywords.length > 0 ? keywords[Math.floor(Math.random() * keywords.length)] : "맛집"; 
+
+        const searchOptions = {
+            location: new kakao.maps.LatLng(userLat, userLng),
+            radius: radius,
+            category_group_code: 'FD6', 
+            sort: kakao.maps.services.SortBy.DISTANCE 
+        };
+
+        ps.keywordSearch(query, placesSearchCB, searchOptions);
+    }
+
+    function placesSearchCB(data, status, pagination) {
+        if (status === kakao.maps.services.Status.OK) {
+            renderRealList(data);
+        } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+            renderRealList([]); 
+        } else {
+            alert("맛집 데이터를 검색하는 도중 카카오 API 서버 오류가 발생했습니다.");
+        }
+    }
+
+    function renderRealList(places) {
+        const container = document.getElementById('restaurantContainer');
+        const section = document.getElementById('resultSection');
+        container.innerHTML = "";
+
+        if (!places || places.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:14px;">현재 설정된 반경 내에 해당하는 실시간 식당이 없습니다. 🥲</div>`;
+        } else {
+            places.forEach(place => {
+                let emoji = "✨";
+                for (let key in emojiMap) { 
+                    if (place.category_name.includes(key) || place.place_name.includes(key)) emoji = emojiMap[key]; 
+                }
+
+                const card = document.createElement('div');
+                card.className = "restaurant-card";
+                card.innerHTML = `
+                    <div class="restaurant-thumb">${emoji}</div>
+                    <div class="restaurant-info">
+                        <div>
+                            <div class="restaurant-name">${place.place_name}</div>
+                            <div class="restaurant-category">${place.category_name.split(' > ').pop() || "음식점"}</div>
+                        </div>
+                        <div class="restaurant-meta">
+                            <span class="distance">📍 ${place.distance}m</span>
+                            <button class="btn-map-trigger" onclick="selectPlaceForMap('${place.place_name}', '${place.x}', '${place.y}')">길찾기 🧭</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        section.style.display = "block";
+        section.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function selectPlaceForMap(name, x, y) {
+        selectedPlace = { name, x, y };
+        document.getElementById('modalTargetName').innerText = name;
+        document.getElementById('mapModal').style.display = "flex";
+    }
+
+    function closeMapModal() { document.getElementById('mapModal').style.display = "none"; }
+
+    function openMapApp(provider) {
+        if (!selectedPlace) return;
+        const { name, x, y } = selectedPlace;
+        let targetUrl = "";
+
+        if (provider === 'kakao') {
+            targetUrl = `https://map.kakao.com/link/to/${encodeURIComponent(name)},${y},${x}`;
+        } else if (provider === 'naver') {
+            targetUrl = `https://map.naver.com/v5/search/${encodeURIComponent(name)}`;
+        }
+
+        window.open(targetUrl, '_blank');
+        closeMapModal();
+    }
+</script>
+</body>
+</html>
