@@ -46,12 +46,16 @@
 
         .gps-block { display: flex; gap: 10px; margin-bottom: 16px; }
         .btn-gps { flex: 1; background: #4dabf7; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .btn-gps:disabled { background: #e9ecef; color: #adb5bd; cursor: not-allowed; }
         .gps-status { flex: 1.5; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; font-size: 13px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; text-align: center; }
 
-        .range-block { display: flex; align-items: center; gap: 12px; }
+        .range-block { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
         .range-slider { flex: 1; height: 6px; -webkit-appearance: none; background: #e9ecef; border-radius: 3px; outline: none; }
         .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--primary-color); cursor: pointer; }
         .range-value { font-size: 15px; font-weight: 700; color: var(--primary-color); min-width: 55px; text-align: right; }
+
+        /* 개인정보 안내 문구 스타일 */
+        .privacy-notice { font-size: 11px; color: var(--text-muted); line-height: 1.4; word-break: keep-all; }
 
         .checkbox-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .checkbox-item { position: relative; }
@@ -97,22 +101,23 @@
         <h3>🚨 카카오 지도 라이브러리 연동 차단됨</h3>
         <p style="font-size: 13px; margin-bottom: 10px; font-weight: bold;">도메인 설정을 마쳤는데도 이 창이 뜬다면 다음 수정을 진행하세요.</p>
         <ol>
-            <li>카카오 디벨로퍼스 ➡️ [플랫폼] ➡️ [Web] 메뉴에 등록한 주소의 오타를 확인하세요.<br>반드시 하위 경로를 전부 제외한 <code>https://본인아이디.github.io</code> 형태만 정확히 한 줄 들어가 있어야 합니다.</li>
+            <li>카카오 디벨로퍼스 ➡️ [플랫폼] ➡️ [Web] 메뉴에 등록한 주소의 오타를 확인하세요.<br>반드시 하위 경로를 전부 제외한 <code>https://본인아이디.github.io</code> 형태만 정확히 들어가 있어야 합니다.</li>
             <li>GitHub 배포가 완전히 끝날 때까지 최대 1~2분이 걸릴 수 있습니다.</li>
             <li>브라우저에 예전 에러 캐시가 남아있을 수 있으므로 <b>Ctrl + F5 (Mac은 Cmd + Shift + R)</b>를 눌러 강력 새로고침을 해주세요.</li>
         </ol>
     </div>
 
     <div class="card">
-        <div class="section-title">📍 내 주변 반경 설정</div>
+        <div class="section-title">📍 위치 및 반경 설정</div>
         <div class="gps-block">
-            <button class="btn-gps" onclick="getGPSLocation()">🎯 위치 인증</button>
-            <div class="gps-status" id="gpsStatusText">위치를 설정해 주세요</div>
+            <button class="btn-gps" id="gpsBtn" onclick="getGPSLocation()" disabled>🎯 위치 인증</button>
+            <div class="gps-status" id="gpsStatusText">자동 위치 파악 중...</div>
         </div>
         <div class="range-block">
-            <input type="range" class="range-slider" id="radiusRange" min="100" max="3000" step="100" value="500" oninput="changeRadiusValue(this.value)">
+            <input type="range" class="range-slider" id="radiusRange" min="100" max="1000" step="100" value="500" oninput="changeRadiusValue(this.value)">
             <span class="range-value" id="radiusText">500m</span>
         </div>
+        <div class="privacy-notice">💡 위치 정보는 현재 위치를 기준으로 검색하는 용도이며, 별도 수집하지 않습니다.</div>
     </div>
 
     <div class="card">
@@ -165,30 +170,45 @@
 
     const emojiMap = { "한식": "🍚", "중식": "🐼", "일식": "🍣", "양식": "🍝", "고기": "🥩", "회": "🐟", "치킨": "🍗", "면": "🍜", "탕": "🍲", "국밥": "🍲", "카페": "☕", "기타": "🍴" };
 
-    // 동기식 직접 호출 구조에 맞게 순치 초기화 실행
     window.onload = function() {
+        // 1. 카카오 지도 SDK 검증
         if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.services) {
             ps = new kakao.maps.services.Places();
             document.getElementById('sdkErrorBox').style.display = "none";
         } else {
             document.getElementById('sdkErrorBox').style.display = "block";
         }
+
+        // 2. 페이지 로드 시 즉시 자동 위치 설정 실행
+        getGPSLocation();
     }
 
+    // 위치 인증 자동 처리 및 조건부 버튼 제어 함수
     function getGPSLocation() {
         const statusText = document.getElementById('gpsStatusText');
+        const gpsBtn = document.getElementById('gpsBtn');
+        
         if (navigator.geolocation) {
-            statusText.innerText = "GPS 수신 중...";
             navigator.geolocation.getCurrentPosition(
                 position => {
+                    // 성공 시: 데이터 세팅 및 버튼 비활성화 유지
                     userLat = position.coords.latitude;
                     userLng = position.coords.longitude;
                     statusText.innerText = "수신 완료 ✔";
                     statusText.style.color = "#12b886";
+                    gpsBtn.disabled = true; // 인증 성공했으므로 버튼을 비활성화
                 },
-                () => { statusText.innerText = "GPS 권한 필요"; statusText.style.color = "#fa5252"; }
+                error => { 
+                    // 실패 시 (권한 없음, GPS 꺼짐 등): 버튼을 활성화시켜 수동 유도
+                    statusText.innerText = "위치 설정이 필요합니다"; 
+                    statusText.style.color = "#fa5252"; 
+                    gpsBtn.disabled = false; // 수동으로 누를 수 있도록 활성화
+                }
             );
-        } else { statusText.innerText = "GPS 미지원"; }
+        } else { 
+            statusText.innerText = "GPS 미지원 브라우저"; 
+            gpsBtn.disabled = false;
+        }
     }
 
     function changeRadiusValue(val) { document.getElementById('radiusText').innerText = val + 'm'; }
@@ -205,7 +225,7 @@
             alert("카카오 지도 SDK 보안 승인이 거부되었거나 로딩 중입니다. 상단 안내판의 조치법을 적용해 주세요."); 
             return; 
         }
-        if (!userLat || !userLng) { alert("위치 인증을 먼저 진행해 주세요."); return; }
+        if (!userLat || !userLng) { alert("위치 권한을 허용하거나 위치 인증 버튼을 눌러주세요."); return; }
 
         const isRandom = document.getElementById('randomModeCheckbox').checked;
         const radius = parseInt(document.getElementById('radiusRange').value);
