@@ -42,19 +42,25 @@
         .error-guide-box code { background: #ffe3e3; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-weight: bold; color: #c92a2a; }
 
         .card { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); margin-bottom: 16px; border: 1px solid var(--border-color); }
-        .section-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: #343a40; }
+        
+        /* 제목과 재인증 버튼 수평 정렬 구조 */
+        .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .section-title { font-size: 15px; font-weight: 700; color: #343a40; }
+        
+        /* 소형 재인증 버튼 스타일 */
+        .btn-reauth { background: #f1f3f5; border: 1px solid #ced4da; color: #495057; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px; }
+        .btn-reauth:active { background: #e9ecef; }
 
-        .gps-block { display: flex; gap: 10px; margin-bottom: 16px; }
-        .btn-gps { flex: 1; background: #4dabf7; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
-        .btn-gps:disabled { background: #e9ecef; color: #adb5bd; cursor: not-allowed; }
-        .gps-status { flex: 1.5; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; font-size: 13px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; text-align: center; }
+        /* 한 줄 형태의 대형 GPS 버튼 스타일 */
+        .gps-block { margin-bottom: 16px; }
+        .btn-gps { width: 100%; background: #4dabf7; color: white; border: none; padding: 13px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+        .btn-gps:disabled { background: #e9ecef; color: #adb5bd; cursor: not-allowed; font-weight: 600; }
 
         .range-block { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
         .range-slider { flex: 1; height: 6px; -webkit-appearance: none; background: #e9ecef; border-radius: 3px; outline: none; }
         .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--primary-color); cursor: pointer; }
         .range-value { font-size: 15px; font-weight: 700; color: var(--primary-color); min-width: 55px; text-align: right; }
 
-        /* 개인정보 안내 문구 스타일 */
         .privacy-notice { font-size: 11px; color: var(--text-muted); line-height: 1.4; word-break: keep-all; }
 
         .checkbox-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -108,11 +114,15 @@
     </div>
 
     <div class="card">
-        <div class="section-title">📍 위치 및 반경 설정</div>
-        <div class="gps-block">
-            <button class="btn-gps" id="gpsBtn" onclick="getGPSLocation()" disabled>🎯 위치 인증</button>
-            <div class="gps-status" id="gpsStatusText">자동 위치 파악 중...</div>
+        <div class="card-header-flex">
+            <div class="section-title">📍 위치 및 반경 설정</div>
+            <button class="btn-reauth" onclick="triggerReauth()">🔄 재인증</button>
         </div>
+        
+        <div class="gps-block">
+            <button class="btn-gps" id="gpsBtn" onclick="getGPSLocation()">자동 위치 파악 중...</button>
+        </div>
+        
         <div class="range-block">
             <input type="range" class="range-slider" id="radiusRange" min="100" max="1000" step="100" value="500" oninput="changeRadiusValue(this.value)">
             <span class="range-value" id="radiusText">500m</span>
@@ -171,7 +181,6 @@
     const emojiMap = { "한식": "🍚", "중식": "🐼", "일식": "🍣", "양식": "🍝", "고기": "🥩", "회": "🐟", "치킨": "🍗", "면": "🍜", "탕": "🍲", "국밥": "🍲", "카페": "☕", "기타": "🍴" };
 
     window.onload = function() {
-        // 1. 카카오 지도 SDK 검증
         if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.services) {
             ps = new kakao.maps.services.Places();
             document.getElementById('sdkErrorBox').style.display = "none";
@@ -179,36 +188,52 @@
             document.getElementById('sdkErrorBox').style.display = "block";
         }
 
-        // 2. 페이지 로드 시 즉시 자동 위치 설정 실행
+        // 구동 시작 시 즉각 자동 위치 추적 요청
         getGPSLocation();
     }
 
-    // 위치 인증 자동 처리 및 조건부 버튼 제어 함수
+    // 메인 GPS 핸들링 메커니즘 함수
     function getGPSLocation() {
-        const statusText = document.getElementById('gpsStatusText');
         const gpsBtn = document.getElementById('gpsBtn');
         
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 position => {
-                    // 성공 시: 데이터 세팅 및 버튼 비활성화 유지
                     userLat = position.coords.latitude;
                     userLng = position.coords.longitude;
-                    statusText.innerText = "수신 완료 ✔";
-                    statusText.style.color = "#12b886";
-                    gpsBtn.disabled = true; // 인증 성공했으므로 버튼을 비활성화
+                    
+                    // 인증 성공 상태 UI 바인딩
+                    gpsBtn.innerText = "✓ 인증 완료";
+                    gpsBtn.style.background = "#e9ecef";
+                    gpsBtn.style.color = "#12b886";
+                    gpsBtn.disabled = true; 
                 },
                 error => { 
-                    // 실패 시 (권한 없음, GPS 꺼짐 등): 버튼을 활성화시켜 수동 유도
-                    statusText.innerText = "위치 설정이 필요합니다"; 
-                    statusText.style.color = "#fa5252"; 
-                    gpsBtn.disabled = false; // 수동으로 누를 수 있도록 활성화
+                    // 실패 및 차단 시 수동 유도 처리
+                    gpsBtn.innerText = "🎯 위치 인증하기"; 
+                    gpsBtn.style.background = "#ff6b6b";
+                    gpsBtn.style.color = "white";
+                    gpsBtn.disabled = false; 
                 }
             );
         } else { 
-            statusText.innerText = "GPS 미지원 브라우저"; 
+            gpsBtn.innerText = "GPS 미지원 브라우저"; 
             gpsBtn.disabled = false;
         }
+    }
+
+    // 언제든 다시 인증을 시도할 수 있도록 초기화하는 수동 트리거
+    function triggerReauth() {
+        const gpsBtn = document.getElementById('gpsBtn');
+        userLat = null;
+        userLng = null;
+        
+        gpsBtn.innerText = "다시 위치 파악 중...";
+        gpsBtn.style.background = "#4dabf7";
+        gpsBtn.style.color = "white";
+        gpsBtn.disabled = true;
+        
+        setTimeout(getGPSLocation, 400); // 사용자 시각적 인지를 위한 미세 딜레이 부여
     }
 
     function changeRadiusValue(val) { document.getElementById('radiusText').innerText = val + 'm'; }
@@ -225,7 +250,7 @@
             alert("카카오 지도 SDK 보안 승인이 거부되었거나 로딩 중입니다. 상단 안내판의 조치법을 적용해 주세요."); 
             return; 
         }
-        if (!userLat || !userLng) { alert("위치 권한을 허용하거나 위치 인증 버튼을 눌러주세요."); return; }
+        if (!userLat || !userLng) { alert("위치 권한을 승인하거나 위치 인증을 완료해 주세요."); return; }
 
         const isRandom = document.getElementById('randomModeCheckbox').checked;
         const radius = parseInt(document.getElementById('radiusRange').value);
@@ -253,7 +278,7 @@
         } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
             renderRealList([]); 
         } else {
-            alert("카카오 키워드 검색 서버 API 오류가 발생했습니다.");
+            alert("카카오 서버 통신 오류가 발생했습니다.");
         }
     }
 
