@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>오늘 뭐 먹지? | 실시간 주변 맛집 추천</title>
     
-    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=566c59003be0a7db1292fbbc43b0fad0&libraries=services&autoload=false"></script>
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=12a76b0f14a2b809f8d3f3a17b03dbbe&libraries=services&autoload=false"></script>
     
     <style>
         :root {
@@ -139,7 +139,6 @@
 
     const emojiMap = { "한식": "🍚", "중식": "🐼", "일식": "🍣", "양식": "🍝", "고기": "🥩", "회": "🐟", "치킨": "🍗", "면": "🍜", "탕": "🍲", "국밥": "🍲", "카페": "☕", "기타": "🍴" };
 
-    // autoload=false 상태이므로 kakao.maps.load 콜백 내부에서 안전하게 객체를 생성합니다.
     window.onload = function() {
         if (typeof kakao !== 'undefined' && kakao.maps) {
             kakao.maps.load(function() {
@@ -150,7 +149,7 @@
                 }
             });
         } else {
-            alert("카카오 지도 SDK 로드 실패! 카카오 개발자 센터에서 발급받은 'JavaScript 키'가 맞는지 확인하시고, [플랫폼] 설정에 현재 접속 중인 주소(도메인)를 등록해 주세요.");
+            alert("카카오 지도 SDK 로드 실패! 'JavaScript 키'가 정확한지, 그리고 카카오 개발자 플랫폼 내 [웹 도메인 설정]에 현재 접속한 주소가 들어있는지 반드시 확인해 주세요.");
         }
     }
 
@@ -181,7 +180,7 @@
 
     function fetchRealRestaurants() {
         if (!ps) { 
-            alert("카카오 지도 서비스가 아직 준비되지 않았습니다. 카카오 개발자 센터 설정을 확인해 주시거나 잠시 후 다시 시도해 주세요."); 
+            alert("카카오 지도 서비스가 아직 준지되지 않았습니다. 잠시 후 다시 시도해 주세요."); 
             return; 
         }
         if (!userLat || !userLng) { alert("위치 인증을 먼저 진행해 주세요."); return; }
