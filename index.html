@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>점심 메뉴 레이드 (Lunch Raid)</title>
+    <title>오늘 뭐 먹지? | 큐티 런치 크루</title>
     
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=566c59003be0a7db1292fbbc43b0fad0&libraries=services&autoload=false"></script>
     
     <style>
         :root {
-            --bg-dark: #121318;
-            --card-dark: #1c1d24;
-            --border-game: #343746;
-            --primary-neon: #ff4757;
-            --secondary-neon: #2ed573;
-            --mana-blue: #1e90ff;
-            --gold-color: #ffa500;
-            --text-light: #f1f2f6;
-            --text-muted: #747d8c;
+            --bg-sweet: #f9f8f6;
+            --card-white: #ffffff;
+            --text-main: #4a4a4a;
+            --text-muted: #a0a0a0;
+            --primary-pink: #ff8b94;
+            --secondary-mint: #a8e6cf;
+            --creamy-yellow: #ffd3b6;
+            --sky-blue: #dcedc1;
+            --cookie-brown: #8b5a2b;
         }
 
         * { 
@@ -28,110 +28,111 @@
             -webkit-tap-highlight-color: transparent; 
         }
         
-        body { background-color: var(--bg-dark); color: var(--text-light); padding-bottom: 40px; }
+        body { background-color: var(--bg-sweet); color: var(--text-main); padding-bottom: 40px; }
         
         .container { max-width: 500px; margin: 0 auto; padding: 20px 16px; }
 
-        /* 상단 타이틀 배너 */
-        .game-header { text-align: center; margin-bottom: 24px; padding: 15px 0; border-bottom: 2px dashed var(--border-game); }
-        .game-title { font-size: 24px; font-weight: 900; color: var(--primary-neon); text-shadow: 0 0 10px rgba(255, 71, 87, 0.5); letter-spacing: 1px; }
-        .game-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: bold; }
+        /* 아기자기한 상단 헤더 */
+        .cute-header { text-align: center; margin-bottom: 24px; padding: 10px 0; }
+        .cute-title { font-size: 26px; font-weight: 900; color: #ff6b81; letter-spacing: -0.5px; display: inline-block; position: relative; }
+        .cute-title::after { content: ''; display: block; width: 100%; height: 8px; background: var(--creamy-yellow); position: absolute; bottom: 2px; left: 0; z-index: -1; border-radius: 4px; }
+        .cute-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 6px; font-weight: bold; }
 
-        /* 게임 카드 스타일 */
-        .game-card { background: var(--card-dark); border: 2px solid var(--border-game); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+        /* 동글동글 폭신한 카드 */
+        .cute-card { background: var(--card-white); border: 3px solid #f0ede9; border-radius: 24px; padding: 20px; margin-bottom: 16px; box-shadow: 0 8px 0px #ebdcd0; }
         .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .section-title { font-size: 15px; font-weight: 800; color: var(--gold-color); display: flex; align-items: center; gap: 6px; }
+        .section-title { font-size: 16px; font-weight: 800; color: #ff6b81; display: flex; align-items: center; gap: 6px; }
 
-        .btn-reauth { background: #2f3542; border: 1px solid var(--border-game); color: var(--text-light); padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
-        .btn-reauth:active { background: #57606f; }
+        .btn-reauth { background: #f5f0eb; border: none; color: var(--text-main); padding: 6px 12px; border-radius: 14px; font-size: 11px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 0 #d9cfc7; }
+        .btn-reauth:active { transform: translateY(2px); box-shadow: none; }
 
-        .btn-gps { width: 100%; background: #2f3542; color: var(--text-light); border: 1px dashed var(--mana-blue); padding: 13px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; }
-        .btn-gps:disabled { border: 1px solid var(--secondary-neon); color: var(--secondary-neon); background: rgba(46, 213, 115, 0.05); cursor: not-allowed; }
+        .btn-gps { width: 100%; background: #e3faf2; color: #20c997; border: 2px dashed #96e9c6; padding: 13px; border-radius: 18px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .btn-gps:disabled { border: 2px solid #20c997; color: white; background: #20c997; cursor: not-allowed; }
 
-        /* 반경 다이얼 게이지 스타일 */
+        /* 말랑말랑한 슬라이더 */
         .range-container { margin-top: 14px; width: 100%; }
-        .range-slider { width: 100%; height: 8px; -webkit-appearance: none; background: #2f3542; border-radius: 4px; outline: none; }
-        .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--gold-color); cursor: pointer; box-shadow: 0 0 8px var(--gold-color); }
+        .range-slider { width: 100%; height: 10px; -webkit-appearance: none; background: #eeded1; border-radius: 5px; outline: none; }
+        .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #ff6b81; cursor: pointer; border: 3px solid white; box-shadow: 0 3px 0px #e05266; }
         .range-ticks { display: flex; justify-content: space-between; margin-top: 8px; padding: 0 10px; }
         .tick-label { font-size: 11px; color: var(--text-muted); font-weight: bold; }
-        .tick-item.active .tick-label { color: var(--gold-color); }
+        .tick-item.active .tick-label { color: #ff6b81; font-weight: 900; }
 
-        .privacy-notice { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-top: 14px; text-align: center; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
-        .privacy-notice .addr-highlight { color: var(--mana-blue); font-weight: 700; }
+        .privacy-notice { font-size: 12px; color: #7f8c8d; line-height: 1.5; margin-top: 14px; text-align: center; background: #fdfaf7; padding: 10px; border-radius: 14px; border: 1px dashed #e6dbd0; }
+        .privacy-notice .addr-highlight { color: #3498db; font-weight: 800; }
 
-        /* 인챈트 마법 슬롯 시스템 UI */
-        .slot-group-title { font-size: 12px; color: var(--text-muted); margin: 12px 0 6px 0; font-weight: bold; display: flex; align-items: center; gap: 4px; }
+        /* 레시피 재료 믹스 (필터 슬롯) */
+        .slot-group-title { font-size: 12px; color: #95a5a6; margin: 14px 0 6px 0; font-weight: bold; }
         .checkbox-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .checkbox-item input { position: absolute; opacity: 0; width: 0; height: 0; }
-        .checkbox-label { display: block; text-align: center; background: #23252f; border: 1px solid var(--border-game); padding: 10px 4px; border-radius: 10px; font-size: 12px; font-weight: bold; color: var(--text-light); cursor: pointer; transition: all 0.15s; }
-        .checkbox-item input:checked + .checkbox-label { background: rgba(30, 144, 255, 0.15); color: var(--mana-blue); border: 1px solid var(--mana-blue); box-shadow: 0 0 8px rgba(30, 144, 255, 0.3); }
-        .checkbox-item input:disabled + .checkbox-label { background: #17181c; color: #404454; border-color: #23252f; cursor: not-allowed; }
+        .checkbox-label { display: block; text-align: center; background: #faf9f7; border: 2px solid #eeded1; padding: 11px 4px; border-radius: 16px; font-size: 13px; font-weight: bold; color: var(--text-main); cursor: pointer; transition: all 0.15s; box-shadow: 0 3px 0 #eeded1; }
+        .checkbox-item input:checked + .checkbox-label { background: #fff0f2; color: #ff6b81; border-color: #ff6b81; box-shadow: 0 3px 0 #ff6b81; transform: translateY(-1px); }
+        .checkbox-item input:disabled + .checkbox-label { background: #f1ede9; color: #c8bfb7; border-color: #e5ded8; box-shadow: none; cursor: not-allowed; }
 
-        /* 싱글 모드: 랜덤 디펜스 스위치 & 단검 카운터 */
-        .random-container { background: #23252f; border: 1px solid var(--border-game); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+        /* 런치 뽑기 모드 스위치 */
+        .random-container { background: #fffdf9; border: 2px solid #ffd3b6; border-radius: 18px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 0 #ffe3d1; }
         .random-info-box { display: flex; flex-direction: column; }
-        .random-toggle-btn { background: var(--border-game); border: 2px solid var(--border-game); color: var(--text-muted); padding: 10px 16px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; }
-        .random-toggle-btn.active { background: rgba(255, 71, 87, 0.15); border-color: var(--primary-neon); color: var(--primary-neon); box-shadow: 0 0 10px rgba(255, 71, 87, 0.2); }
-        .dagger-counter { font-size: 12px; color: var(--gold-color); font-weight: bold; margin-top: 3px; display: flex; align-items: center; gap: 3px; }
+        .random-toggle-btn { background: #f5f0eb; border: none; color: var(--text-main); padding: 10px 16px; border-radius: 14px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 3px 0 #d9cfc7; }
+        .random-toggle-btn.active { background: #ff6b81; color: white; box-shadow: 0 3px 0 #e05266; }
+        .dagger-counter { font-size: 12px; color: #e67e22; font-weight: bold; margin-top: 3px; display: flex; align-items: center; gap: 3px; }
 
-        /* 주문 캐스팅 시전 연출 바 */
+        /* 맛있게 섞는 중 로딩 연출 */
         .casting-box { display: none; text-align: center; padding: 20px 0; }
-        .casting-text { font-size: 14px; font-weight: bold; color: var(--mana-blue); margin-bottom: 10px; animation: blink 1s infinite; }
-        .casting-bar-bg { width: 100%; height: 8px; background: #2f3542; border-radius: 4px; overflow: hidden; border: 1px solid var(--border-game); }
-        .casting-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--mana-blue), var(--primary-neon)); border-radius: 4px; transition: width 1.2s linear; }
+        .casting-text { font-size: 14px; font-weight: bold; color: #ff6b81; margin-bottom: 10px; animation: bounce 0.6s infinite alternate; }
+        .casting-bar-bg { width: 100%; height: 12px; background: #eeded1; border-radius: 6px; overflow: hidden; pading: 2px; }
+        .casting-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #ffd3b6, #ff8b94); border-radius: 6px; transition: width 1.2s linear; }
 
-        /* 최종 주문 실행 (레이드 시작) 버튼 */
-        .btn-submit { width: 100%; background: linear-gradient(135deg, var(--primary-neon), #ff6b81); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 17px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4); letter-spacing: 1px; }
-        .btn-submit:active { transform: scale(0.98); }
+        /* 탐색 시작 버튼 */
+        .btn-submit { width: 100%; background: linear-gradient(135deg, #ff6b81, #ff8b94); color: white; border: none; padding: 16px; border-radius: 20px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 0px #e05266; letter-spacing: -0.5px; }
+        .btn-submit:active { transform: translateY(4px); box-shadow: 0 2px 0px #e05266; }
 
-        /* 레이드 결과 보스 몬스터 카드 구역 */
+        /* 결과 리스트 쿠키 스타일 */
         .result-section { margin-top: 24px; display: none; }
-        .result-title { font-size: 16px; font-weight: 800; margin-bottom: 12px; color: var(--secondary-neon); display: flex; align-items: center; gap: 6px; }
-        .restaurant-list { display: flex; flex-direction: column; gap: 12px; }
-        .restaurant-card { background: var(--card-dark); border: 2px solid var(--border-game); border-radius: 14px; padding: 14px; display: flex; gap: 12px; position: relative; overflow: hidden; }
-        .restaurant-card::before { content: 'BOSS'; position: absolute; top: 0; left: 0; background: var(--primary-neon); color: white; font-size: 9px; font-weight: 900; padding: 2px 6px 4px 6px; border-bottom-right-radius: 8px; letter-spacing: 0.5px; }
+        .result-title { font-size: 16px; font-weight: 900; margin-bottom: 12px; color: #ff6b81; display: flex; align-items: center; gap: 4px; }
+        .restaurant-list { display: flex; flex-direction: column; gap: 14px; }
+        .restaurant-card { background: var(--card-white); border: 3px solid #f0ede9; border-radius: 20px; padding: 14px; display: flex; gap: 12px; position: relative; box-shadow: 0 6px 0 #ebdcd0; }
+        .restaurant-card::before { content: 'TODAY'; position: absolute; top: 0; left: 0; background: #ffd3b6; color: #d35400; font-size: 10px; font-weight: 900; padding: 3px 8px 4px 8px; border-bottom-right-radius: 12px; }
         
-        .restaurant-thumb { width: 70px; height: 70px; border-radius: 10px; background: #23252f; border: 1px solid var(--border-game); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
-        .restaurant-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; padding-top: 4px; }
-        .restaurant-name { font-size: 15px; font-weight: 800; color: var(--text-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .restaurant-category { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-        .restaurant-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
-        .distance { font-size: 12px; color: var(--primary-neon); font-weight: bold; }
-        .btn-map-trigger { background: #2f3542; border: 1px solid var(--border-game); color: var(--text-light); padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .restaurant-thumb { width: 66px; height: 66px; border-radius: 16px; background: #fffdfa; border: 2px solid #eeded1; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+        .restaurant-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; padding-top: 6px; }
+        .restaurant-name { font-size: 16px; font-weight: 900; color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .restaurant-category { font-size: 12px; color: var(--text-muted); font-weight: bold; margin-top: 1px; }
+        .restaurant-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+        .distance { font-size: 12px; color: #ff6b81; font-weight: 900; }
+        .btn-map-trigger { background: #fff0f2; border: 1px solid #ffccd3; color: #ff6b81; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: bold; cursor: pointer; }
 
-        /* 모달 팝업 */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; backdrop-filter: blur(2px); }
-        .modal { background: var(--card-dark); border: 2px solid var(--border-game); width: 100%; max-width: 340px; border-radius: 16px; padding: 20px; text-align: center; }
-        .modal-title { font-size: 15px; font-weight: 800; margin-bottom: 20px; color: var(--gold-color); }
+        /* 포탈 모달 팝업 */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; backdrop-filter: blur(2px); }
+        .modal { background: var(--card-white); border: 3px solid #f0ede9; width: 100%; max-width: 340px; border-radius: 24px; padding: 22px; text-align: center; box-shadow: 0 8px 0px rgba(0,0,0,0.1); }
+        .modal-title { font-size: 16px; font-weight: 900; margin-bottom: 20px; color: var(--text-main); }
         .map-options { display: flex; flex-direction: column; gap: 10px; }
-        .map-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .map-btn.kakao { background-color: var(--kakao-color); color: #3c1e1e; background: #fee500; }
-        .map-btn.naver { background-color: var(--naver-color); color: white; background: #03c75a; }
-        .modal-close { background: none; border: none; color: var(--text-muted); margin-top: 14px; cursor: pointer; text-decoration: underline; font-size: 12px; }
+        .map-btn { width: 100%; padding: 14px; border: none; border-radius: 16px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
+        .map-btn.kakao { background-color: #fee500; color: #3c1e1e; box-shadow: 0 4px 0 #ebd100; }
+        .map-btn.naver { background-color: #03c75a; color: white; box-shadow: 0 4px 0 #02a64a; }
+        .modal-close { background: none; border: none; color: var(--text-muted); margin-top: 16px; cursor: pointer; text-decoration: underline; font-size: 12px; font-weight: bold; }
 
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-4px); } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="game-header">
-        <div class="game-title">⚔️ LUNCH RAID</div>
-        <div class="game-subtitle">오늘의 점심 메뉴 보스를 처치하라!</div>
+    <div class="cute-header">
+        <div class="cute-title">🍳 런치 크루 믹스!</div>
+        <div class="cute-subtitle">매일 고통받는 점심 일상에 상큼한 구원 투수!</div>
     </div>
 
-    <div id="sdkErrorBox" style="display:none; background:#572222; border:1px solid var(--primary-neon); padding:15px; border-radius:12px; margin-bottom:15px; font-size:12px; color:#ff8787;">
-        ⚠️ 카카오 지도 SDK 로드 실패. 도메인 보안 설정 및 서버 환경(Live Server 등)을 점검하세요.
+    <div id="sdkErrorBox" style="display:none; background:#ffe3e3; border:2px solid #ffb3b3; padding:15px; border-radius:16px; margin-bottom:15px; font-size:12px; color:#c92a2a; font-weight:bold; text-align:center;">
+        ⚠️ 카카오 지도 인증에 실패했어요. 도메인 설정 주소를 다시 체크해주세요!
     </div>
 
-    <div class="game-card">
+    <div class="cute-card">
         <div class="card-header-flex">
-            <div class="section-title">🧭 레이드 반경 설정</div>
-            <button class="btn-reauth" onclick="triggerReauth()">🔄 좌표 재동기화</button>
+            <div class="section-title">📍 레이더 범위 정하기</div>
+            <button class="btn-reauth" onclick="triggerReauth()">🔄 위치 재동기화</button>
         </div>
         
         <div class="gps-block">
-            <button class="btn-gps" id="gpsBtn" onclick="getGPSLocation()">레이더 가동: 현위치 검색 중...</button>
+            <button class="btn-gps" id="gpsBtn" onclick="getGPSLocation()">슝슝 위성 안테나 가동 중...</button>
         </div>
         
         <div class="range-container">
@@ -148,21 +149,21 @@
         <div class="privacy-notice" id="privacyNoticeBox">💡 위치 정보는 수집하지 않아요.</div>
     </div>
 
-    <div class="game-card">
+    <div class="cute-card">
         <div class="card-header-flex" style="margin-bottom: 8px;">
-            <div class="section-title">🔮 주문 조합 (인챈트 시스템)</div>
+            <div class="section-title">🎨 비밀 레시피 조합하기</div>
         </div>
 
         <div class="random-container">
             <div class="random-info-box">
-                <span style="font-size:13px; font-weight:cbd; font-weight: bold;">🎲 오늘 뭐 먹지? 랜덤 디펜스</span>
-                <span class="dagger-counter" id="daggerCounter">⚔️ 리롤 단검 내구도: 3 / 3</span>
+                <span style="font-size:14px; font-weight: 900; color:#d35400;">🎰 런치 캡슐 뽑기 (랜덤 디펜스)</span>
+                <span class="dagger-counter" id="daggerCounter">❤️ 하트 토큰 기회: 3 / 3</span>
             </div>
-            <button class="random-toggle-btn" id="randomToggleBtn" onclick="toggleRandomMode()">오프라인</button>
+            <button class="random-toggle-btn" id="randomToggleBtn" onclick="toggleRandomMode()">OFF</button>
         </div>
 
         <div id="filterMatrixGroup">
-            <div class="slot-group-title">🥢 핵심 메뉴 원소 (음식 종류)</div>
+            <div class="slot-group-title">🥦 무슨 원소를 넣어볼까요? (음식 종류)</div>
             <div class="checkbox-grid">
                 <div class="checkbox-item"><input type="checkbox" class="menu-filter-cb" id="t1" value="한식"><label for="t1" class="checkbox-label">한식</label></div>
                 <div class="checkbox-item"><input type="checkbox" class="menu-filter-cb" id="t2" value="중식"><label for="t2" class="checkbox-label">중식</label></div>
@@ -172,7 +173,7 @@
                 <div class="checkbox-item"><input type="checkbox" class="menu-filter-cb" id="t6" value="회"><label for="t6" class="checkbox-label">회/수산</label></div>
             </div>
 
-            <div class="slot-group-title">🔥 자극 속성 (맛 필터)</div>
+            <div class="slot-group-title">🔥 냠냠 스파이스 (맛 취향 필터)</div>
             <div class="checkbox-grid">
                 <div class="checkbox-item"><input type="checkbox" class="menu-filter-cb" id="m1" value="매운"><label for="m1" class="checkbox-label">🌶️ 매콤함</label></div>
                 <div class="checkbox-item"><input type="checkbox" class="menu-filter-cb" id="m2" value="국물"><label for="m2" class="checkbox-label">🍲 국물요리</label></div>
@@ -182,14 +183,14 @@
     </div>
 
     <div class="casting-box" id="castingBox">
-        <div class="casting-text" id="castingText">주문 마법 시전 중... 던전을 탐색합니다!</div>
+        <div class="casting-text" id="castingText">레시피를 맛있게 믹스하는 중... 냠냠!</div>
         <div class="casting-bar-bg"><div class="casting-bar-fill" id="castingBarFill"></div></div>
     </div>
 
-    <button class="btn-submit" id="submitBtn" onclick="startRaidCasting()">레이드 공격 개시! ⚔️</button>
+    <button class="btn-submit" id="submitBtn" onclick="startRaidCasting()">오늘의 맛집 서칭 개시! ✨</button>
 
     <div class="result-section" id="resultSection">
-        <div class="result-title">👾 탐색된 점심 보스 몬스터 명단</div>
+        <div class="result-title">🎉 오늘의 런치 크루 후보 완성!</div>
         <div class="restaurant-list" id="restaurantContainer"></div>
     </div>
 </div>
@@ -198,10 +199,10 @@
     <div class="modal">
         <div class="modal-title" id="modalTargetName">식당 이름</div>
         <div class="map-options">
-            <button class="map-btn kakao" onclick="openMapApp('kakao')">💛 카카오 포탈 열기 (길찾기)</button>
-            <button class="map-btn naver" onclick="openMapApp('naver')">💚 네이버 포탈 열기 (길찾기)</button>
+            <button class="map-btn kakao" onclick="openMapApp('kakao')">💛 카카오맵 지도로 볼래요</button>
+            <button class="map-btn naver" onclick="openMapApp('naver')">💚 네이버지도로 볼래요</button>
         </div>
-        <button class="modal-close" onclick="closeMapModal()">포탈 해제</button>
+        <button class="modal-close" onclick="closeMapModal()">닫을래요</button>
     </div>
 </div>
 
@@ -213,7 +214,7 @@
     let geocoder = null;
     
     let isRandomMode = false;
-    let rerollDaggers = 3; // 리롤 단검 기회 제한 카운터
+    let rerollDaggers = 3; 
 
     const emojiMap = { "한식": "🍚", "중식": "🐼", "일식": "🍣", "양식": "🍝", "고기": "🥩", "회": "🐟", "치킨": "🍗", "면": "🍜", "탕": "🍲", "국밥": "🍲", "카페": "☕", "기타": "🍴" };
 
@@ -239,21 +240,19 @@
                     userLat = position.coords.latitude;
                     userLng = position.coords.longitude;
                     
-                    gpsBtn.innerText = "✓ 레이더 위성 동기화 완료";
-                    gpsBtn.style.border = "1px solid var(--secondary-neon)";
-                    gpsBtn.style.color = var(--secondary-neon);
+                    gpsBtn.innerText = "✓ 안테나 연결 완료!";
                     gpsBtn.disabled = true; 
 
                     convertCoordsToAddr(userLng, userLat);
                 },
                 error => { 
-                    gpsBtn.innerText = "📡 레이더 가동하기 (위치 인증)"; 
+                    gpsBtn.innerText = "📡 내 위치 안테나 켜기 (인증)"; 
                     gpsBtn.disabled = false; 
                     noticeBox.innerHTML = "💡 위치 정보는 수집하지 않아요.";
                 }
             );
         } else { 
-            gpsBtn.innerText = "GPS 미지원 디바이스"; 
+            gpsBtn.innerText = "GPS 미지원 기기에요 🥲"; 
         }
     }
 
@@ -276,9 +275,7 @@
         userLat = null;
         userLng = null;
         
-        gpsBtn.innerText = "레이더 재부팅 중...";
-        gpsBtn.style.border = "1px dashed var(--mana-blue)";
-        gpsBtn.style.color = var(--text-light);
+        gpsBtn.innerText = "안테나 리셋하는 중...";
         gpsBtn.disabled = true;
         
         setTimeout(getGPSLocation, 400);
@@ -290,47 +287,43 @@
         if (targetTick) targetTick.classList.add('active');
     }
 
-    // 랜덤 디펜스 스위치 제어 함수
     function toggleRandomMode() {
         const btn = document.getElementById('randomToggleBtn');
         isRandomMode = !isRandomMode;
 
         if (isRandomMode) {
-            btn.innerText = "온라인 (활성)";
+            btn.innerText = "ON";
             btn.classList.add('active');
-            // 인챈트 슬롯 비활성화 연출
             document.querySelectorAll('.menu-filter-cb').forEach(cb => {
                 cb.checked = false;
                 cb.disabled = true;
             });
         } else {
-            btn.innerText = "오프라인";
+            btn.innerText = "OFF";
             btn.classList.remove('active');
             document.querySelectorAll('.menu-filter-cb').forEach(cb => cb.disabled = false);
         }
     }
 
-    // 마법 시전(로딩 게이지) 애니메이션 연출 트리거
     function startRaidCasting() {
         if (!userLat || !userLng) { 
-            alert("좌표 동기화(위치 인증)가 필요합니다."); 
+            alert("위치 좌표 연동이 필요해요!"); 
             return; 
         }
 
         const radius = parseInt(document.getElementById('radiusRange').value);
         if (radius === 0) {
-            alert("탐색 반경을 최소 200m 이상 확장하세요!");
+            alert("검색 범위를 200m 이상으로 늘려주세요!");
             return;
         }
 
-        // 랜덤 디펜스 모드일 때 단검 카운터 차감 체크
         if (isRandomMode) {
             if (rerollDaggers <= 0) {
-                alert("⚔️ 리롤 단검의 내구도가 바닥났습니다! 더 이상 무작위 디펜스를 진행할 수 없습니다.");
+                alert("💔 하트 토큰을 모두 다 썼어요! 내일 다시 도전해 주세요.");
                 return;
             }
             rerollDaggers--;
-            document.getElementById('daggerCounter').innerText = `⚔️ 리롤 단검 내구도: ${rerollDaggers} / 3`;
+            document.getElementById('daggerCounter').innerText = `❤️ 하트 토큰 기회: ${rerollDaggers} / 3`;
         }
 
         const submitBtn = document.getElementById('submitBtn');
@@ -344,13 +337,12 @@
         castingBox.style.display = "block";
         castingBarFill.style.width = "0%";
         
-        castingText.innerText = isRandomMode ? "🎲 랜덤 주사위 굴리는 중... 보스를 추첨합니다!" : "🔮 슬롯 속성 조합 중... 주문 마법 시전!";
+        castingText.innerText = isRandomMode ? "🎰 랜덤 런치 박스를 오픈하는 중이에요!" : "🍳 선택하신 맛 원소들을 맛있게 섞는 중 이에요!";
 
         setTimeout(() => {
             castingBarFill.style.width = "100%";
         }, 50);
 
-        // 1.2초 캐스팅 연출 완료 후 실행
         setTimeout(() => {
             castingBox.style.display = "none";
             submitBtn.style.display = "block";
@@ -366,7 +358,6 @@
             document.querySelectorAll('.menu-filter-cb:checked').forEach(cb => keywords.push(cb.value));
         }
 
-        // 교집합 연산 대용: 선택한 여러 키워드 조합 또는 디폴트 보스 키워드 추출
         let query = keywords.length > 0 ? keywords.join(" ") : "음식점"; 
 
         const searchOptions = {
@@ -381,7 +372,6 @@
 
     function placesSearchCB(data, status, pagination) {
         if (status === kakao.maps.services.Status.OK) {
-            // 랜덤 디펜스 모드인 경우 획득한 리스트 중 보스 단 1마리만 랜덤 매칭하여 강제 지정
             if (isRandomMode && data.length > 0) {
                 const randomBoss = data[Math.floor(Math.random() * data.length)];
                 renderRealList([randomBoss]);
@@ -391,7 +381,7 @@
         } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
             renderRealList([]); 
         } else {
-            alert("카카오 던전 서버와 통신에 실패했습니다.");
+            alert("카카오 서버가 응답을 주지 않아요 🥲");
         }
     }
 
@@ -401,10 +391,10 @@
         container.innerHTML = "";
 
         if (!places || places.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:13px;">해당 마법 조합의 결계 내에 서식하는 점심 보스가 없습니다. 🥲</div>`;
+            container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:13px;">이 조건의 맛집 크루를 찾지 못했어요 🥲 다른 필터를 조합해봐요!</div>`;
         } else {
             places.forEach(place => {
-                let emoji = "👾";
+                let emoji = "✨";
                 for (let key in emojiMap) { 
                     if (place.category_name.includes(key) || place.place_name.includes(key)) emoji = emojiMap[key]; 
                 }
@@ -416,11 +406,11 @@
                     <div class="restaurant-info">
                         <div>
                             <div class="restaurant-name">${place.place_name}</div>
-                            <div class="restaurant-category">${place.category_name.split(' > ').pop() || "정체불명 몬스터"}</div>
+                            <div class="restaurant-category">${place.category_name.split(' > ').pop() || "맛있는 식당"}</div>
                         </div>
                         <div class="restaurant-meta">
-                            <span class="distance">📍 포탈 거리 ${place.distance}m</span>
-                            <button class="btn-map-trigger" onclick="selectPlaceForMap('${place.place_name}', '${place.x}', '${place.y}')">차원 이동 🧭</button>
+                            <span class="distance">📍 우리집에서 ${place.distance}m</span>
+                            <button class="btn-map-trigger" onclick="selectPlaceForMap('${place.place_name}', '${place.x}', '${place.y}')">이동하기 🧭</button>
                         </div>
                     </div>
                 `;
