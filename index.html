@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>오늘 뭐 먹지? | 실시간 주변 맛집 추천</title>
     
-    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=566c59003be0a7db1292fbbc43b0fad0&libraries=services"></script>
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=566c59003be0a7db1292fbbc43b0fad0&libraries=services&autoload=false"></script>
     
     <style>
         :root {
@@ -27,13 +27,10 @@
             -webkit-tap-highlight-color: transparent; 
         }
         
-        body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; }
-        .container { max-width: 500px; margin: 0 auto; padding-bottom: 30px; }
+        body { background-color: var(--bg-color); color: var(--text-main); }
         
-        header { text-align: center; margin: 0 0 0 0; }
-        .logo-img { max-width: 120px; height: auto; display: block; margin: 0 auto; }
+        .container { max-width: 500px; margin: 0 auto; padding: 20px 16px 30px 16px; }
 
-        /* 에러 메시지창 가이드 박스 */
         .error-guide-box {
             display: none; background: #fff5f5; border: 2px dashed #ff8787;
             border-radius: 16px; padding: 20px; margin-bottom: 20px; color: #c92a2a;
@@ -44,38 +41,33 @@
 
         .card { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); margin-bottom: 16px; border: 1px solid var(--border-color); }
         
-        .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .section-title { font-size: 15px; font-weight: 700; color: #343a40; }
-        
-        .btn-reauth { background: #f1f3f5; border: 1px solid #ced4da; color: #495057; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px; }
+        .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; }
+        .section-title { font-size: 15px; font-weight: 700; color: #343a40; line-height: 1.4; }
+
+        .btn-reauth { background: #f1f3f5; border: 1px solid #ced4da; color: #495057; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
         .btn-reauth:active { background: #e9ecef; }
 
         .gps-block { margin-bottom: 16px; }
         .btn-gps { width: 100%; background: #4dabf7; color: white; border: none; padding: 13px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
         .btn-gps:disabled { background: #e9ecef; color: #adb5bd; cursor: not-allowed; font-weight: 600; }
 
-        /* 반경 조절 레이아웃 구조 */
         .range-container { margin-bottom: 18px; width: 100%; }
         .range-block { display: flex; align-items: center; width: 100%; }
         
-        /* 슬라이더 트랙 자체의 여백 제거 및 너비 정의 */
         .range-slider { width: 100%; height: 6px; -webkit-appearance: none; background: #e9ecef; border-radius: 3px; outline: none; margin: 0; }
         .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--primary-color); cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
 
-        /* 눈금자 컨테이너: 슬라이더 좌우 패딩값(Thumb의 절반 크기인 11px)을 정확히 매칭 */
         .range-ticks { display: flex; justify-content: space-between; margin-top: 8px; padding: 0 11px; }
         
-        /* 눈금 아이템: width를 0으로 주고 넘치는 텍스트를 중앙 정렬하여 슬라이더 눈금 축과 완벽 일치 */
         .tick-item { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 0; overflow: visible; }
         .tick-mark { width: 1px; height: 5px; background: #adb5bd; margin-bottom: 4px; }
         .tick-label { font-size: 11px; color: #868e96; white-space: nowrap; font-weight: 500; text-align: center; }
         
-        /* 선택된 수치 강조 효과 */
         .tick-item.active .tick-label { color: var(--primary-color); font-weight: 700; }
         .tick-item.active .tick-mark { background: var(--primary-color); height: 7px; width: 2px; }
 
-        /* 위치 수집 안내 문구 */
-        .privacy-notice { font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-top: 14px; }
+        .privacy-notice { font-size: 12px; color: #495057; line-height: 1.5; margin-top: 14px; font-weight: 500; }
+        .privacy-notice .addr-highlight { color: var(--primary-color); font-weight: 700; }
 
         .checkbox-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .checkbox-item { position: relative; }
@@ -115,10 +107,6 @@
 <body>
 
 <div class="container">
-    <header>
-        <img src="omg.png" alt="오늘 뭐 먹지? OMG" class="logo-img">
-    </header>
-
     <div id="sdkErrorBox" class="error-guide-box">
         <h3>🚨 카카오 지도 라이브러리 연동 차단됨</h3>
         <p style="font-size: 13px; margin-bottom: 10px; font-weight: bold;">도메인 설정을 마쳤는데도 이 창이 뜬다면 다음 수정을 진행하세요.</p>
@@ -152,7 +140,7 @@
                 <div class="tick-item" id="tick-1000"><div class="tick-mark"></div><span class="tick-label">1km</span></div>
             </div>
         </div>
-        <div class="privacy-notice">💡 위치 정보는 별도 수집하지 않습니다.</div>
+        <div class="privacy-notice" id="privacyNoticeBox">💡 위치 정보는 수집하지 않아요.</div>
     </div>
 
     <div class="card">
@@ -202,22 +190,27 @@
     let userLng = null;
     let selectedPlace = null;
     let ps = null;
+    let geocoder = null;
 
     const emojiMap = { "한식": "🍚", "중식": "🐼", "일식": "🍣", "양식": "🍝", "고기": "🥩", "회": "🐟", "치킨": "🍗", "면": "🍜", "탕": "🍲", "국밥": "🍲", "카페": "☕", "기타": "🍴" };
 
     window.onload = function() {
-        if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.services) {
-            ps = new kakao.maps.services.Places();
-            document.getElementById('sdkErrorBox').style.display = "none";
+        // 비동기 로드 방식에 맞추어 kakao.maps.load 내부에서 객체들을 초기화합니다.
+        if (typeof kakao !== 'undefined' && kakao.maps) {
+            kakao.maps.load(() => {
+                ps = new kakao.maps.services.Places();
+                geocoder = new kakao.maps.services.Geocoder();
+                document.getElementById('sdkErrorBox').style.display = "none";
+                getGPSLocation(); // SDK가 완전히 로드된 후 GPS 파악을 시작합니다.
+            });
         } else {
             document.getElementById('sdkErrorBox').style.display = "block";
         }
-
-        getGPSLocation();
     }
 
     function getGPSLocation() {
         const gpsBtn = document.getElementById('gpsBtn');
+        const noticeBox = document.getElementById('privacyNoticeBox');
         
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -229,12 +222,15 @@
                     gpsBtn.style.background = "#e9ecef";
                     gpsBtn.style.color = "#12b886";
                     gpsBtn.disabled = true; 
+
+                    convertCoordsToAddr(userLng, userLat);
                 },
                 error => { 
                     gpsBtn.innerText = "🎯 위치 인증하기"; 
                     gpsBtn.style.background = "#ff6b6b";
                     gpsBtn.style.color = "white";
                     gpsBtn.disabled = false; 
+                    noticeBox.innerHTML = "💡 위치 정보는 수집하지 않아요.";
                 }
             );
         } else { 
@@ -243,8 +239,22 @@
         }
     }
 
+    function convertCoordsToAddr(lng, lat) {
+        const noticeBox = document.getElementById('privacyNoticeBox');
+        if (!geocoder) return;
+        
+        geocoder.coord2Address(lng, lat, (result, status) => {
+            if (status === kakao.maps.services.Status.OK && result[0]) {
+                const addr = result[0].address;
+                const regionText = `${addr.region_1depth_name} ${addr.region_2depth_name} ${addr.region_3depth_name}`;
+                noticeBox.innerHTML = `💡 현재 위치 : <span class="addr-highlight">${regionText}</span> (위치 정보는 수집하지 않아요.)`;
+            }
+        });
+    }
+
     function triggerReauth() {
         const gpsBtn = document.getElementById('gpsBtn');
+        document.getElementById('privacyNoticeBox').innerHTML = "💡 위치 정보는 수집하지 않아요.";
         userLat = null;
         userLng = null;
         
@@ -276,7 +286,10 @@
             alert("카카오 지도 SDK 보안 승인이 거부되었거나 로딩 중입니다."); 
             return; 
         }
-        if (!userLat || !userLng) { alert("위치 권한을 승인하거나 위치 인증을 완료해 주세요."); return; }
+        if (!userLat || !userLng) { 
+            alert("위치 권한을 승인하거나 위치 인증을 완료해 주세요."); 
+            return; 
+        }
 
         const isRandom = document.getElementById('randomModeCheckbox').checked;
         const radius = parseInt(document.getElementById('radiusRange').value);
@@ -291,7 +304,7 @@
             document.querySelectorAll('.menu-filter-cb:checked').forEach(cb => keywords.push(cb.value));
         }
 
-        let query = keywords.length > 0 ? keywords[Math.floor(Math.random() * keywords.length)] : "맛집"; 
+        let query = keywords.length > 0 ? keywords[Math.floor(Math.random() * keywords.length)] : "음식점"; 
 
         const searchOptions = {
             location: new kakao.maps.LatLng(userLat, userLng),
