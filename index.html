@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>오늘 뭐 먹지? | 런치 크루 멀티 덱</title>
+    <title>오늘 뭐 먹지? | 복잡한 메뉴 고민 이제는 끝!</title>
     
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=566c59003be0a7db1292fbbc43b0fad0&libraries=services&autoload=false"></script>
     
@@ -30,19 +30,34 @@
         body { background-color: var(--bg-sweet); color: var(--text-main); padding-bottom: 50px; overflow-x: hidden; }
         .container { max-width: 500px; margin: 0 auto; padding: 20px 16px; }
 
-        /* 상단 헤더 */
-        .cute-header { text-align: center; margin-bottom: 24px; }
-        .cute-title { font-size: 26px; font-weight: 900; color: #ff5266; display: inline-block; position: relative; letter-spacing: -0.5px; }
-        .cute-title::after { content: ''; display: block; width: 100%; height: 10px; background: #ffe4b5; position: absolute; bottom: 0; left: 0; z-index: -1; border-radius: 5px; }
-        .cute-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 6px; font-weight: bold; }
+        .omg-image-header {
+            background-color: transparent;
+            padding: 10px 0 20px 0;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .omg-header-img {
+            width: 50%;
+            max-width: 220px;
+            height: auto;
+            display: block;
+            background-color: transparent;
+        }
 
-        /* 카드 기본 구조 */
         .cute-card { background: var(--card-white); border: 3px solid #f2ece6; border-radius: 26px; padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 0px var(--shadow-color); position: relative; }
-        .section-title { font-size: 16px; font-weight: 900; color: #ff5266; display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+        
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .section-title { font-size: 16px; font-weight: 900; color: #ff5266; display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
 
-        /* 안테나 버튼 및 슬라이더 */
-        .btn-gps { width: 100%; background: #e8fcf4; color: #1abc9c; border: 2px dashed #a3ecd4; padding: 14px; border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-        .btn-gps:disabled { border: 3px solid #1abc9c; color: white; background: #1abc9c; cursor: not-allowed; box-shadow: 0 4px 0 #148f77; }
+        .btn-gps { width: 100%; background: #e8fcf4; color: #1abc9c; border: 2px dashed #a3ecd4; padding: 14px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        .btn-gps:disabled { border: 3px solid #1abc9c; color: white; background: #1abc9c; cursor: default; box-shadow: 0 4px 0 #148f77; }
+        
+        .btn-retry { background: #f2ece6; border: none; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: bold; color: #666; cursor: pointer; box-shadow: 0 2px 0 #d5c8bd; }
+        .btn-retry:active { transform: translateY(1px); box-shadow: 0 1px 0 #d5c8bd; }
+        .privacy-note { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 10px; font-weight: bold; }
         
         .range-container { margin-top: 16px; width: 100%; }
         .range-slider { width: 100%; height: 10px; -webkit-appearance: none; background: #ebdcd0; border-radius: 5px; outline: none; }
@@ -51,28 +66,26 @@
         .tick-label { font-size: 11px; color: var(--text-muted); font-weight: bold; }
         .tick-item.active .tick-label { color: #ff5266; font-weight: 900; }
 
-        /* 랜덤 모드 */
-        .random-container { background: #fffdf9; border: 2.5px solid #ffcc99; border-radius: 20px; padding: 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 0 #ffdcb8; }
-        .random-toggle-btn { background: #f2ece6; border: none; color: var(--text-main); padding: 10px 18px; border-radius: 16px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 3px 0 #d5c8bd; }
-        .random-toggle-btn.active { background: #ff5266; color: white; box-shadow: 0 3px 0 #cf3c4e; }
-
-        /* 📍 요청하신 2분할 슬롯 디자인 믹스 레이아웃 */
-        .deck-slots-flex { display: flex; gap: 12px; margin-top: 10px; }
-        .slot-box { flex: 1; background: #faf8f5; border: 3px dashed #ebdcd0; border-radius: 22px; padding: 16px 10px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 105px; transition: all 0.2s; }
-        .slot-box:active { transform: scale(0.98); }
-        .slot-icon { font-size: 24px; margin-bottom: 4px; color: var(--text-muted); font-weight: bold; }
-        .slot-label { font-size: 12px; font-weight: bold; color: var(--text-muted); }
-
-        /* 슬롯 내부에 다중 선택된 카드 칩들이 정렬될 때의 디자인 */
-        .slot-chips-inner { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; width: 100%; }
-        .equipped-chip { background: white; border: 2px solid #ff7888; color: #ff5266; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 12px; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 0 #ffbcc4; animation: pop 0.2s ease-out; }
-        .chip-remove { font-size: 12px; cursor: pointer; color: #b0a69f; font-weight: bold; margin-left: 2px; }
+        /* 재구성된 단일 진입 버튼 및 레이아웃 */
+        .deck-slots-flex { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+        .slot-add-trigger { width: 100%; background: #faf8f5; border: 3px dashed #ebdcd0; border-radius: 22px; padding: 20px 10px; text-align: center; cursor: pointer; font-size: 15px; font-weight: bold; color: #ff7888; transition: all 0.2s; display: flex; align-items: center; justify-content: center; min-height: 70px; }
+        .slot-add-trigger:active { transform: scale(0.98); }
+        
+        /* 선택된 칩들이 모이는 보드 */
+        .selected-chips-board { display: none; flex-wrap: wrap; gap: 8px; justify-content: center; background: #fffdfa; border: 2px solid #f2ece6; border-radius: 20px; padding: 14px; margin-top: 4px; }
+        .equipped-chip { background: white; border: 2px solid #ff7888; color: #ff5266; font-size: 12px; font-weight: bold; padding: 6px 12px; border-radius: 14px; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 0 #ffbcc4; animation: pop 0.2s ease-out; }
+        .chip-remove { font-size: 14px; cursor: pointer; color: #b0a69f; font-weight: bold; }
         .chip-remove:hover { color: #ff5266; }
 
-        /* 하단 바텀시트 팝업 슬라이더 */
         .bottom-sheet-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; z-index: 2000; backdrop-filter: blur(2px); }
-        .bottom-sheet { position: fixed; bottom: -100%; left: 0; right: 0; background: white; border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 24px 16px; max-height: 80vh; overflow-y: auto; z-index: 2001; transition: bottom 0.3s ease-out; box-shadow: 0 -8px 20px rgba(0,0,0,0.05); }
+        .bottom-sheet { position: fixed; bottom: -100%; left: 0; right: 0; background: white; border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 24px 16px; max-height: 85vh; overflow-y: auto; z-index: 2001; transition: bottom 0.3s ease-out; box-shadow: 0 -8px 20px rgba(0,0,0,0.05); }
         .bottom-sheet.show { bottom: 0; }
+        
+        /* 상단 스텝 프로그레스 바 */
+        .step-indicator { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
+        .step-dot { font-size: 11px; font-weight: bold; background: #eeded1; color: #b0a69f; padding: 4px 12px; border-radius: 10px; }
+        .step-dot.active { background: #ff5266; color: white; }
+
         .sheet-title { font-size: 16px; font-weight: 900; text-align: center; margin-bottom: 16px; }
         
         .card-selection-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
@@ -82,24 +95,20 @@
         .select-item-emoji { font-size: 26px; margin-bottom: 4px; display: block; }
         .select-item-text { font-size: 12px; font-weight: bold; }
 
-        /* 직접 입력 인풋 컴포넌트 */
         .custom-input-box { background: #fffdf9; border: 2px dashed #ffcc99; border-radius: 16px; padding: 10px; margin-bottom: 16px; display: none; align-items: center; gap: 8px; }
         .custom-input-box input { flex: 1; border: 2px solid #f2ece6; padding: 8px 12px; border-radius: 12px; font-size: 13px; font-weight: bold; outline: none; }
         .custom-input-box button { background: #ffcc99; border: none; color: #d35400; font-weight: bold; padding: 8px 14px; border-radius: 12px; cursor: pointer; font-size: 12px; }
 
         .btn-sheet-confirm { width: 100%; background: #ff5266; color: white; border: none; padding: 14px; border-radius: 16px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #cf3c4e; }
 
-        /* 로딩 애니메이션 바 */
         .casting-box { display: none; text-align: center; padding: 20px 0; }
         .casting-text { font-size: 14px; font-weight: bold; color: #ff5266; margin-bottom: 10px; animation: bounce 0.5s infinite alternate; }
         .casting-bar-bg { width: 100%; height: 12px; background: #eeded1; border-radius: 6px; overflow: hidden; }
         .casting-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #ffebcc, #ff7888); border-radius: 6px; transition: width 1.2s linear; }
 
-        /* 탐색 실행 메인 버튼 */
-        .btn-submit { width: 100%; background: linear-gradient(135deg, #ff5266, #ff7888); color: white; border: none; padding: 16px; border-radius: 22px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 0px #d6384b; letter-spacing: -0.3px; }
+        .btn-submit { width: 100%; background: linear-gradient(135deg, #ff5266, #ff7888); color: white; border: none; padding: 16px; border-radius: 22px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 0px #d6384b; letter-spacing: -0.3px; margin-top: 10px; }
         .btn-submit:active { transform: translateY(4px); box-shadow: 0 2px 0px #d6384b; }
 
-        /* 결과 명단 카드 진열대 */
         .result-section { margin-top: 24px; display: none; }
         .result-title { font-size: 16px; font-weight: 900; margin-bottom: 12px; color: #ff5266; }
         .restaurant-list { display: flex; flex-direction: column; gap: 14px; }
@@ -115,7 +124,6 @@
         .distance { font-size: 12px; color: #ff5266; font-weight: 900; }
         .btn-map-trigger { background: #fff0f2; border: 1px solid #ffccd3; color: #ff5266; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: bold; cursor: pointer; }
 
-        /* 지도 연결 팝업 모달 */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 3000; backdrop-filter: blur(2px); }
         .modal { background: var(--card-white); border: 3px solid #f2ece6; width: 100%; max-width: 340px; border-radius: 24px; padding: 22px; text-align: center; }
         .modal-title { font-size: 16px; font-weight: 900; margin-bottom: 20px; }
@@ -125,7 +133,6 @@
         .map-btn.naver { background: #03c75a; color: white; box-shadow: 0 4px 0 #02a64a; }
         .modal-close { background: none; border: none; color: var(--text-muted); margin-top: 16px; cursor: pointer; text-decoration: underline; font-size: 12px; font-weight: bold; }
 
-        /* 애니메이션 모션 효과 */
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-5px); } }
         @keyframes pop { 0% { transform: scale(0.9); } 100% { transform: scale(1); } }
         @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
@@ -134,14 +141,18 @@
 <body>
 
 <div class="container">
-    <div class="cute-header">
-        <div class="cute-title">🍳 런치 멀티 크루 덱!</div>
-        <div class="cute-subtitle">여러 카드를 마음껏 장착해 취향대로 믹스해요</div>
+    <div class="omg-image-header">
+        <img src="omg.png" alt="오늘 뭐 먹지? OMG" class="omg-header-img">
     </div>
 
     <div class="cute-card">
-        <div class="section-title">📍 탐색 반경 정하기</div>
-        <button class="btn-gps" id="gpsBtn" onclick="getGPSLocation()">📡 위성 안테나 신호 탐색 중...</button>
+        <div class="section-header">
+            <div class="section-title">📍 탐색 반경</div>
+            <button class="btn-retry" onclick="getGPSLocation()">재탐색</button>
+        </div>
+        <button class="btn-gps" id="gpsBtn" onclick="getGPSLocation()">GPS 수신 대기 중</button>
+        <div class="privacy-note">⚠️ 괜찮아요! 위치 정보를 수집하지 않아요.</div>
+        
         <div class="range-container">
             <input type="range" class="range-slider" id="radiusRange" min="200" max="1000" step="200" value="400" oninput="changeRadiusValue(this.value)">
             <div class="range-ticks">
@@ -155,25 +166,13 @@
     </div>
 
     <div class="cute-card" id="deckContainerCard">
-        <div class="section-title">🃏 내가 커스텀한 조합 덱</div>
-
-        <div class="random-container">
-            <div>
-                <span style="font-size:14px; font-weight:900; color:#d35400;">🎰 런치 무작위 캡슐 뽑기</span>
-                <div style="font-size:12px; color:#e67e22; font-weight:bold; margin-top:2px;" id="daggerCounter">❤️ 하트 토큰 기회: 3 / 3</div>
-            </div>
-            <button class="random-toggle-btn" id="randomToggleBtn" onclick="toggleRandomMode()">OFF</button>
-        </div>
+        <div class="section-title">📝 나만의 먹켓리스트</div>
 
         <div class="deck-slots-flex" id="slotsWrapper">
-            <div class="slot-box" id="slot-menu" onclick="openBottomSheet('menu')">
-                <div class="slot-icon">＋</div>
-                <div class="slot-label">어떤 종류?</div>
+            <div class="slot-add-trigger" id="masterAddBtn" onclick="startSequentialSelection()">
+                ➕ 여기를 눌러 먹켓 채우기
             </div>
-            <div class="slot-box" id="slot-spice" onclick="openBottomSheet('spice')">
-                <div class="slot-icon">＋</div>
-                <div class="slot-label">어떤 맛 특성?</div>
-            </div>
+            <div class="selected-chips-board" id="chipsBoard"></div>
         </div>
     </div>
 
@@ -190,17 +189,22 @@
     </div>
 </div>
 
-<div class="bottom-sheet-overlay" id="sheetOverlay" onclick="closeBottomSheet()"></div>
+<div class="bottom-sheet-overlay" id="sheetOverlay" onclick="forceCloseBottomSheet()"></div>
 <div class="bottom-sheet" id="bottomSheet">
-    <div class="sheet-title" id="sheetTitle">카드를 모두 골라주세요</div>
+    <div class="step-indicator">
+        <div class="step-dot" id="stepDot-menu">Step 1. 종류</div>
+        <div class="step-dot" id="stepDot-spice">Step 2. 취향</div>
+    </div>
+    
+    <div class="sheet-title" id="sheetTitle">카드를 골라주세요</div>
     
     <div class="custom-input-box" id="customInputWrapper">
-        <input type="text" id="customCardInput" placeholder="원하는 메뉴/키워드 직접 입력...">
+        <input type="text" id="customCardInput" placeholder="원하는 키워드 직접 입력...">
         <button onclick="addCustomKeywordCard()">장착</button>
     </div>
 
     <div class="card-selection-grid" id="sheetGrid"></div>
-    <button class="btn-sheet-confirm" onclick="closeBottomSheet()">장착 완료하기 🎒</button>
+    <button class="btn-sheet-confirm" id="sheetConfirmBtn" onclick="handleSheetConfirm()">다음 단계로 ➡️</button>
 </div>
 
 <div class="modal-overlay" id="mapModal">
@@ -219,29 +223,27 @@
     let userLng = null;
     let selectedPlace = null;
     let ps = null;
-    
-    let isRandomMode = false;
-    let rerollDaggers = 3;
+    let geocoder = null;
+    let gpsInterval = null;
 
-    // 복수 선택 장착용 데이터 자료구조
     let selectedMenuCards = new Set();
     let selectedSpiceCards = new Set();
-    let currentTargetSlotType = '';
+    let currentTargetSlotType = 'menu'; // 'menu' 또는 'spice'
 
-    // 커스텀 직접 입력 데이터 풀
     let customMenuCards = [];
     let customSpiceCards = [];
 
-    // 필터 기본 풀 매트릭스 데이터
+    // 대대적으로 정비 및 세분화된 메뉴 데이터 
     const cardData = {
         menu: [
             { text: "한식", emoji: "🍚" }, { text: "중식", emoji: "🐼" }, { text: "일식", emoji: "🍣" }, { text: "양식", emoji: "🍝" },
-            { text: "면 종류", emoji: "🍜" }, { text: "밥 종류", emoji: "🌾" },
-            { text: "치킨/피자", emoji: "🍗" }, { text: "버거/샌드위치", emoji: "🍔" }, { text: "분식", emoji: "🍛" }, { text: "샐러드/포케", emoji: "🥗" }, { text: "카페/디저트", emoji: "☕" }
+            { text: "에스닉/아시안", emoji: "🫓" }, { text: "분식", emoji: "🍛" }, { text: "샐러드/다이어트", emoji: "🥗" }, 
+            { text: "패스트푸드", emoji: "🍔" }, { text: "해장/국물", emoji: "🍲" }, { text: "카페/디저트", emoji: "☕" }
         ],
         spice: [
-            { text: "매운", emoji: "🌶️" }, { text: "담백한", emoji: "🥛" }, { text: "달콤한", emoji: "🥞" },
-            { text: "시원한", emoji: "❄️" }, { text: "국물", emoji: "🍲" }, { text: "고기", emoji: "🥩" }, { text: "튀김", emoji: "🍤" }, { text: "빠른", emoji: "⏱️" }
+            { text: "매콤한", emoji: "🌶️" }, { text: "단짠단짠", emoji: "🥨" }, { text: "기름진/고소한", emoji: "🍗" },
+            { text: "가벼운/깔끔한", emoji: "🍃" }, { text: "고기 가득", emoji: "🥩" }, { text: "해산물 중심", emoji: "🍤" }, 
+            { text: "혼밥 편한", emoji: "👤" }, { text: "음식이 빨리 나오는", emoji: "⏱️" }
         ]
     };
 
@@ -249,37 +251,94 @@
         if (typeof kakao !== 'undefined' && kakao.maps) {
             kakao.maps.load(() => {
                 ps = new kakao.maps.services.Places();
+                geocoder = new kakao.maps.services.Geocoder();
                 getGPSLocation();
             });
         }
     }
 
+    function startGpsAnimation() {
+        const gpsBtn = document.getElementById('gpsBtn');
+        let dotCount = 0;
+        clearInterval(gpsInterval);
+        gpsInterval = setInterval(() => {
+            dotCount = (dotCount + 1) % 4;
+            gpsBtn.innerText = "GPS 수신 대기 중" + ".".repeat(dotCount);
+        }, 400);
+    }
+
     function getGPSLocation() {
         const gpsBtn = document.getElementById('gpsBtn');
+        gpsBtn.disabled = false;
+        startGpsAnimation();
+        
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 position => {
+                    clearInterval(gpsInterval);
                     userLat = position.coords.latitude;
                     userLng = position.coords.longitude;
-                    gpsBtn.innerText = "✓ 위성 안테나 연결 완료!";
-                    gpsBtn.disabled = true; 
+                    
+                    if (geocoder) {
+                        geocoder.coord2RegionCode(userLng, userLat, (result, status) => {
+                            if (status === kakao.maps.services.Status.OK) {
+                                let address = "알 수 없는 위치";
+                                for(let i = 0; i < result.length; i++) {
+                                    if(result[i].region_type === 'H') {
+                                        address = result[i].address_name;
+                                        break;
+                                    }
+                                }
+                                gpsBtn.innerText = `GPS 수신 성공! (현위치 : ${address})`;
+                            } else {
+                                gpsBtn.innerText = `GPS 수신 성공! (위도:${userLat.toFixed(4)}, 경도:${userLng.toFixed(4)})`;
+                            }
+                            gpsBtn.disabled = true;
+                        });
+                    } else {
+                        gpsBtn.innerText = "GPS 수신 성공! (지도 라이브러리 로드 대기)";
+                        gpsBtn.disabled = true;
+                    }
                 },
-                error => { gpsBtn.innerText = "📡 위성 안테나 다시 켜기"; }
+                error => { 
+                    clearInterval(gpsInterval);
+                    gpsBtn.innerText = "📡 GPS 수신 실패. 다시 시도해주세요."; 
+                    gpsBtn.disabled = false;
+                }
             );
+        } else {
+            clearInterval(gpsInterval);
+            gpsBtn.innerText = "위치 정보가 지원되지 않는 브라우저입니다.";
         }
     }
 
-    /* 바텀 시트 열기 */
-    function openBottomSheet(type) {
-        if(isRandomMode) return;
+    // 연속 스텝 프로세스 시작 함수
+    function startSequentialSelection() {
+        renderBottomSheetStep('menu');
+    }
+
+    function renderBottomSheetStep(type) {
         currentTargetSlotType = type;
         const sheet = document.getElementById('bottomSheet');
         const overlay = document.getElementById('sheetOverlay');
         const grid = document.getElementById('sheetGrid');
         const title = document.getElementById('sheetTitle');
         const inputWrapper = document.getElementById('customInputWrapper');
+        const confirmBtn = document.getElementById('sheetConfirmBtn');
 
-        title.innerText = type === 'menu' ? "🥦 음식 종류 카드를 모두 골라주세요" : "🔥 취향 스파이스를 모두 골라주세요";
+        // 상단 인디케이터 클래스 제어
+        document.getElementById('stepDot-menu').classList.remove('active');
+        document.getElementById('stepDot-spice').classList.remove('active');
+        document.getElementById('stepDot-' + type).classList.add('active');
+
+        if(type === 'menu') {
+            title.innerText = "🥦 Step 1. 어떤 종류의 음식을 먹고 싶나요?";
+            confirmBtn.innerText = "다음 단계로 (취향 선택) ➡️";
+        } else {
+            title.innerText = "🔥 Step 2. 세부적인 맛과 취향을 골라주세요";
+            confirmBtn.innerText = "선택 완료하고 장착하기 🎒";
+        }
+
         grid.innerHTML = "";
         inputWrapper.style.display = "flex";
         document.getElementById('customCardInput').value = "";
@@ -287,17 +346,14 @@
         const activeSet = type === 'menu' ? selectedMenuCards : selectedSpiceCards;
         const customs = type === 'menu' ? customMenuCards : customSpiceCards;
 
-        // 기본 카드들 배치
         cardData[type].forEach(item => {
             createGridItem(grid, item.text, item.emoji, activeSet);
         });
 
-        // 직접 작성된 카드 배치
         customs.forEach(text => {
             createGridItem(grid, text, "✍️", activeSet);
         });
 
-        // 직접 입력 카드 트리거 배치
         const triggerNode = document.createElement('div');
         triggerNode.className = "select-item-card";
         triggerNode.style.background = "#fffdf0";
@@ -307,7 +363,9 @@
         grid.appendChild(triggerNode);
 
         overlay.style.display = "block";
-        setTimeout(() => sheet.classList.add('show'), 10);
+        if(!sheet.classList.contains('show')) {
+            setTimeout(() => sheet.classList.add('show'), 10);
+        }
     }
 
     function createGridItem(targetGrid, text, emoji, activeSet) {
@@ -327,7 +385,6 @@
         targetGrid.appendChild(node);
     }
 
-    /* 직접 입력 등록 스크립트 */
     function addCustomKeywordCard() {
         const input = document.getElementById('customCardInput');
         const text = input.value.trim();
@@ -342,66 +399,64 @@
         
         activeSet.add(text);
         input.value = "";
-        
-        const grid = document.getElementById('sheetGrid');
-        grid.innerHTML = "";
-        cardData[currentTargetSlotType].forEach(item => createGridItem(grid, item.text, item.emoji, activeSet));
-        customs.forEach(t => createGridItem(grid, t, "✍️", activeSet));
-        
-        const triggerNode = document.createElement('div');
-        triggerNode.className = "select-item-card";
-        triggerNode.style.background = "#fffdf0";
-        triggerNode.style.borderColor = "#fcd670";
-        triggerNode.innerHTML = `<span class="select-item-emoji">✍️</span><span class="select-item-text" style="color:#bfa000;">직접 입력</span>`;
-        triggerNode.onclick = () => document.getElementById('customCardInput').focus();
-        grid.appendChild(triggerNode);
+        renderBottomSheetStep(currentTargetSlotType);
     }
 
-    /* 바텀시트 닫힐 때 복원된 2분할 슬롯 상자 내부에 카드 조립 리프레시 */
+    // 하단 버튼 통합 제어 핸들러 (Menu 완료 후 바로 Spice 이동)
+    function handleSheetConfirm() {
+        if (currentTargetSlotType === 'menu') {
+            renderBottomSheetStep('spice');
+        } else {
+            closeBottomSheet();
+        }
+    }
+
     function closeBottomSheet() {
         document.getElementById('bottomSheet').classList.remove('show');
         setTimeout(() => document.getElementById('sheetOverlay').style.display = "none", 300);
-        renderDeckChips();
+        renderCombinedChips();
     }
 
-    /* 다중 선택 카드를 슬롯 박스 안에 컴팩트하게 배치하는 렌더러 */
-    function renderDeckChips() {
-        const menuSlot = document.getElementById('slot-menu');
-        const spiceSlot = document.getElementById('slot-spice');
+    function forceCloseBottomSheet() {
+        closeBottomSheet();
+    }
 
-        // 1. 종류 슬롯 리프레시
-        if (selectedMenuCards.size === 0) {
-            menuSlot.innerHTML = `<div class="slot-icon">＋</div><div class="slot-label">어떤 종류?</div>`;
+    // 선택된 모든 종류와 취향의 칩들을 통합 보드에 한 번에 그려줌
+    function renderCombinedChips() {
+        const chipsBoard = document.getElementById('chipsBoard');
+        const masterAddBtn = document.getElementById('masterAddBtn');
+
+        if (selectedMenuCards.size === 0 && selectedSpiceCards.size === 0) {
+            chipsBoard.innerHTML = "";
+            chipsBoard.style.display = "none";
+            masterAddBtn.innerText = "➕ 여기를 눌러 먹켓 채우기";
         } else {
-            let innerHTML = `<div class="slot-chips-inner">`;
+            masterAddBtn.innerText = "🔄 구성 다시 변경하기";
+            let innerHTML = "";
+
+            // 음식 종류 출력
             selectedMenuCards.forEach(text => {
                 const item = cardData.menu.find(c => c.text === text);
                 const emoji = item ? item.emoji : "✍️";
-                innerHTML += `<div class="equipped-chip" onclick="event.stopPropagation();"><span>${emoji} ${text}</span><span class="chip-remove" onclick="removeSingleCard('menu', '${text}')">×</span></div>`;
+                innerHTML += `<div class="equipped-chip"><span>${emoji} ${text}</span><span class="chip-remove" onclick="removeSingleCard('menu', '${text}')">×</span></div>`;
             });
-            innerHTML += `</div>`;
-            menuSlot.innerHTML = innerHTML;
-        }
 
-        // 2. 맛 특성 슬롯 리프레시
-        if (selectedSpiceCards.size === 0) {
-            spiceSlot.innerHTML = `<div class="slot-icon">＋</div><div class="slot-label">어떤 맛 특성?</div>`;
-        } else {
-            let innerHTML = `<div class="slot-chips-inner">`;
+            // 맛 취향 출력
             selectedSpiceCards.forEach(text => {
                 const item = cardData.spice.find(c => c.text === text);
                 const emoji = item ? item.emoji : "✍️";
-                innerHTML += `<div class="equipped-chip" onclick="event.stopPropagation();"><span>${emoji} ${text}</span><span class="chip-remove" onclick="removeSingleCard('spice', '${text}')">×</span></div>`;
+                innerHTML += `<div class="equipped-chip" style="border-color:#66dbb2; color:#1abc9c; box-shadow:0 2px 0 #b3f0db;"><span>${emoji} ${text}</span><span class="chip-remove" onclick="removeSingleCard('spice', '${text}')">×</span></div>`;
             });
-            innerHTML += `</div>`;
-            spiceSlot.innerHTML = innerHTML;
+
+            chipsBoard.innerHTML = innerHTML;
+            chipsBoard.style.display = "flex";
         }
     }
 
     function removeSingleCard(type, text) {
         if(type === 'menu') selectedMenuCards.delete(text);
         else selectedSpiceCards.delete(text);
-        renderDeckChips();
+        renderCombinedChips();
     }
 
     function changeRadiusValue(val) {
@@ -410,37 +465,8 @@
         if (targetTick) targetTick.classList.add('active');
     }
 
-    function toggleRandomMode() {
-        const btn = document.getElementById('randomToggleBtn');
-        isRandomMode = !isRandomMode;
-
-        const menuSlot = document.getElementById('slot-menu');
-        const spiceSlot = document.getElementById('slot-spice');
-
-        if (isRandomMode) {
-            btn.innerText = "ON";
-            btn.classList.add('active');
-            selectedMenuCards.clear();
-            selectedSpiceCards.clear();
-            renderDeckChips();
-            menuSlot.style.opacity = "0.5";
-            spiceSlot.style.opacity = "0.5";
-        } else {
-            btn.innerText = "OFF";
-            btn.classList.remove('active');
-            menuSlot.style.opacity = "1";
-            spiceSlot.style.opacity = "1";
-        }
-    }
-
     function startCardCasting() {
-        if (!userLat || !userLng) { alert("위치 안테나 연결이 필요해요!"); return; }
-        
-        if (isRandomMode) {
-            if (rerollDaggers <= 0) { alert("💔 하트 토큰을 모두 다 썼어요! 내일 다시 시도해주세요."); return; }
-            rerollDaggers--;
-            document.getElementById('daggerCounter').innerText = `❤️ 하트 토큰 기회: ${rerollDaggers} / 3`;
-        }
+        if (!userLat || !userLng) { alert("위치 안내 수신이 완료되지 않았어요!"); return; }
 
         const submitBtn = document.getElementById('submitBtn');
         const castingBox = document.getElementById('castingBox');
@@ -465,10 +491,8 @@
         const radius = parseInt(document.getElementById('radiusRange').value);
         let queryParts = [];
 
-        if (!isRandomMode) {
-            selectedMenuCards.forEach(val => queryParts.push(val));
-            selectedSpiceCards.forEach(val => queryParts.push(val));
-        }
+        selectedMenuCards.forEach(val => queryParts.push(val));
+        selectedSpiceCards.forEach(val => queryParts.push(val));
 
         let query = queryParts.length > 0 ? queryParts.join(" ") : "음식점";
 
@@ -481,11 +505,7 @@
 
         ps.keywordSearch(query, (data, status) => {
             if (status === kakao.maps.services.Status.OK) {
-                if (isRandomMode && data.length > 0) {
-                    renderList([data[Math.floor(Math.random() * data.length)]]);
-                } else {
-                    renderList(data);
-                }
+                renderList(data);
             } else {
                 renderList([]);
             }
