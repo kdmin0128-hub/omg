@@ -28,11 +28,12 @@
         }
         
         body { background-color: var(--bg-sweet); color: var(--text-main); padding-bottom: 50px; overflow-x: hidden; }
-        .container { max-width: 500px; margin: 0 auto; padding: 20px 16px; }
+        
+        .container { max-width: 500px; margin: 0 auto; padding: 10px 16px; }
 
         .omg-image-header {
             background-color: transparent;
-            padding: 10px 0 20px 0;
+            padding: 0 0 10px 0;
             text-align: center;
             display: flex;
             justify-content: center;
@@ -66,12 +67,10 @@
         .tick-label { font-size: 11px; color: var(--text-muted); font-weight: bold; }
         .tick-item.active .tick-label { color: #ff5266; font-weight: 900; }
 
-        /* 재구성된 단일 진입 버튼 및 레이아웃 */
         .deck-slots-flex { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
         .slot-add-trigger { width: 100%; background: #faf8f5; border: 3px dashed #ebdcd0; border-radius: 22px; padding: 20px 10px; text-align: center; cursor: pointer; font-size: 15px; font-weight: bold; color: #ff7888; transition: all 0.2s; display: flex; align-items: center; justify-content: center; min-height: 70px; }
         .slot-add-trigger:active { transform: scale(0.98); }
         
-        /* 선택된 칩들이 모이는 보드 */
         .selected-chips-board { display: none; flex-wrap: wrap; gap: 8px; justify-content: center; background: #fffdfa; border: 2px solid #f2ece6; border-radius: 20px; padding: 14px; margin-top: 4px; }
         .equipped-chip { background: white; border: 2px solid #ff7888; color: #ff5266; font-size: 12px; font-weight: bold; padding: 6px 12px; border-radius: 14px; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 0 #ffbcc4; animation: pop 0.2s ease-out; }
         .chip-remove { font-size: 14px; cursor: pointer; color: #b0a69f; font-weight: bold; }
@@ -81,7 +80,6 @@
         .bottom-sheet { position: fixed; bottom: -100%; left: 0; right: 0; background: white; border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 24px 16px; max-height: 85vh; overflow-y: auto; z-index: 2001; transition: bottom 0.3s ease-out; box-shadow: 0 -8px 20px rgba(0,0,0,0.05); }
         .bottom-sheet.show { bottom: 0; }
         
-        /* 상단 스텝 프로그레스 바 */
         .step-indicator { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
         .step-dot { font-size: 11px; font-weight: bold; background: #eeded1; color: #b0a69f; padding: 4px 12px; border-radius: 10px; }
         .step-dot.active { background: #ff5266; color: white; }
@@ -99,7 +97,15 @@
         .custom-input-box input { flex: 1; border: 2px solid #f2ece6; padding: 8px 12px; border-radius: 12px; font-size: 13px; font-weight: bold; outline: none; }
         .custom-input-box button { background: #ffcc99; border: none; color: #d35400; font-weight: bold; padding: 8px 14px; border-radius: 12px; cursor: pointer; font-size: 12px; }
 
-        .btn-sheet-confirm { width: 100%; background: #ff5266; color: white; border: none; padding: 14px; border-radius: 16px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #cf3c4e; }
+        /* 하단 버튼 컨테이너: flex 구조 및 동일 비율 배분 */
+        .sheet-btn-group { display: flex; gap: 10px; width: 100%; }
+        
+        /* 버튼 너비 1:1 동일화를 위해 양쪽 모두 flex: 1 설정 및 모바일 텍스트 자동 가독성 패딩 최적화 */
+        .btn-sheet-back { flex: 1; background: #f2ece6; color: #5a5a5a; border: none; padding: 14px 8px; border-radius: 16px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #d5c8bd; display: none; text-align: center; white-space: nowrap; }
+        .btn-sheet-back:active { transform: translateY(2px); box-shadow: 0 2px 0 #d5c8bd; }
+        
+        .btn-sheet-confirm { flex: 1; background: #ff5266; color: white; border: none; padding: 14px 8px; border-radius: 16px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #cf3c4e; text-align: center; white-space: nowrap; }
+        .btn-sheet-confirm:active { transform: translateY(2px); box-shadow: 0 2px 0 #cf3c4e; }
 
         .casting-box { display: none; text-align: center; padding: 20px 0; }
         .casting-text { font-size: 14px; font-weight: bold; color: #ff5266; margin-bottom: 10px; animation: bounce 0.5s infinite alternate; }
@@ -200,11 +206,15 @@
     
     <div class="custom-input-box" id="customInputWrapper">
         <input type="text" id="customCardInput" placeholder="원하는 키워드 직접 입력...">
-        <button onclick="addCustomKeywordCard()">장착</button>
+        <button onclick="addCustomKeywordCard()">추가</button>
     </div>
 
     <div class="card-selection-grid" id="sheetGrid"></div>
-    <button class="btn-sheet-confirm" id="sheetConfirmBtn" onclick="handleSheetConfirm()">다음 단계로 ➡️</button>
+    
+    <div class="sheet-btn-group">
+        <button class="btn-sheet-back" id="sheetBackBtn" onclick="renderBottomSheetStep('menu')">⬅️ 이전 단계로 (종류 선택)</button>
+        <button class="btn-sheet-confirm" id="sheetConfirmBtn" onclick="handleSheetConfirm()">다음 단계로 ➡️</button>
+    </div>
 </div>
 
 <div class="modal-overlay" id="mapModal">
@@ -228,22 +238,22 @@
 
     let selectedMenuCards = new Set();
     let selectedSpiceCards = new Set();
-    let currentTargetSlotType = 'menu'; // 'menu' 또는 'spice'
+    let currentTargetSlotType = 'menu';
 
     let customMenuCards = [];
     let customSpiceCards = [];
 
-    // 대대적으로 정비 및 세분화된 메뉴 데이터 
     const cardData = {
         menu: [
-            { text: "한식", emoji: "🍚" }, { text: "중식", emoji: "🐼" }, { text: "일식", emoji: "🍣" }, { text: "양식", emoji: "🍝" },
-            { text: "에스닉/아시안", emoji: "🫓" }, { text: "분식", emoji: "🍛" }, { text: "샐러드/다이어트", emoji: "🥗" }, 
-            { text: "패스트푸드", emoji: "🍔" }, { text: "해장/국물", emoji: "🍲" }, { text: "카페/디저트", emoji: "☕" }
+            { text: "한식", emoji: "🍲" }, { text: "중식", emoji: "🥟" }, { text: "일식", emoji: "🍣" }, { text: "양식", emoji: "🍝" },
+            { text: "아시안", emoji: "🌴" }, { text: "분식", emoji: "🍛" }, { text: "샐러드/다이어트", emoji: "🥗" }, 
+            { text: "패스트푸드", emoji: "🍔" }, { text: "카페/디저트", emoji: "☕" }
         ],
         spice: [
-            { text: "매콤한", emoji: "🌶️" }, { text: "단짠단짠", emoji: "🥨" }, { text: "기름진/고소한", emoji: "🍗" },
-            { text: "가벼운/깔끔한", emoji: "🍃" }, { text: "고기 가득", emoji: "🥩" }, { text: "해산물 중심", emoji: "🍤" }, 
-            { text: "혼밥 편한", emoji: "👤" }, { text: "음식이 빨리 나오는", emoji: "⏱️" }
+            { text: "매콤한", emoji: "🌶️" }, { text: "단짠단짠", emoji: "🥨" }, { text: "기름진/고소한", emoji: "🍗" }, { text: "가벼운/깔끔한", emoji: "🍃" },
+            { text: "육류 중심", emoji: "🥩" }, { text: "해산물 중심", emoji: "🍤" }, { text: "닭/오리", emoji: "🐔" },
+            { text: "밥", emoji: "🍚" }, { text: "면", emoji: "🍜" }, { text: "빵/샌드위치", emoji: "🍞" },
+            { text: "해장/국물", emoji: "🍲" }
         ]
     };
 
@@ -312,7 +322,6 @@
         }
     }
 
-    // 연속 스텝 프로세스 시작 함수
     function startSequentialSelection() {
         renderBottomSheetStep('menu');
     }
@@ -324,19 +333,21 @@
         const grid = document.getElementById('sheetGrid');
         const title = document.getElementById('sheetTitle');
         const inputWrapper = document.getElementById('customInputWrapper');
+        const backBtn = document.getElementById('sheetBackBtn');
         const confirmBtn = document.getElementById('sheetConfirmBtn');
 
-        // 상단 인디케이터 클래스 제어
         document.getElementById('stepDot-menu').classList.remove('active');
         document.getElementById('stepDot-spice').classList.remove('active');
         document.getElementById('stepDot-' + type).classList.add('active');
 
         if(type === 'menu') {
             title.innerText = "🥦 Step 1. 어떤 종류의 음식을 먹고 싶나요?";
+            backBtn.style.display = "none";
             confirmBtn.innerText = "다음 단계로 (취향 선택) ➡️";
         } else {
             title.innerText = "🔥 Step 2. 세부적인 맛과 취향을 골라주세요";
-            confirmBtn.innerText = "선택 완료하고 장착하기 🎒";
+            backBtn.style.display = "block";
+            confirmBtn.innerText = "선택 완료";
         }
 
         grid.innerHTML = "";
@@ -402,7 +413,6 @@
         renderBottomSheetStep(currentTargetSlotType);
     }
 
-    // 하단 버튼 통합 제어 핸들러 (Menu 완료 후 바로 Spice 이동)
     function handleSheetConfirm() {
         if (currentTargetSlotType === 'menu') {
             renderBottomSheetStep('spice');
@@ -421,7 +431,6 @@
         closeBottomSheet();
     }
 
-    // 선택된 모든 종류와 취향의 칩들을 통합 보드에 한 번에 그려줌
     function renderCombinedChips() {
         const chipsBoard = document.getElementById('chipsBoard');
         const masterAddBtn = document.getElementById('masterAddBtn');
@@ -434,14 +443,12 @@
             masterAddBtn.innerText = "🔄 구성 다시 변경하기";
             let innerHTML = "";
 
-            // 음식 종류 출력
             selectedMenuCards.forEach(text => {
                 const item = cardData.menu.find(c => c.text === text);
                 const emoji = item ? item.emoji : "✍️";
                 innerHTML += `<div class="equipped-chip"><span>${emoji} ${text}</span><span class="chip-remove" onclick="removeSingleCard('menu', '${text}')">×</span></div>`;
             });
 
-            // 맛 취향 출력
             selectedSpiceCards.forEach(text => {
                 const item = cardData.spice.find(c => c.text === text);
                 const emoji = item ? item.emoji : "✍️";
@@ -492,7 +499,16 @@
         let queryParts = [];
 
         selectedMenuCards.forEach(val => queryParts.push(val));
-        selectedSpiceCards.forEach(val => queryParts.push(val));
+
+        if (queryParts.length === 0) {
+            const validKeywords = ["육류 중심", "해산물 중심", "닭/오리", "밥", "면", "빵/샌드위치", "해장/국물"];
+            selectedSpiceCards.forEach(val => {
+                if (validKeywords.includes(val)) {
+                    let cleanWord = val.replace(" 중심", "");
+                    queryParts.push(cleanWord);
+                }
+            });
+        }
 
         let query = queryParts.length > 0 ? queryParts.join(" ") : "음식점";
 
@@ -505,7 +521,19 @@
 
         ps.keywordSearch(query, (data, status) => {
             if (status === kakao.maps.services.Status.OK) {
-                renderList(data);
+                let filteredPlaces = data;
+
+                if (selectedSpiceCards.has("해장/국물")) {
+                    filteredPlaces = filteredPlaces.filter(place => 
+                        place.category_name.includes("탕") || 
+                        place.category_name.includes("찌개") || 
+                        place.category_name.includes("국수") || 
+                        place.category_name.includes("국밥") ||
+                        place.category_name.includes("해장")
+                    );
+                }
+
+                renderList(filteredPlaces);
             } else {
                 renderList([]);
             }
