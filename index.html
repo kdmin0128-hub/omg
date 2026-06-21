@@ -146,7 +146,9 @@
         .map-btn { width: 100%; padding: 14px; border: none; border-radius: 16px; font-size: 14px; font-weight: bold; cursor: pointer; }
         .map-btn.kakao { background: #fee500; color: #3c1e1e; box-shadow: 0 4px 0 #ebd100; }
         .map-btn.naver { background: #03c75a; color: white; box-shadow: 0 4px 0 #02a64a; }
-        .modal-close { background: none; border: none; color: var(--text-muted); margin-top: 4px; cursor: pointer; text-decoration: underline; font-size: 12px; font-weight: bold; }
+        
+        /* 1. 시작 버튼 밑으로 닫기 버튼 간격을 넓히기 위해 상단 마진 추가 */
+        .modal-close { background: none; border: none; color: var(--text-muted); margin-top: 12px; cursor: pointer; text-decoration: underline; font-size: 12px; font-weight: bold; }
 
         /* 🎯 동민's Pick 플로팅 아이콘 */
         .floating-btn-pick { position: fixed; bottom: 20px; right: 20px; width: 68px; height: 68px; background: linear-gradient(135deg, #2c3e50, #e74c3c); border: 3px solid white; border-radius: 50%; box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 2500; animation: bounce 0.8s infinite alternate; }
@@ -288,8 +290,8 @@
             <div class="modal-title" id="modalTargetName">식당 이름</div>
         </div>
         <div class="map-options">
-            <button class="map-btn kakao" onclick="openMapApp('kakao')">💛 카카오맵 열기</button>
-            <button class="map-btn naver" onclick="openMapApp('naver')">💚 네이버지도 열기</button>
+            <button class="map-btn kakao" onclick="openMapApp('kakao')">카카오맵 열기</button>
+            <button class="map-btn naver" onclick="openMapApp('naver')">네이버지도 열기</button>
         </div>
         <button class="modal-close" onclick="closeMapModal()">닫을래요</button>
     </div>
@@ -444,7 +446,6 @@
         const currentItem = dongminPicks[currentSlotIdx % dongminPicks.length];
         const thumbBox = document.getElementById('slotThumb');
         
-        // 롤링 상태일 때는 오직 '사진(이모지)' 데이터만 변경
         if(thumbBox) {
             if(currentItem.img && (currentItem.img.startsWith('http') || currentItem.img.startsWith('.'))) {
                 thumbBox.innerHTML = `<img src="${currentItem.img}" alt="slot-thumb">`;
@@ -453,7 +454,6 @@
             }
         }
 
-        // 결과창 데이터를 백그라운드에 미리 매핑
         document.getElementById('slotMenu').innerText = "추천메뉴: " + currentItem.menu;
         document.getElementById('slotName').innerText = currentItem.name;
         document.getElementById('slotComment').innerText = currentItem.comment;
@@ -482,8 +482,6 @@
             currentIntervalSpeed += 60; 
             if (currentIntervalSpeed >= 450) {
                 slotStatus = 'stopped';
-                
-                // 완전히 멈추면 모든 서브 텍스트 디테일 박스를 펼치기
                 document.getElementById('slotResultDetails').style.display = "flex";
                 
                 const btn = document.getElementById('slotActionBtn');
@@ -636,7 +634,6 @@
     function startCardCasting() {
         if (!userLat) { alert("위치 설정이 아직 완료되지 않았어요!"); return; }
         document.getElementById('resultSection').style.display = "none";
-        
         document.getElementById('castingOverlay').style.display = "flex";
         
         let emojiIdx = 0;
@@ -656,7 +653,6 @@
 
     function fetchRestaurants() {
         let searchQueries = [];
-        
         if (selectedMenuCards.size > 0) {
             selectedMenuCards.forEach(v => searchQueries.push(v));
         } else if (selectedSpiceCards.size > 0) {
@@ -742,10 +738,11 @@
         container.innerHTML = "";
         
         if (!places.length) {
+            // 2. 요청하신 조건 없음 문구 수정 적용 완료 (이모지 및 동민's Pick 볼드/아이콘 처리)
             container.innerHTML = `
                 <div style="text-align:center; padding:35px 20px; color:var(--text-muted); font-size:13.5px; line-height:1.6; word-break:keep-all;">
-                    조건에 맞는 식당을 찾지 못했어요 🥲<br>
-                    반경 또는 조건을 바꾸거나 <strong>동민's Pick ➡️</strong> 을 이용해보세요 😊
+                    조건에 맞는 식당을 찾지 못했어요 😥<br>
+                    반경 또는 조건을 변경하거나 <strong>🎯 동민's Pick</strong> 을 이용해보세요!
                 </div>`;
         } else {
             places.forEach((p, idx) => {
@@ -782,17 +779,19 @@
         }, 50);
     }
 
+    // 직전 대화 수정본 유지: 🔍 상세 페이지 열기
     function openRoutingModal(type, name, x, y, placeUrl, kakaoId, naverId) {
         selectedAction = type; 
         selectedPlace = { name, x, y, placeUrl, kakaoId, naverId };
         
-        document.getElementById('modalActionType').innerText = type === 'detail' ? "🔍 맛집 상세 페이지 열기" : "🧭 도보 길 찾기 시작";
+        document.getElementById('modalActionType').innerText = type === 'detail' ? "🔍 상세 페이지 열기" : "🧭 도보 길 찾기 시작";
         document.getElementById('modalTargetName').innerText = name;
         document.getElementById('mapModal').style.display = "flex";
     }
     
     function closeMapModal() { document.getElementById('mapModal').style.display = "none"; }
 
+    // 직전 대화 수정본 유지: 네이버 상세 링크 체계 정상화
     function openMapApp(provider) {
         if (!selectedPlace) return;
         const { name, x, y, kakaoId, naverId } = selectedPlace;
@@ -812,7 +811,7 @@
         else {
             if (selectedAction === 'detail') {
                 appUrl = `nmap://place?id=${naverId}`;
-                webUrl = `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}&style=v5#/search/table/${naverId}`;
+                webUrl = `https://place.map.naver.com/${naverId}`;
             } else {
                 appUrl = `nmap://route/walk?dlat=${y}&dlng=${x}&dname=${encodeURIComponent(name)}`;
                 webUrl = `https://m.map.naver.com/route/walk.naver?sname=${encodeURIComponent('내 위치')}&sx=${userLng}&sy=${userLat}&ename=${encodeURIComponent(name)}&ex=${x}&ey=${y}`;
