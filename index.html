@@ -121,7 +121,7 @@
         .floating-btn-pick .emoji { font-size: 22px; line-height: 1; }
         .floating-btn-pick .text { font-size: 9px; font-weight: 900; color: white; margin-top: 2px; text-align: center; white-space: nowrap; }
         
-        /* 슬롯 레이아웃 추가 디자인 */
+        /* 슬롯 레이아웃 디자인 */
         .slot-intro-text { font-size: 13px; font-weight: bold; color: #555; line-height: 1.6; margin: 15px 0 25px 0; word-break: keep-all; }
         .slot-thumb-container { width: 130px; height: 130px; border-radius: 24px; border: 4px solid #f2ece6; margin: 0 auto 10px auto; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #fffdfa; font-size: 50px; }
         .slot-thumb-container img { width: 100%; height: 100%; object-fit: cover; }
@@ -254,7 +254,6 @@
 </div>
 
 <script>
-    // ✍️ 기존 자바스크립트용 데이터 변수 배열을 외부 js 파일이 채워줍니다.
     let userLat, userLng, selectedPlace, ps, geocoder, gpsInterval;
     let selectedAction = 'detail';
     let selectedMenuCards = new Set(), selectedSpiceCards = new Set();
@@ -304,7 +303,6 @@
         
         document.getElementById('slotRouteBtn').style.display = "none";
         document.getElementById('slotCloseBtn').disabled = false;
-
         document.getElementById('dongminModal').style.display = "flex";
     }
 
@@ -398,7 +396,6 @@
 
     function handleSlotRouteClick() {
         if (!finalPickedItem) return;
-        
         const targetItem = finalPickedItem; 
         closeDongminPickModal(); 
         
@@ -624,35 +621,50 @@
     
     function closeMapModal() { document.getElementById('mapModal').style.display = "none"; }
 
+    // 🚀 수정 및 완성된 지도 앱 구동 & 모바일 웹Fallback 처리 핵심 함수
     function openMapApp(provider) {
         if (!selectedPlace) return;
         const { name, x, y, kakaoId, naverId } = selectedPlace;
-        let url = "";
+        
+        let appUrl = "";
+        let webUrl = "";
 
-        if (selectedAction === 'detail') {
-            if(provider === 'kakao') {
-                url = kakaoId ? `https://place.map.kakao.com/${kakaoId}` : `https://map.kakao.com/?q=${encodeURIComponent(name)}`;
+        // 1. 카카오맵 설정
+        if (provider === 'kakao') {
+            if (selectedAction === 'detail') {
+                appUrl = `kakaomap://place?id=${kakaoId}`;
+                webUrl = `https://place.map.kakao.com/${kakaoId}`;
             } else {
-                url = naverId ? `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}&style=v5#/search/table/${naverId}` : `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}`;
+                // 🚶 앱 도보 스킴 (&by=FOOT)
+                appUrl = `kakaomap://route?epName=${encodeURIComponent(name)}&epX=${x}&epY=${y}&by=FOOT`;
+                // 🌐 모바일 웹 길찾기 백업 주소
+                webUrl = `https://map.kakao.com/link/to/${encodeURIComponent(name)},${y},${x}`;
             }
-        } else {
-            if (provider === 'kakao') {
-                if (userLat && userLng && x && y) {
-                    url = `https://map.kakao.com/link/to/${encodeURIComponent(name)},${y},${x}?sName=${encodeURIComponent('내 위치')}&by=FOOT`;
-                } else {
-                    url = `https://map.kakao.com/link/to/${kakaoId || ''}`;
-                }
+        } 
+        // 2. 네이버지도 설정
+        else {
+            if (selectedAction === 'detail') {
+                appUrl = `nmap://place?id=${naverId}`;
+                webUrl = `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}&style=v5#/search/table/${naverId}`;
             } else {
-                if (userLat && userLng && x && y) {
-                    url = `https://m.map.naver.com/route/walk.naver?sname=${encodeURIComponent('내 위치')}&sx=${userLng}&sy=${userLat}&ename=${encodeURIComponent(name)}&ex=${x}&ey=${y}`;
-                } else {
-                    url = naverId 
-                        ? `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}&style=v5#/search/table/${naverId}` 
-                        : `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}`;
-                }
+                // 🚶 앱 도보 스킴 (/route/walk)
+                appUrl = `nmap://route/walk?dlat=${y}&dlng=${x}&dname=${encodeURIComponent(name)}`;
+                // 🌐 모바일 웹 길찾기 백업 주소 (도보)
+                webUrl = `https://m.map.naver.com/route/walk.naver?sname=${encodeURIComponent('내 위치')}&sx=${userLng}&sy=${userLat}&ename=${encodeURIComponent(name)}&ex=${x}&ey=${y}`;
             }
         }
-        window.open(url, '_blank'); 
+
+        // 3. ⏳ 타이머를 이용한 웹전환 백업 시스템
+        const startTime = Date.now();
+        window.location.href = appUrl;
+
+        setTimeout(() => {
+            // 앱이 설치되어 있지 않아 0.5초 동안 브라우저 이탈이 없었을 경우 모바일 웹 맵 실행
+            if (Date.now() - startTime < 800) {
+                window.location.href = webUrl;
+            }
+        }, 500);
+
         closeMapModal();
     }
 </script>
