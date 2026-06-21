@@ -147,7 +147,7 @@
         .map-btn.kakao { background: #fee500; color: #3c1e1e; box-shadow: 0 4px 0 #ebd100; }
         .map-btn.naver { background: #03c75a; color: white; box-shadow: 0 4px 0 #02a64a; }
         
-        /* 1. 시작 버튼 밑으로 닫기 버튼 간격을 넓히기 위해 상단 마진 추가 */
+        /* 닫기 버튼 간격 넓힘 */
         .modal-close { background: none; border: none; color: var(--text-muted); margin-top: 12px; cursor: pointer; text-decoration: underline; font-size: 12px; font-weight: bold; }
 
         /* 🎯 동민's Pick 플로팅 아이콘 */
@@ -399,7 +399,6 @@
         
         document.getElementById('dongminModal').querySelector('.modal-title').innerText = "동민's Pick 추천!";
         
-        // 초기 뷰 복원
         document.getElementById('slotIntroText').style.display = "block";
         document.getElementById('slotThumb').style.display = "none";
         document.getElementById('slotResultDetails').style.display = "none";
@@ -433,7 +432,6 @@
         
         document.getElementById('dongminModal').querySelector('.modal-title').innerText = "어디로 갈까요? 🤔";
 
-        // 화면 전환: 인트로와 텍스트 디테일은 가리고 사진 상자만 표시
         document.getElementById('slotIntroText').style.display = "none";
         document.getElementById('slotResultDetails').style.display = "none";
         document.getElementById('slotThumb').style.display = "flex";
@@ -514,8 +512,8 @@
             targetItem.x || "", 
             targetItem.y || "", 
             "", 
-            targetItem.kakaoId, 
-            targetItem.naverId  
+            targetItem.kakaoId || "", 
+            targetItem.naverId || ""  
         );
     }
 
@@ -733,32 +731,49 @@
         renderList(sorted);
     }
 
+    // 🎯 해결: 유저가 복수 선택한 키워드 중 첫 번째 키워드의 이모지를 찾아 추출하는 내부 헬퍼 함수
+    function getFirstSelectedEmoji() {
+        // Step 1(종류) 선택 순서 검사
+        if (selectedMenuCards.size > 0) {
+            const firstKeyword = Array.from(selectedMenuCards)[0];
+            const found = cardData.menu.find(item => item.text === firstKeyword);
+            return found ? found.emoji : "✍️"; 
+        }
+        // Step 2(취향) 선택 순서 검사
+        if (selectedSpiceCards.size > 0) {
+            const firstKeyword = Array.from(selectedSpiceCards)[0];
+            const found = cardData.spice.find(item => item.text === firstKeyword);
+            return found ? found.emoji : "✍️";
+        }
+        return "🍴"; // 선택된 키워드가 아예 없는 경우 기본 포크/스푼 고정
+    }
+
     function renderList(places) {
         const container = document.getElementById('restaurantContainer');
         container.innerHTML = "";
         
         if (!places.length) {
-            // 2. 요청하신 조건 없음 문구 수정 적용 완료 (이모지 및 동민's Pick 볼드/아이콘 처리)
             container.innerHTML = `
                 <div style="text-align:center; padding:35px 20px; color:var(--text-muted); font-size:13.5px; line-height:1.6; word-break:keep-all;">
                     조건에 맞는 식당을 찾지 못했어요 😥<br>
                     반경 또는 조건을 변경하거나 <strong>🎯 동민's Pick</strong> 을 이용해보세요!
                 </div>`;
         } else {
+            // 현재 유저가 선택한 키워드들의 최선두 이모지를 연산
+            const currentRepresentativeEmoji = getFirstSelectedEmoji();
+
             places.forEach((p, idx) => {
                 let card = document.createElement('div');
                 card.className = "restaurant-card";
                 card.style.animationDelay = `${idx * 0.04}s`;
                 card.onclick = (e) => { if(e.target.tagName !== 'BUTTON') openRoutingModal('detail', p.place_name, p.x, p.y, p.place_url, p.id, ""); };
-
-                let thumb = p.main_photo_url || p.image_url || `https://place.map.kakao.com/m/main/v/${p.id}`;
-                let thumbHTML = (thumb && !thumb.includes('/m/main/v/')) ? `<img src="${thumb}" onerror="this.src='https://place.map.naver.com/stock-image?id=${p.id}'">` : "🍴";
                 
                 let cat = p.category_name ? p.category_name.split(' > ').pop() : "음식점";
                 let badgeHTML = `<span class="badge-cat">${cat}</span>` + (p.matchedKeywords.length ? `<span class="badge-match">${p.matchedKeywords.join(', ')}</span>` : "");
 
+                // 🎯 썸네일 영역에 불확실한 웹 이미지 대신 선택 키워드의 대표 이모지를 깔끔하게 렌더링
                 card.innerHTML = `
-                    <div class="restaurant-thumb">${thumbHTML}</div>
+                    <div class="restaurant-thumb">${currentRepresentativeEmoji}</div>
                     <div class="restaurant-info">
                         <div>
                             <div class="restaurant-name">${p.place_name}</div>
@@ -779,7 +794,6 @@
         }, 50);
     }
 
-    // 직전 대화 수정본 유지: 🔍 상세 페이지 열기
     function openRoutingModal(type, name, x, y, placeUrl, kakaoId, naverId) {
         selectedAction = type; 
         selectedPlace = { name, x, y, placeUrl, kakaoId, naverId };
@@ -791,7 +805,6 @@
     
     function closeMapModal() { document.getElementById('mapModal').style.display = "none"; }
 
-    // 직전 대화 수정본 유지: 네이버 상세 링크 체계 정상화
     function openMapApp(provider) {
         if (!selectedPlace) return;
         const { name, x, y, kakaoId, naverId } = selectedPlace;
@@ -810,8 +823,13 @@
         } 
         else {
             if (selectedAction === 'detail') {
-                appUrl = `nmap://place?id=${naverId}`;
-                webUrl = `https://place.map.naver.com/${naverId}`;
+                if (naverId && naverId.trim() !== "") {
+                    appUrl = `nmap://place?id=${naverId}`;
+                    webUrl = `https://place.map.naver.com/${naverId}`;
+                } else {
+                    appUrl = `nmap://search?query=${encodeURIComponent(name)}`;
+                    webUrl = `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}`;
+                }
             } else {
                 appUrl = `nmap://route/walk?dlat=${y}&dlng=${x}&dname=${encodeURIComponent(name)}`;
                 webUrl = `https://m.map.naver.com/route/walk.naver?sname=${encodeURIComponent('내 위치')}&sx=${userLng}&sy=${userLat}&ename=${encodeURIComponent(name)}&ex=${x}&ey=${y}`;
