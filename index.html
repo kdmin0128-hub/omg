@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>오늘 뭐 먹지? | OMG</title>
     
+    <script src="dongmin-picks.js"></script>
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=566c59003be0a7db1292fbbc43b0fad0&libraries=services&autoload=false"></script>
     
     <style>
@@ -190,7 +191,7 @@
     <div class="result-section" id="resultSection">
         <div class="sort-filter-bar" id="sortFilterBar">
             <button class="btn-sort" id="sortDistanceBtn" onclick="handleSortClick('distance')">거리순</button>
-            <button class="btn-sort" id="sortMatchBtn" onclick="onclick="handleSortClick('match')">매칭순</button>
+            <button class="btn-sort" id="sortMatchBtn" onclick="handleSortClick('match')">매칭순</button>
         </div>
         <div class="restaurant-list" id="restaurantContainer"></div>
     </div>
@@ -253,37 +254,7 @@
 </div>
 
 <script>
-    // ===================================================
-    // ✍️ 동민's Pick 데이터 정의 공간 (정확한 중복 방지 매칭 규격 적용)
-    // ===================================================
-    const dongminPicks = [
-        {
-            name: "선희네",
-            menu: "보쌈, 잔치국수",
-            img: "https://img1.kakaocdn.net/cthumb/local/C800x800.q50/?fname=https%3A%2F%2Fpostfiles.pstatic.net%2FMjAyNDExMjRfMTEz%2FMDAxNzMyNDQ3MDY4MjQy.qRgqeoaqwASXzkG2dkML6_idYAQPCjwUszc6kSCRw54g.Y0ozQadLBDMPg6Sp14VRDRCNuSJ6boiv5KNcW3kEIZgg.JPEG%2FKakaoTalk_20241124_201008658_07.jpg%3Ftype%3Dw966", 
-            comment: "서울에 이런 곳이 있었나 싶은 지하 던전에서 맛보는 부드러운 수육과 깊고 진한 육수의 잔치국수",
-            tags: ["잔치국수 4천원", "어른들의 놀이터", "내가 제일 어림", "계좌이체/현금만"],
-            kakaoId: "653484290",  // 카카오맵 고유식별 번호
-            naverId: "1770707904"   // 네이버지도 고유식별 번호
-        },
-        {
-            name: "인생 파스타 팩토리",
-            menu: "매콤 투움바 파스타 🍝",
-            img: "🍝", 
-            comment: "매콤한 투움바 파스타에 마늘빵 찍어 먹으면 스트레스가 다 날아감.",
-            tags: ["데이트추천", "꾸덕꾸덕", "매콤크림"],
-            x: "", y: "", kakaoId: "", naverId: ""
-        },
-        {
-            name: "대박 치즈돈까스",
-            menu: "눈꽃치즈돈까스 🥩",
-            img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300",
-            comment: "흘러내리는 모짜렐라 치즈 폭포, 겉바속촉의 대명사!",
-            tags: ["치즈폭탄", "웨이팅맛집", "겉바속촉"],
-            x: "", y: "", kakaoId: "", naverId: ""
-        }
-    ];
-
+    // ✍️ 기존 자바스크립트용 데이터 변수 배열을 외부 js 파일이 채워줍니다.
     let userLat, userLng, selectedPlace, ps, geocoder, gpsInterval;
     let selectedAction = 'detail';
     let selectedMenuCards = new Set(), selectedSpiceCards = new Set();
@@ -313,8 +284,8 @@
     }
 
     function openDongminPickModal() {
-        if (!dongminPicks || dongminPicks.length === 0) {
-            alert("동민's Pick 맛집 리스트를 소스코드에 먼저 등록해 주세요!");
+        if (typeof dongminPicks === 'undefined' || !dongminPicks || dongminPicks.length === 0) {
+            alert("dongmin-picks.js 파일을 읽을 수 없거나 데이터가 비어 있습니다!");
             return;
         }
         slotStatus = 'ready';
@@ -371,7 +342,7 @@
         const thumbBox = document.getElementById('slotThumb');
         
         if(thumbBox) {
-            if(currentItem.img.startsWith('http') || currentItem.img.startsWith('.')) {
+            if(currentItem.img && (currentItem.img.startsWith('http') || currentItem.img.startsWith('.'))) {
                 thumbBox.innerHTML = `<img src="${currentItem.img}" alt="slot-thumb">`;
             } else {
                 thumbBox.innerHTML = currentItem.img || "🍴";
@@ -425,22 +396,20 @@
         document.getElementById('slotCloseBtn').disabled = true;
     }
 
-    // 🎯 1번 문제 해결: 동민's Pick 팝업을 먼저 깔끔히 닫고 지도선택 인터페이스 오픈
     function handleSlotRouteClick() {
         if (!finalPickedItem) return;
         
         const targetItem = finalPickedItem; 
         closeDongminPickModal(); 
         
-        // 지도 분리 맵핑 정보 삽입
         openRoutingModal(
             'route', 
             targetItem.name, 
-            targetItem.x, 
-            targetItem.y, 
+            targetItem.x || "", 
+            targetItem.y || "", 
             "", 
-            targetItem.kakaoId, // 카카오 전용 아이디 위임
-            targetItem.naverId  // 네이버 전용 아이디 위임
+            targetItem.kakaoId, 
+            targetItem.naverId  
         );
     }
 
@@ -635,7 +604,7 @@
                         </div>
                         <div class="restaurant-meta">
                             <span class="distance">📍 ${p.distance}m</span>
-                            <button class="btn-map-trigger" onclick="openRoutingModal('route', '${p.place_name}', '${p.x}', '${p.y}', '${p.place_url}', p.id, '')">길 찾기 🧭</button>
+                            <button class="btn-map-trigger" onclick="openRoutingModal('route', '${p.place_name}', '${p.x}', '${p.y}', '${p.place_url}', '${p.id}', '')">길 찾기 🧭</button>
                         </div>
                     </div>`;
                 container.appendChild(card);
@@ -644,7 +613,6 @@
         document.getElementById('resultSection').style.display = "block";
     }
 
-    // 🎯 고유 식별 매칭을 처리하기 위해 파라미터 구조 확장 수술
     function openRoutingModal(type, name, x, y, placeUrl, kakaoId, naverId) {
         selectedAction = type; 
         selectedPlace = { name, x, y, placeUrl, kakaoId, naverId };
@@ -668,15 +636,20 @@
                 url = naverId ? `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}&style=v5#/search/table/${naverId}` : `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}`;
             }
         } else {
-            // 길찾기 라우팅 설계 고도화
             if (provider === 'kakao') {
-                url = (userLat && userLng && x && y) 
-                    ? `https://map.kakao.com/link/to/${encodeURIComponent(name)},${y},${x}?sName=${encodeURIComponent('내 위치')}&by=FOOT` 
-                    : `https://map.kakao.com/link/to/${kakaoId || ''}`;
+                if (userLat && userLng && x && y) {
+                    url = `https://map.kakao.com/link/to/${encodeURIComponent(name)},${y},${x}?sName=${encodeURIComponent('내 위치')}&by=FOOT`;
+                } else {
+                    url = `https://map.kakao.com/link/to/${kakaoId || ''}`;
+                }
             } else {
-                url = (userLat && userLng && x && y) 
-                    ? `https://map.naver.com/v5/directions/${userLng},${userLat},${encodeURIComponent('내위치')}/${x},${y},${encodeURIComponent(name)}/-/walk` 
-                    : (naverId ? `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}&style=v5#/search/table/${naverId}` : `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}`);
+                if (userLat && userLng && x && y) {
+                    url = `https://m.map.naver.com/route/walk.naver?sname=${encodeURIComponent('내 위치')}&sx=${userLng}&sy=${userLat}&ename=${encodeURIComponent(name)}&ex=${x}&ey=${y}`;
+                } else {
+                    url = naverId 
+                        ? `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}&style=v5#/search/table/${naverId}` 
+                        : `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}`;
+                }
             }
         }
         window.open(url, '_blank'); 
