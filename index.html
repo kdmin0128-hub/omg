@@ -110,7 +110,6 @@
         .btn-sheet-confirm:active { transform: translateY(2px); box-shadow: 0 2px 0 #cf3c4e; }
 
         .casting-box { display: none; text-align: center; padding: 20px 0; }
-        /* 2번 요구사항: 로딩 텍스트 애니메이션 유지 및 줄바꿈 처리 */
         .casting-text { font-size: 14px; font-weight: bold; color: #ff5266; margin-bottom: 10px; animation: bounce 0.5s infinite alternate; word-break: keep-all; line-height: 1.4; }
         .casting-bar-bg { width: 100%; height: 12px; background: #eeded1; border-radius: 6px; overflow: hidden; }
         .casting-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #ffebcc, #ff7888); border-radius: 6px; transition: width 1.2s linear; }
@@ -118,12 +117,12 @@
         .btn-submit { width: 100%; background: linear-gradient(135deg, #ff5266, #ff7888); color: white; border: none; padding: 16px; border-radius: 22px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 0px #d6384b; letter-spacing: -0.3px; margin-top: 10px; }
         .btn-submit:active { transform: translateY(4px); box-shadow: 0 2px 0px #d6384b; }
 
-        /* 3번 요구사항: 리스트 타이틀 삭제 및 상단 필터/정렬 바 레이아웃 배치 */
         .result-section { margin-top: 24px; display: none; }
-        .sort-filter-bar { display: flex; justify-content: space-between; align-items: center; background: #fffdfa; border: 2px solid #f2ece6; padding: 8px 12px; border-radius: 16px; margin-bottom: 14px; gap: 8px; }
-        .sort-group { display: flex; gap: 6px; }
-        .btn-sort { background: white; border: 1.5px solid #eeded1; padding: 6px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; color: #666; cursor: pointer; display: flex; align-items: center; gap: 2px; transition: all 0.15s; }
-        .btn-sort.active { border-color: #ff5266; color: #ff5266; background: #fff0f2; }
+        
+        /* 1번 요구사항: 정렬 영역 우측 정렬 배치 및 마진 값 세부 조정 */
+        .sort-filter-bar { display: flex; justify-content: flex-end; align-items: center; background: transparent; padding: 4px 2px; margin-bottom: 14px; gap: 8px; }
+        .btn-sort { background: white; border: 1.5px solid #eeded1; padding: 8px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; color: #666; cursor: pointer; display: flex; align-items: center; gap: 2px; transition: all 0.15s; box-shadow: 0 2px 0 #f2ece6; }
+        .btn-sort.active { border-color: #ff5266; color: #ff5266; background: #fff0f2; box-shadow: 0 2px 0 #ffbcc4; }
         
         .restaurant-list { display: flex; flex-direction: column; gap: 14px; }
         
@@ -214,10 +213,8 @@
 
     <div class="result-section" id="resultSection">
         <div class="sort-filter-bar">
-            <div class="sort-group">
-                <button class="btn-sort active" id="sortDistanceBtn" onclick="toggleDistanceSort()">거리순 ▼</button>
-                <button class="btn-sort" id="sortMatchBtn" onclick="toggleMatchSort()">매칭순 ▲</button>
-            </div>
+            <button class="btn-sort" id="sortDistanceBtn" onclick="handleDistanceClick()">거리순(가까운순)</button>
+            <button class="btn-sort" id="sortMatchBtn" onclick="handleMatchClick()">매칭순(많은순)</button>
         </div>
         <div class="restaurant-list" id="restaurantContainer"></div>
     </div>
@@ -271,11 +268,10 @@
     let customMenuCards = [];
     let customSpiceCards = [];
 
-    // 전역 맛집 데이터 풀 및 현재 활성화된 정렬 상태 변수
+    // 전역 검색 데이터 풀 및 독립 다중 토글 상태 제어 변수
     let currentFetchedPlaces = [];
-    let distanceSortDirection = 'asc'; // 'asc': 가까운순(▼), 'desc': 먼순(▲)
-    let matchSortDirection = 'desc';   // 'desc': 높은순(▲), 'asc': 낮은순(▼)
-    let activeSortType = 'distance';   // 'distance' 또는 'match'
+    let isDistanceFilterOn = false;
+    let isMatchFilterOn = false;
 
     const cardData = {
         menu: [
@@ -379,7 +375,8 @@
             backBtn.style.display = "none";
             confirmBtn.innerText = "다음 단계로 (취향 선택) ➡️";
         } else {
-            title.innerText = "🔥 Step 2. 세부적인 맛과 취향을 골라주세요 (복수 선택 가능)";
+            // 2번 요구사항: 타이틀 우측 설명 영역 끝부분에 마침표(".") 반영 완료
+            title.innerText = "🔥 Step 2. 세부적인 맛과 취향을 골라주세요. (복수 선택 가능)";
             backBtn.style.display = "block";
             confirmBtn.innerText = "선택 완료";
         }
@@ -567,7 +564,7 @@
                     );
                 }
 
-                // 3번 요구사항 연동: 가져온 데이터를 기반으로 매칭 스코어 계산 후 보관
+                // 맛집 풀 보관 및 매칭 점수 계산 
                 currentFetchedPlaces = filteredPlaces.map(place => {
                     let score = 0;
                     selectedMenuCards.forEach(card => { if(place.category_name.includes(card) || place.place_name.includes(card)) score++; });
@@ -578,12 +575,11 @@
                     return { ...place, matchScore: score };
                 });
 
-                // 기본 정렬 초기화 필터 적용 후 렌더링
-                activeSortType = 'distance';
-                distanceSortDirection = 'asc';
-                document.getElementById('sortDistanceBtn').innerText = "거리순 ▼";
-                document.getElementById('sortMatchBtn').innerText = "매칭순 ▲";
-                applySortAndRender();
+                // 1번 요구사항: 처음 리스트를 뿌려줄 때는 필터를 끄고 거리순(가까운순) 기본 정렬로 노출
+                isDistanceFilterOn = false;
+                isMatchFilterOn = false;
+                updateSortButtonsUI();
+                applyMultiSortAndRender();
             } else {
                 currentFetchedPlaces = [];
                 renderList([]);
@@ -591,53 +587,53 @@
         }, searchOptions);
     }
 
-    // 3번 요구사항: 거리순 정렬 제어 토글 처리
-    function toggleDistanceSort() {
-        activeSortType = 'distance';
-        document.getElementById('sortDistanceBtn').classList.add('active');
-        document.getElementById('sortMatchBtn').classList.remove('active');
-        
-        if (distanceSortDirection === 'asc') {
-            distanceSortDirection = 'desc';
-            document.getElementById('sortDistanceBtn').innerText = "거리순 ▲";
-        } else {
-            distanceSortDirection = 'asc';
-            document.getElementById('sortDistanceBtn').innerText = "거리순 ▼";
-        }
-        applySortAndRender();
+    // 1번 요구사항: 거리순 버튼 클릭 핸들러 (복수 선택 토글)
+    function handleDistanceClick() {
+        isDistanceFilterOn = !isDistanceFilterOn;
+        updateSortButtonsUI();
+        applyMultiSortAndRender();
     }
 
-    // 3번 요구사항: 매칭순 정렬 제어 토글 처리
-    function toggleMatchSort() {
-        activeSortType = 'match';
-        document.getElementById('sortMatchBtn').classList.add('active');
-        document.getElementById('sortDistanceBtn').classList.remove('active');
-
-        if (matchSortDirection === 'desc') {
-            matchSortDirection = 'asc';
-            document.getElementById('sortMatchBtn').innerText = "매칭순 ▼";
-        } else {
-            matchSortDirection = 'desc';
-            document.getElementById('sortMatchBtn').innerText = "매칭순 ▲";
-        }
-        applySortAndRender();
+    // 1번 요구사항: 매칭순 버튼 클릭 핸들러 (복수 선택 토글)
+    function handleMatchClick() {
+        isMatchFilterOn = !isMatchFilterOn;
+        updateSortButtonsUI();
+        applyMultiSortAndRender();
     }
 
-    // 3번 요구사항: 수집된 내부 배열을 기준에 맞춰 재배열 후 렌더링 함수에 토스
-    function applySortAndRender() {
+    // 버튼 활성화 상태 UI 디자인 제어 함수
+    function updateSortButtonsUI() {
+        const dBtn = document.getElementById('sortDistanceBtn');
+        const mBtn = document.getElementById('sortMatchBtn');
+
+        if(isDistanceFilterOn) dBtn.classList.add('active');
+        else dBtn.classList.remove('active');
+
+        if(isMatchFilterOn) mBtn.classList.add('active');
+        else mBtn.classList.remove('active');
+    }
+
+    // 1번 요구사항: 복수 선택 규칙 및 미선택 시 기본 규칙(거리순) 연산 적용
+    function applyMultiSortAndRender() {
         let sorted = [...currentFetchedPlaces];
-        if (activeSortType === 'distance') {
+
+        // Case A: 둘 다 선택했거나 매칭순만 선택된 경우 -> 매칭 많은순 정렬 후 거리를 2차 기준 처리
+        if (isMatchFilterOn) {
             sorted.sort((a, b) => {
-                return distanceSortDirection === 'asc' ? parseInt(a.distance) - parseInt(b.distance) : parseInt(b.distance) - parseInt(a.distance);
-            });
-        } else if (activeSortType === 'match') {
-            sorted.sort((a, b) => {
-                if (a.matchScore === b.matchScore) {
-                    return parseInt(a.distance) - parseInt(b.distance); // 매칭점수 동점일 경우 기본 가까운 거리 우선 정렬
+                if (b.matchScore !== a.matchScore) {
+                    return b.matchScore - a.matchScore; // 1순위: 매칭 많은순
                 }
-                return matchSortDirection === 'desc' ? b.matchScore - a.matchScore : a.matchScore - b.matchScore;
+                // 매칭 점수가 동일한 경우 2순위 정렬 기준 판별
+                return parseInt(a.distance) - parseInt(b.distance); // 가까운순 우선 정렬
+            });
+        } 
+        // Case B: 거리순만 선택했거나, 아무것도 선택하지 않았을 때 (전부 미선택 기본값 포함)
+        else {
+            sorted.sort((a, b) => {
+                return parseInt(a.distance) - parseInt(b.distance); // 거리 가까운순 무조건 고정
             });
         }
+
         renderList(sorted);
     }
 
