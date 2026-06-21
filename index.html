@@ -22,8 +22,8 @@
         body { background-color: var(--bg-sweet); color: var(--text-main); padding-bottom: 50px; overflow-x: hidden; }
         .container { max-width: 500px; margin: 0 auto; padding: 10px 16px; }
 
-        /* 헤더 */
-        .omg-image-header { padding: 10px 0; text-align: center; cursor: pointer; }
+        /* 헤더 패딩값 */
+        .omg-image-header { padding: 0 0 10px 0; text-align: center; cursor: pointer; }
         .omg-header-img { width: 50%; max-width: 220px; height: auto; }
 
         /* 카드 공통 */
@@ -37,12 +37,13 @@
         .btn-retry { background: #f2ece6; border: none; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: bold; color: #666; cursor: pointer; box-shadow: 0 2px 0 #d5c8bd; }
         .privacy-note { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 10px; font-weight: bold; }
         
-        /* 반경 슬라이더 */
-        .range-container { margin-top: 16px; width: 100%; padding: 0 10px; }
-        .range-slider { width: 100%; height: 10px; -webkit-appearance: none; background: #ebdcd0; border-radius: 5px; outline: none; }
+        /* 반경 슬라이더와 텍스트 위치 정렬 일치화 */
+        .range-container { margin-top: 16px; width: 100%; padding: 0; }
+        .range-slider { width: 100%; height: 10px; -webkit-appearance: none; background: #ebdcd0; border-radius: 5px; outline: none; margin: 0; }
         .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #ff5266; border: 3px solid white; box-shadow: 0 3px 0px #cf3c4e; cursor: pointer; }
-        .range-ticks { display: flex; justify-content: space-between; margin-top: 10px; }
-        .tick-item { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        
+        .range-ticks { display: flex; justify-content: space-between; margin: 12px 12px 0 12px; }
+        .tick-item { width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; white-space: nowrap; }
         .tick-label { font-size: 11px; color: var(--text-muted); font-weight: bold; }
         .tick-kcal { font-size: 9px; color: #b5aaa0; margin-top: 2px; }
         .tick-item.active .tick-label { color: #ff5266; font-weight: 900; }
@@ -79,16 +80,31 @@
         .btn-sheet-back { background: #f2ece6; color: #5a5a5a; box-shadow: 0 4px 0 #d5c8bd; display: none; }
         .btn-sheet-confirm { background: #ff5266; color: white; box-shadow: 0 4px 0 #cf3c4e; }
 
-        /* 캐스팅 프로그레스 */
-        .casting-box { display: none; text-align: center; padding: 20px 0; }
-        .casting-text { font-size: 14px; font-weight: bold; color: #ff5266; margin-bottom: 10px; animation: bounce 0.5s infinite alternate; }
-        .casting-bar-bg { width: 100%; height: 12px; background: #eeded1; border-radius: 6px; overflow: hidden; }
-        .casting-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #ffebcc, var(--primary-pink)); border-radius: 6px; transition: width 1.2s linear; }
+        /* 오버레이 딤 처리 */
+        .casting-overlay { 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+            background: rgba(0, 0, 0, 0.65); 
+            display: none; justify-content: center; align-items: center; 
+            z-index: 4000; backdrop-filter: blur(2px); 
+        }
+        
+        .food-emoji-display { 
+            font-size: 72px; 
+            display: flex; align-items: center; justify-content: center; 
+            animation: emojiFade 0.4s ease-in-out infinite alternate; 
+            user-select: none;
+        }
+
+        @keyframes emojiFade {
+            0% { opacity: 0.7; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1.1); }
+        }
+
         .btn-submit { width: 100%; background: linear-gradient(135deg, #ff5266, var(--primary-pink)); color: white; border: none; padding: 16px; border-radius: 22px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 0px #d6384b; margin-top: 10px; }
 
         /* 결과 리스트 */
         .result-section { margin-top: 24px; display: none; scroll-margin-top: 20px; }
-        .sort-filter-bar { display: flex; justify-content: flex-end; padding: 4px 2px; margin-bottom: 14px; gap: 8px; scroll-margin-top: 10px; }
+        .sort-filter-bar { display: flex; justify-content: flex-end; padding: 4px 2px; margin-bottom: 14px; gap: 8px; scroll-margin-top: 16px; }
         .btn-sort { background: white; border: 1.5px solid #eeded1; padding: 8px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; color: #666; cursor: pointer; box-shadow: 0 2px 0 #f2ece6; }
         .btn-sort.active { border-color: #ff5266; color: #ff5266; background: #fff0f2; box-shadow: 0 2px 0 #ffbcc4; }
         .restaurant-list { display: flex; flex-direction: column; gap: 14px; }
@@ -105,37 +121,86 @@
         .distance { font-size: 12px; color: #ff5266; font-weight: 900; }
         .btn-map-trigger { background: #fff0f2; border: 1px solid #ffccd3; color: #ff5266; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: bold; cursor: pointer; }
 
-        /* 모달 팝업 */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 3000; backdrop-filter: blur(2px); }
-        .modal { background: var(--card-white); border: 3px solid #f2ece6; width: 100%; max-width: 340px; border-radius: 24px; padding: 22px; text-align: center; }
-        .modal-sub-title { font-size: 12px; font-weight: bold; color: #ff5266; margin-bottom: 4px; }
-        .modal-title { font-size: 16px; font-weight: 900; margin-bottom: 20px; }
+        /* 팝업 오버레이 및 모달 스타일 공통 */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 3000; backdrop-filter: blur(2px); padding: 16px; }
+        
+        .modal { 
+            background: var(--card-white); 
+            border: 3px solid #f2ece6; 
+            width: 100%; 
+            max-width: 360px;
+            height: auto; 
+            max-height: 90vh; 
+            border-radius: 24px; 
+            padding: 24px 22px; 
+            text-align: center; 
+            display: flex;
+            flex-direction: column;
+            gap: 16px; 
+            box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .modal-sub-title { font-size: 12px; font-weight: bold; color: #ff5266; margin-bottom: 2px; }
+        .modal-title { font-size: 17px; font-weight: 900; word-break: keep-all; }
         .map-options { display: flex; flex-direction: column; gap: 10px; }
         .map-btn { width: 100%; padding: 14px; border: none; border-radius: 16px; font-size: 14px; font-weight: bold; cursor: pointer; }
         .map-btn.kakao { background: #fee500; color: #3c1e1e; box-shadow: 0 4px 0 #ebd100; }
         .map-btn.naver { background: #03c75a; color: white; box-shadow: 0 4px 0 #02a64a; }
-        .modal-close { background: none; border: none; color: var(--text-muted); margin-top: 16px; cursor: pointer; text-decoration: underline; font-size: 12px; font-weight: bold; }
+        .modal-close { background: none; border: none; color: var(--text-muted); margin-top: 4px; cursor: pointer; text-decoration: underline; font-size: 12px; font-weight: bold; }
 
-        /* 동민's Pick 플로팅 아이콘 및 슬롯머신 팝업 디자인 */
+        /* 🎯 동민's Pick 플로팅 아이콘 */
         .floating-btn-pick { position: fixed; bottom: 20px; right: 20px; width: 68px; height: 68px; background: linear-gradient(135deg, #2c3e50, #e74c3c); border: 3px solid white; border-radius: 50%; box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 2500; animation: bounce 0.8s infinite alternate; }
         .floating-btn-pick .emoji { font-size: 22px; line-height: 1; }
         .floating-btn-pick .text { font-size: 9px; font-weight: 900; color: white; margin-top: 2px; text-align: center; white-space: nowrap; }
         
-        /* 슬롯 레이아웃 디자인 */
-        .slot-intro-text { font-size: 13px; font-weight: bold; color: #555; line-height: 1.6; margin: 15px 0 25px 0; word-break: keep-all; }
-        .slot-thumb-container { width: 130px; height: 130px; border-radius: 24px; border: 4px solid #f2ece6; margin: 0 auto 10px auto; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #fffdfa; font-size: 50px; }
-        .slot-thumb-container img { width: 100%; height: 100%; object-fit: cover; }
-        .badge-menu-pick { display: inline-block; background: #fff0f2; color: #ff5266; font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 8px; margin-bottom: 6px; border: 1px solid #ffccd3; }
-        .slot-line { font-size: 13px; font-weight: bold; color: #7f8c8d; background: #faf8f5; padding: 8px 12px; border-radius: 12px; margin-top: 8px; border: 1px dashed #eeded1; min-height: 36px; display: flex; align-items: center; justify-content: center; word-break: keep-all; }
+        /* 🎰 동민's Pick 슬롯 영역 */
+        #slotContentWrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; 
+        }
+
+        .slot-intro-text { font-size: 13px; font-weight: bold; color: #555; line-height: 1.6; word-break: keep-all; text-align: center; padding: 20px 0; }
         
-        /* 해시태그 컨테이너 스타일 */
-        .slot-tags-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 8px; min-height: 20px; }
-        .slot-hashtag { font-size: 11px; font-weight: bold; color: #ff5266; background: #fffdfd; padding: 2px 6px; border-radius: 6px; border: 1px solid #ffe5e8; }
+        /* 이미지 영역 박스 확장 고정 */
+        .slot-thumb-container { 
+            width: 150px; 
+            height: 150px; 
+            border-radius: 20px; 
+            border: 3px solid #f2ece6; 
+            margin: 0 auto 10px auto; 
+            overflow: hidden; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            background: #fffdfa; 
+            font-size: 64px; 
+            flex-shrink: 0; 
+        }
+        .slot-thumb-container img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .badge-menu-pick { display: inline-block; background: #fff0f2; color: #ff5266; font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 6px; margin-bottom: 6px; border: 1px solid #ffccd3; }
+        
+        /* 한줄평 박스 */
+        .slot-line { font-size: 13px; font-weight: 500; color: #5a6263; background: #faf8f5; padding: 10px 14px; border-radius: 12px; margin-top: 6px; border: 1px dashed #eeded1; display: block; text-align: center; width: 100%; box-sizing: border-box; word-break: keep-all; white-space: normal; height: auto; }
+        
+        .slot-tags-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 8px; }
+        .slot-hashtag { font-size: 10px; font-weight: bold; color: #ff5266; background: #fffdfd; padding: 2px 6px; border-radius: 5px; border: 1px solid #ffe5e8; }
 
-        /* 슬롯 전용 버튼 정렬 패널 */
-        .slot-btn-group-flex { display: flex; gap: 10px; margin-top: 16px; }
+        /* 결과 텍스트들을 롤링 중에는 숨기기 위한 스타일 */
+        .slot-result-details {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            display: none; 
+        }
 
-        .btn-slot-action { flex: 1; padding: 14px; border: none; border-radius: 16px; font-size: 15px; font-weight: 900; color: white; cursor: pointer; transition: background 0.1s; }
+        .slot-btn-group-flex { display: flex; gap: 10px; width: 100%; }
+        .btn-slot-action { flex: 1; padding: 14px; border: none; border-radius: 14px; font-size: 14px; font-weight: 900; color: white; cursor: pointer; }
         .btn-slot-action.start { background: #e74c3c; box-shadow: 0 4px 0 #c0392b; }
         .btn-slot-action.stop { background: #ff5266; box-shadow: 0 4px 0 #cf3c4e; }
         .btn-slot-action.retry { background: #1abc9c; box-shadow: 0 4px 0 #148f77; }
@@ -181,11 +246,6 @@
         </div>
     </div>
 
-    <div class="casting-box" id="castingBox">
-        <div class="casting-text">조금만 기다려 주세요.<br>내가 만든 나만의 맛집을 찾고 있어요.</div>
-        <div class="casting-bar-bg"><div class="casting-bar-fill" id="castingBarFill"></div></div>
-    </div>
-
     <button class="btn-submit" id="submitBtn" onclick="startCardCasting()">AI 추천 식당 검색✨</button>
 
     <div class="result-section" id="resultSection">
@@ -197,8 +257,12 @@
     </div>
 </div>
 
+<div class="casting-overlay" id="castingOverlay">
+    <div class="food-emoji-display" id="foodEmojiDisplay">🍲</div>
+</div>
+
 <div class="bottom-sheet-overlay" id="sheetOverlay" onclick="closeBottomSheet()"></div>
-<div class="bottom-sheet" id="bottomSheet">
+<div class="bottom-sheet" id="bottomSheet" style="height:auto;">
     <div class="step-indicator">
         <div class="step-dot" id="stepDot-menu">Step 1. 종류</div>
         <div class="step-dot" id="stepDot-spice">Step 2. 취향</div>
@@ -219,8 +283,10 @@
 
 <div class="modal-overlay" id="mapModal">
     <div class="modal">
-        <div class="modal-sub-title" id="modalActionType">페이지 열기</div>
-        <div class="modal-title" id="modalTargetName">식당 이름</div>
+        <div>
+            <div class="modal-sub-title" id="modalActionType">페이지 열기</div>
+            <div class="modal-title" id="modalTargetName">식당 이름</div>
+        </div>
         <div class="map-options">
             <button class="map-btn kakao" onclick="openMapApp('kakao')">💛 카카오맵 열기</button>
             <button class="map-btn naver" onclick="openMapApp('naver')">💚 네이버지도 열기</button>
@@ -236,20 +302,34 @@
 
 <div class="modal-overlay" id="dongminModal">
     <div class="modal">
-        <div class="modal-sub-title" style="color: #e74c3c;">실패 없는 진짜 맛집</div>
-        <div class="modal-title" style="margin-bottom: 10px;">동민's Pick 추천!</div>
+        <div>
+            <div class="modal-sub-title" style="color: #e74c3c;">실패 없는 진짜 맛집</div>
+            <div class="modal-title">동민's Pick 추천!</div>
+        </div>
         
         <div id="slotContentWrapper">
-            <div class="slot-intro-text">
-                원하는 식당을 찾지 못했나요?<br>걱정하지 마세요. 진짜 맛집은 여기에 있어요.
+            <div class="slot-thumb-container" id="slotThumb" style="display: none;">🍴</div>
+            
+            <div class="slot-result-details" id="slotResultDetails">
+                <div id="slotMenuBadgeContainer"><span class="badge-menu-pick" id="slotMenu">추천 메뉴</span></div>
+                <div class="restaurant-name" id="slotName" style="font-size: 17px; text-align:center; width:100%; font-weight:900; color:#2c3e50; margin-bottom:4px;">식당 이름</div>
+                <div class="slot-line" id="slotComment">한줄평</div>
+                <div class="slot-tags-container" id="slotTags"></div>
+            </div>
+
+            <div class="slot-intro-text" id="slotIntroText">
+                원하는 식당을 찾지 못했나요?<br>걱정하지 마세요. 진짜 맛집은 여기에 있어요.<br>
+                <span style="display: block; margin-top: 8px; color: #ff5266; font-size: 12px;">🎯 동민's Pick 은 꾸준히 업데이트 중입니다.</span>
             </div>
         </div>
 
-        <div class="slot-btn-group-flex">
-            <button class="btn-slot-action start" id="slotActionBtn" onclick="handleSlotActionClick()">시작</button>
-            <button class="btn-slot-action route" id="slotRouteBtn" onclick="handleSlotRouteClick()">길 찾기</button>
+        <div>
+            <div class="slot-btn-group-flex">
+                <button class="btn-slot-action start" id="slotActionBtn" onclick="handleSlotActionClick()">시작</button>
+                <button class="btn-slot-action route" id="slotRouteBtn" onclick="handleSlotRouteClick()">길 찾기</button>
+            </div>
+            <button class="modal-close" id="slotCloseBtn" onclick="closeDongminPickModal()">닫을래요</button>
         </div>
-        <button class="modal-close" id="slotCloseBtn" onclick="closeDongminPickModal()">닫을래요</button>
     </div>
 </div>
 
@@ -267,9 +347,33 @@
     let currentIntervalSpeed = 300; 
     let finalPickedItem = null; 
 
+    const loadingEmojis = ["🍲", "🥟", "🍣", "🍝", "🍔", "🍕", "🍗", "🥪", "🍛", "🍩", "🥗", "🍱", "🍢"];
+    let loadingIntervalId = null;
+
     const cardData = {
-        menu: [{text:"한식",emoji:"🍲"},{text:"중식",emoji:"🥟"},{text:"일식",emoji:"🍣"},{text:"양식",emoji:"🍝"},{text:"아시안",emoji:"🌴"},{text:"분식",emoji:"🍛"},{text:"🥗샐러드/다이어트",emoji:"🥗"},{text:"패스트푸드",emoji:"🍔"},{text:"카페/디저트",emoji:"☕"}],
-        spice: [{text:"매콤한",emoji:"🌶️"},{text:"단짠단짠",emoji:"🥨"},{text:"기름진/고소한",emoji:"🍗"},{text:"가벼운/깔끔한",emoji:"🍃"},{text:"육류 중심",emoji:"🥩"},{text:"해산물 중심",emoji:"🍤"},{text:"닭/오리",emoji:"🐔"},{text:"밥",emoji:"🍚"},{text:"면",emoji:"🍜"},{text:"빵/샌드위치",emoji:"🍞"},{text:"해장/국물",emoji:"🍲"}]
+        menu: [
+            {text:"한식", emoji:"🍲"},
+            {text:"중식", emoji:"🥟"},
+            {text:"일식", emoji:"🍣"},
+            {text:"양식", emoji:"🍝"},
+            {text:"아시안", emoji:"🌴"},
+            {text:"분식", emoji:"🍛"},
+            {text:"고기구이", emoji:"🥩"},
+            {text:"치킨/패스트푸드", emoji:"🍗"},
+            {text:"🥗샐러드/포케", emoji:"🥗"},
+            {text:"카페/디저트", emoji:"☕"}
+        ],
+        spice: [
+            {text:"매운 요리", emoji:"🌶️"},
+            {text:"국물/탕/찌개", emoji:"🍲"},
+            {text:"면 요리", emoji:"🍜"},
+            {text:"밥/덮밥", emoji:"🍚"},
+            {text:"돼지/소고기", emoji:"🐷"},
+            {text:"닭/오리", emoji:"🐔"},
+            {text:"해산물/생선", emoji:"🍤"},
+            {text:"빵/샌드위치", emoji:"🍞"},
+            {text:"술안주/포차", emoji:"🍺"}
+        ]
     };
 
     window.onload = function() {
@@ -291,10 +395,12 @@
         finalPickedItem = null;
         clearTimeout(slotTimeoutId);
         
-        document.getElementById('slotContentWrapper').innerHTML = `
-            <div class="slot-intro-text">
-                원하는 식당을 찾지 못했나요?<br>걱정하지 마세요. 진짜 맛집은 여기에 있어요.
-            </div>`;
+        document.getElementById('dongminModal').querySelector('.modal-title').innerText = "동민's Pick 추천!";
+        
+        // 초기 뷰 복원
+        document.getElementById('slotIntroText').style.display = "block";
+        document.getElementById('slotThumb').style.display = "none";
+        document.getElementById('slotResultDetails').style.display = "none";
         
         const btn = document.getElementById('slotActionBtn');
         btn.innerText = "시작";
@@ -323,13 +429,12 @@
         btn.className = "btn-slot-action stop";
         document.getElementById('slotRouteBtn').style.display = "none";
         
-        const wrapper = document.getElementById('slotContentWrapper');
-        wrapper.innerHTML = `
-            <div class="slot-thumb-container" id="slotThumb">🍴</div>
-            <div id="slotMenuBadgeContainer"><span class="badge-menu-pick" id="slotMenu">추천 메뉴</span></div>
-            <div class="modal-title" id="slotName" style="font-size: 18px; margin-bottom: 4px; min-height: 24px;">식당 이름</div>
-            <div class="slot-line" id="slotComment">한줄평</div>
-            <div class="slot-tags-container" id="slotTags"></div>`;
+        document.getElementById('dongminModal').querySelector('.modal-title').innerText = "어디로 갈까요? 🤔";
+
+        // 화면 전환: 인트로와 텍스트 디테일은 가리고 사진 상자만 표시
+        document.getElementById('slotIntroText').style.display = "none";
+        document.getElementById('slotResultDetails').style.display = "none";
+        document.getElementById('slotThumb').style.display = "flex";
 
         currentIntervalSpeed = 350; 
         runSlotLoop();
@@ -339,22 +444,25 @@
         const currentItem = dongminPicks[currentSlotIdx % dongminPicks.length];
         const thumbBox = document.getElementById('slotThumb');
         
+        // 롤링 상태일 때는 오직 '사진(이모지)' 데이터만 변경
         if(thumbBox) {
             if(currentItem.img && (currentItem.img.startsWith('http') || currentItem.img.startsWith('.'))) {
                 thumbBox.innerHTML = `<img src="${currentItem.img}" alt="slot-thumb">`;
             } else {
                 thumbBox.innerHTML = currentItem.img || "🍴";
             }
-            document.getElementById('slotMenu').innerText = "추천메뉴: " + currentItem.menu;
-            document.getElementById('slotName').innerText = currentItem.name;
-            document.getElementById('slotComment').innerText = currentItem.comment;
-            
-            const tagsBox = document.getElementById('slotTags');
-            if(tagsBox && currentItem.tags) {
-                tagsBox.innerHTML = currentItem.tags.map(t => `<span class="slot-hashtag">#${t}</span>`).join('');
-            } else if(tagsBox) {
-                tagsBox.innerHTML = '';
-            }
+        }
+
+        // 결과창 데이터를 백그라운드에 미리 매핑
+        document.getElementById('slotMenu').innerText = "추천메뉴: " + currentItem.menu;
+        document.getElementById('slotName').innerText = currentItem.name;
+        document.getElementById('slotComment').innerText = currentItem.comment;
+        
+        const tagsBox = document.getElementById('slotTags');
+        if(tagsBox && currentItem.tags) {
+            tagsBox.innerHTML = currentItem.tags.map(t => `<span class="slot-hashtag">#${t}</span>`).join('');
+        } else if(tagsBox) {
+            tagsBox.innerHTML = '';
         }
 
         finalPickedItem = currentItem;
@@ -374,6 +482,9 @@
             currentIntervalSpeed += 60; 
             if (currentIntervalSpeed >= 450) {
                 slotStatus = 'stopped';
+                
+                // 완전히 멈추면 모든 서브 텍스트 디테일 박스를 펼치기
+                document.getElementById('slotResultDetails').style.display = "flex";
                 
                 const btn = document.getElementById('slotActionBtn');
                 btn.innerText = "다시 돌리기";
@@ -441,7 +552,9 @@
         document.getElementById('stepDot-' + type).classList.add('active');
 
         const isMenu = type === 'menu';
-        document.getElementById('sheetTitle').innerText = isMenu ? "🥦 Step 1. 어떤 종류를 먹고 싶나요?" : "🔥 Step 2. 세부 취향을 골라주세요.";
+        document.getElementById('sheetTitle').innerText = isMenu 
+            ? "🥦 Step 1. 어떤 종류를 먹고 싶나요? (복수 선택 가능)" 
+            : "🔥 Step 2. 세부 취향을 골라주세요. (복수 선택 가능)";
         document.getElementById('sheetBackBtn').style.display = isMenu ? "none" : "block";
         document.getElementById('sheetConfirmBtn').innerText = isMenu ? "다음 단계로 ➡️" : "선택 완료";
 
@@ -523,37 +636,87 @@
     function startCardCasting() {
         if (!userLat) { alert("위치 설정이 아직 완료되지 않았어요!"); return; }
         document.getElementById('resultSection').style.display = "none";
-        document.getElementById('submitBtn').style.display = "none";
-        document.getElementById('castingBox').style.display = "block";
-        document.getElementById('castingBarFill').style.width = "100%";
+        
+        document.getElementById('castingOverlay').style.display = "flex";
+        
+        let emojiIdx = 0;
+        const emojiBox = document.getElementById('foodEmojiDisplay');
+        
+        loadingIntervalId = setInterval(() => {
+            emojiIdx = (emojiIdx + 1) % loadingEmojis.length;
+            emojiBox.innerText = loadingEmojis[emojiIdx];
+        }, 400);
+
         setTimeout(() => {
-            document.getElementById('castingBox').style.display = "none";
-            document.getElementById('submitBtn').style.display = "block";
+            clearInterval(loadingIntervalId);
+            document.getElementById('castingOverlay').style.display = "none";
             fetchRestaurants();
-        }, 1250);
+        }, 1800);
     }
 
     function fetchRestaurants() {
-        let parts = [];
-        selectedMenuCards.forEach(v => parts.push(v));
-        if (!parts.length) {
-            selectedSpiceCards.forEach(v => { if(["육류 중심","해산물 중심","닭/오리","밥","면","빵/샌드위치","해장/국물"].includes(v)) parts.push(v.replace(" 중심","")); });
+        let searchQueries = [];
+        
+        if (selectedMenuCards.size > 0) {
+            selectedMenuCards.forEach(v => searchQueries.push(v));
+        } else if (selectedSpiceCards.size > 0) {
+            selectedSpiceCards.forEach(v => {
+                if(["돼지/소고기","닭/오리","해산물/생선","면 요리","밥/덮밥","빵/샌드위치"].includes(v)) {
+                    searchQueries.push(v.split('/')[0]);
+                }
+            });
         }
         
-        ps.keywordSearch(parts.length ? parts.join(" ") : "음식점", (data, status) => {
-            if (status !== kakao.maps.services.Status.OK) { currentFetchedPlaces = []; renderList([]); return; }
-            let filtered = data;
-            if (selectedSpiceCards.has("해장/국물")) {
-                filtered = filtered.filter(p => ["탕","찌개","국수","국밥","해장"].some(k => p.category_name.includes(k)));
+        let finalQuery = searchQueries.slice(0, 2).join(" ") || "음식점";
+        
+        ps.keywordSearch(finalQuery, (data, status) => {
+            if (status !== kakao.maps.services.Status.OK) { 
+                currentFetchedPlaces = []; 
+                renderList([]); 
+                return; 
             }
-            currentFetchedPlaces = filtered.map(p => {
-                let score = 0, keywords = [];
-                selectedMenuCards.forEach(c => { if(p.category_name.includes(c)||p.place_name.includes(c)) { score++; keywords.push(c); }});
-                selectedSpiceCards.forEach(c => { let cl=c.replace(" 중심",""); if(p.category_name.includes(cl)||p.place_name.includes(cl)) { score++; keywords.push(c); }});
+            
+            currentFetchedPlaces = data.map(p => {
+                let score = 0;
+                let keywords = [];
+                let categoryString = p.category_name || "";
+                let nameString = p.place_name || "";
+
+                selectedMenuCards.forEach(c => {
+                    if(categoryString.includes(c) || nameString.includes(c)) { 
+                        score += 2; 
+                        keywords.push(c); 
+                    }
+                });
+
+                selectedSpiceCards.forEach(c => {
+                    let lookups = [];
+                    if(c === "매운 요리") lookups = ["매운", "짬뽕", "낙지", "떡볶이", "마라", "닭발"];
+                    else if(c === "국물/탕/찌개") lookups = ["탕", "찌개", "국밥", "전골", "국수", "칼국수", "해장"];
+                    else if(c === "면 요리") lookups = ["면", "국수", "우동", "라멘", "파스타", "밀면", "냉면"];
+                    else if(c === "밥/덮밥") lookups = ["밥", "덮밥", "볶음밥", "비빔밥", "한식"];
+                    else if(c === "돼지/소고기") lookups = ["돈가스", "삼겹살", "갈비", "고기", "육류", "제육"];
+                    else if(c === "닭/오리") lookups = ["치킨", "닭", "찜닭", "오리"];
+                    else if(c === "해산물/생선") lookups = ["회", "스시", "초밥", "생선", "해물", "아구찜"];
+                    else if(c === "빵/샌드위치") lookups = ["빵", "샌드위치", "베이커리", "토스트", "디저트"];
+                    else if(c === "술안주/포차") lookups = ["포차", "술집", "호프", "이자카야", "요리주점"];
+                    else lookups = [c];
+
+                    if(lookups.some(lk => categoryString.includes(lk) || nameString.includes(lk))) {
+                        score += 1;
+                        keywords.push(c);
+                    }
+                });
+
                 return { ...p, matchScore: score, matchedKeywords: [...new Set(keywords)] };
             });
+
             applySortAndRender();
-        }, { location: new kakao.maps.LatLng(userLat, userLng), radius: parseInt(document.getElementById('radiusRange').value), category_group_code: 'FD6' });
+        }, { 
+            location: new kakao.maps.LatLng(userLat, userLng), 
+            radius: parseInt(document.getElementById('radiusRange').value), 
+            category_group_code: 'FD6' 
+        });
     }
 
     function handleSortClick(type) {
@@ -577,8 +740,13 @@
     function renderList(places) {
         const container = document.getElementById('restaurantContainer');
         container.innerHTML = "";
+        
         if (!places.length) {
-            container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:13px;">조건에 맞는 맛집을 찾지 못했어요 🥲</div>`;
+            container.innerHTML = `
+                <div style="text-align:center; padding:35px 20px; color:var(--text-muted); font-size:13.5px; line-height:1.6; word-break:keep-all;">
+                    조건에 맞는 식당을 찾지 못했어요 🥲<br>
+                    반경 또는 조건을 바꾸거나 <strong>동민's Pick ➡️</strong> 을 이용해보세요 😊
+                </div>`;
         } else {
             places.forEach((p, idx) => {
                 let card = document.createElement('div');
@@ -607,7 +775,11 @@
                 container.appendChild(card);
             });
         }
+        
         document.getElementById('resultSection').style.display = "block";
+        setTimeout(() => {
+            document.getElementById('sortFilterBar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
     }
 
     function openRoutingModal(type, name, x, y, placeUrl, kakaoId, naverId) {
@@ -621,7 +793,6 @@
     
     function closeMapModal() { document.getElementById('mapModal').style.display = "none"; }
 
-    // 🚀 수정 및 완성된 지도 앱 구동 & 모바일 웹Fallback 처리 핵심 함수
     function openMapApp(provider) {
         if (!selectedPlace) return;
         const { name, x, y, kakaoId, naverId } = selectedPlace;
@@ -629,37 +800,29 @@
         let appUrl = "";
         let webUrl = "";
 
-        // 1. 카카오맵 설정
         if (provider === 'kakao') {
             if (selectedAction === 'detail') {
                 appUrl = `kakaomap://place?id=${kakaoId}`;
                 webUrl = `https://place.map.kakao.com/${kakaoId}`;
             } else {
-                // 🚶 앱 도보 스킴 (&by=FOOT)
                 appUrl = `kakaomap://route?epName=${encodeURIComponent(name)}&epX=${x}&epY=${y}&by=FOOT`;
-                // 🌐 모바일 웹 길찾기 백업 주소
                 webUrl = `https://map.kakao.com/link/to/${encodeURIComponent(name)},${y},${x}`;
             }
         } 
-        // 2. 네이버지도 설정
         else {
             if (selectedAction === 'detail') {
                 appUrl = `nmap://place?id=${naverId}`;
                 webUrl = `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}&style=v5#/search/table/${naverId}`;
             } else {
-                // 🚶 앱 도보 스킴 (/route/walk)
                 appUrl = `nmap://route/walk?dlat=${y}&dlng=${x}&dname=${encodeURIComponent(name)}`;
-                // 🌐 모바일 웹 길찾기 백업 주소 (도보)
                 webUrl = `https://m.map.naver.com/route/walk.naver?sname=${encodeURIComponent('내 위치')}&sx=${userLng}&sy=${userLat}&ename=${encodeURIComponent(name)}&ex=${x}&ey=${y}`;
             }
         }
 
-        // 3. ⏳ 타이머를 이용한 웹전환 백업 시스템
         const startTime = Date.now();
         window.location.href = appUrl;
 
         setTimeout(() => {
-            // 앱이 설치되어 있지 않아 0.5초 동안 브라우저 이탈이 없었을 경우 모바일 웹 맵 실행
             if (Date.now() - startTime < 800) {
                 window.location.href = webUrl;
             }
