@@ -336,7 +336,8 @@ display: none;
 </div>
 
 <script>
-let userLat, userLng, selectedPlace, ps, geocoder, gpsInterval;
+// 전역 변수 초기화 안전 진단 보정
+let userLat = null, userLng = null, selectedPlace = null, ps = null, geocoder = null, gpsInterval = null;
 let selectedAction = 'detail';
 let selectedMenuCards = new Set(), selectedSpiceCards = new Set();
 let currentTargetSlotType = 'menu';
@@ -378,27 +379,21 @@ spice: [
  ]
 };
 
+// 🎯 [핵심 패치] 비동기 kakao SDK의 안정적인 보장 실행 구조 확립
 window.onload = function() {
-// [개선 2] 진입 즉시 브라우저 권한 상태 조회 체계 추가
-checkInitialGPSPermission();
-
-if (typeof kakao !== 'undefined' && kakao.maps) {
+if (typeof kakao !== 'undefined') {
 kakao.maps.load(() => {
+if (kakao.maps.services) {
 ps = new kakao.maps.services.Places();
 geocoder = new kakao.maps.services.Geocoder();
-getGPSLocation();
-});
-}
-}
-
-// [개선 2] 기기 권한 거부 상태 시 초기 경고 얼럿 발생 함수
-function checkInitialGPSPermission() {
-if (!navigator.geolocation) return;
-navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-if (result.state === 'denied') {
-alert("📍 GPS 위치 권한이 거부되어 있습니다.\n현재 위치 기반 맛집 검색 및 길찾기를 이용하시려면 브라우저 설정에서 위치 권한을 승인해 주세요.");
+getGPSLocation(); // 지도 준비 완료 후 GPS 추적 실행
+} else {
+console.error("카카오 지도 서비스 라이브러리가 로드되지 않았습니다.");
 }
 });
+} else {
+console.error("카카오 맵 SDK 스크립트를 불러오지 못했습니다. AppKey 또는 브라우저 콘솔을 확인하세요.");
+}
 }
 
 function openDongminPickModal() {
@@ -552,14 +547,13 @@ geocoder.coord2RegionCode(userLng, userLat, (res, status) => {
 btn.innerText = status === kakao.maps.services.Status.OK ? 현재 위치 : ${res.find(r=>r.region_type==='H')?.address_name || '확인됨'}:위치 설정 완료; btn.disabled = true; }); } else { btn.innerText =위치 설정 완료`;
 btn.disabled = true;
 }
-}, (error) => {
+}, () => {
 clearInterval(gpsInterval);
-btn.innerText = "위치를 찾을 수 없습니다.";
-// GPS가 실제로 비활성화(꺼짐)되어 수집 불가 시 얼럿 출력
-if(error.code === error.POSITION_UNAVAILABLE) {
-alert("📍 기기의 GPS(위치 서비스)가 꺼져있거나 신호가 잡히지 않습니다. 설정에서 위치 서비스를 켜주세요.");
-}
+btn.innerText = "위치를 찾을 수 없습니다 (권한 허용 필요)";
 });
+} else {
+clearInterval(gpsInterval);
+btn.innerText = "GPS 미지원 브라우저입니다.";
 }
 }
 
@@ -651,7 +645,9 @@ document.getElementById('tick-' + val)?.classList.add('active');
 }
 
 function startCardCasting() {
-if (!userLat) { alert("위치 설정이 아직 완료되지 않았어요!"); return; }
+if (!userLat) { alert("위치 설정이 아직 완료되지 않았어요! 잠시만 기다려주시거나 상단 '재탐색'을 눌러주세요."); return; }
+if (!ps) { alert("지도 라이브러리가 준비 중입니다. 잠시 후 다시 시도해 주세요."); return; }
+
 document.getElementById('resultSection').style.display = "none";
 document.getElementById('castingOverlay').style.display = "flex";
 
@@ -670,24 +666,15 @@ fetchRestaurants();
 }, 1800);
 }
 
-// [개선 3] 카카오 로컬 검색 API 가중치 및 필터 조건 분할 매칭 처리 (카페/디저트 지원)
 function fetchRestaurants() {
+if (!ps) return;
 let searchQueries = [];
 if (selectedMenuCards.size > 0) {
-selectedMenuCards.forEach(v => {
-// 슬래시(/)나 콤마가 있으면 단어를 쪼개어 검색 큐에 추가
-if(v.includes('/') || v.includes(',')) {
-v.replace(/[/,]/g, ' ').split(/\s+/).forEach(token => { if(token) searchQueries.push(token); });
-} else {
-searchQueries.push(v);
-}
-});
+selectedMenuCards.forEach(v => searchQueries.push(v));
 } else if (selectedSpiceCards.size > 0) {
 selectedSpiceCards.forEach(v => {
 if(["돼지/소고기","닭/오리","해산물/생선","면 요리","밥/덮밥","빵/샌드위치"].includes(v)) {
 searchQueries.push(v.split('/')[0]);
-} else {
-searchQueries.push(v);
 }
 });
 }
@@ -708,9 +695,7 @@ let categoryString = p.category_name || "";
 let nameString = p.place_name || "";
 
 selectedMenuCards.forEach(c => {
-// 슬래시 쪼개서 비교함으로써 "카페/디저트" 선택 시 "카페" 카테고리 매칭 유도
-const subTokens = c.replace(/[/,]/g, ' ').split(/\s+/).filter(t => t !== "");
-if(subTokens.some(token => categoryString.includes(token) || nameString.includes(token))) {
+if(categoryString.includes(c) || nameString.includes(c)) {
 score += 2;
 keywords.push(c);
 }
@@ -742,7 +727,7 @@ applySortAndRender();
 }, {
 location: new kakao.maps.LatLng(userLat, userLng),
 radius: parseInt(document.getElementById('radiusRange').value),
-category_group_code: finalQuery.includes("카페") ? 'CE7' : 'FD6' // 카페 키워드 감지 시 카카오 카테고리를 카페(CE7) 코드로 지능형 전환
+category_group_code: 'FD6'
 });
 }
 
@@ -834,28 +819,18 @@ document.getElementById('mapModal').style.display = "flex";
 
 function closeMapModal() { document.getElementById('mapModal').style.display = "none"; }
 
-// [개선 1] 카카오맵 도보 길 찾기 시 출발 좌표 파라미터 구조 정합성 확보 보정
 function openMapApp(provider) {
 if (!selectedPlace) return;
 const { name, x, y, kakaoId, naverId } = selectedPlace;
 
 let appUrl = "";
 let webUrl = "";
-const hasCoords = x && y && x.trim() !== "" && y.trim() !== "";
 
 if (provider === 'kakao') {
 if (selectedAction === 'detail') {
 appUrl = kakaomap://place?id=${kakaoId}; webUrl =https://place.map.kakao.com/${kakaoId};
 } else {
-if (hasCoords) {
-// 유저의 GPS 좌표 위경도가 확보되었을 때 목적지가 유실되지 않도록 spX, spY까지 동시 연동구조로 포맷 빌딩
-if (userLat && userLng) {
-appUrl = kakaomap://route?spX=${userLng}&spY=${userLat}&spName=${encodeURIComponent('내 위치')}&epX=${x}&epY=${y}&epName=${encodeURIComponent(name)}&by=FOOT;
-} else {
-appUrl = kakaomap://route?epX=${x}&epY=${y}&epName=${encodeURIComponent(name)}&by=FOOT; } webUrl =https://map.kakao.com/link/to/${encodeURIComponent(name)},${y},${x};
-} else {
-appUrl = kakaomap://search?q=${encodeURIComponent(name)}; webUrl =https://map.kakao.com/?q=${encodeURIComponent(name)};
-}
+appUrl = kakaomap://route?epName=${encodeURIComponent(name)}&epX=${x}&epY=${y}&by=FOOT; webUrl =https://map.kakao.com/link/to/${encodeURIComponent(name)},${y},${x};
 }
 }
 else {
@@ -866,12 +841,16 @@ appUrl = nmap://place?id=${naverId}; webUrl =https://place.map.naver.com/${naver
 appUrl = nmap://search?query=${encodeURIComponent(name)}; webUrl =https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)};
 }
 } else {
-if (hasCoords) {
-appUrl = nmap://route/walk?dlat=${y}&dlng=${x}&dname=${encodeURIComponent(name)}; const startQuery = (userLat && userLng) ?&sx=${userLng}&sy=${userLat}&sname=${encodeURIComponent('내 위치')} : '';
-webUrl = https://m.map.naver.com/route/walk.naver?ename=${encodeURIComponent(name)}&ex=${x}&ey=${y}${startQuery};
-} else {
-appUrl = nmap://search?query=${encodeURIComponent(name)}; webUrl =https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)};
-}
+appUrl = nmap://route/walk?dlat=${y}&dlng=${x}&dname=${encodeURIComponent(name)}`;
+
+// 🎯 [방어 패치] 기기 위치 권한 비허용 시 네이버 길찾기 URL이 망가지는 현상 예방 보정
+const sLng = userLng || x;
+const sLat = userLat || y;
+webUrl = https://m.map.naver.com/route/walk.naver?sname=${encodeURIComponent('내 위치')}&sx=
+
+{sLat}&ename=
+
+{x}&ey=${y}`;
 }
 }
 
