@@ -6,6 +6,7 @@
 <title>오늘 뭐 먹지? | OMG</title>
 
 <script src="dongmin-picks.js"></script>
+
 <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=566c59003be0a7db1292fbbc43b0fad0&libraries=services&autoload=false"></script>
 
 <style>
@@ -81,24 +82,10 @@ body { background-color: var(--bg-sweet); color: var(--text-main); padding-botto
 .btn-sheet-confirm { background: #ff5266; color: white; box-shadow: 0 4px 0 #cf3c4e; }
 
 /* 오버레이 딤 처리 */
-.casting-overlay {
-position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-background: rgba(0, 0, 0, 0.65);
-display: none; justify-content: center; align-items: center;
-z-index: 4000; backdrop-filter: blur(2px);
-}
+.casting-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.65); display: none; justify-content: center; align-items: center; z-index: 4000; backdrop-filter: blur(2px); }
+.food-emoji-display { font-size: 72px; display: flex; align-items: center; justify-content: center; animation: emojiFade 0.4s ease-in-out infinite alternate; user-select: none; }
 
-.food-emoji-display {
-font-size: 72px;
-display: flex; align-items: center; justify-content: center;
-animation: emojiFade 0.4s ease-in-out infinite alternate;
-user-select: none;
-}
-
-@keyframes emojiFade {
-0% { opacity: 0.7; transform: scale(0.9); }
-100% { opacity: 1; transform: scale(1.1); }
-}
+@keyframes emojiFade { 0% { opacity: 0.7; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1.1); } }
 
 .btn-submit { width: 100%; background: linear-gradient(135deg, #ff5266, var(--primary-pink)); color: white; border: none; padding: 16px; border-radius: 22px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 0px #d6384b; margin-top: 10px; }
 
@@ -121,33 +108,15 @@ user-select: none;
 .distance { font-size: 12px; color: #ff5266; font-weight: 900; }
 .btn-map-trigger { background: #fff0f2; border: 1px solid #ffccd3; color: #ff5266; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: bold; cursor: pointer; }
 
-/* 팝업 오버레이 및 모달 스타일 공통 */
+/* 모달 스타일 공통 */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 3000; backdrop-filter: blur(2px); padding: 16px; }
-
-.modal {
-background: var(--card-white);
-border: 3px solid #f2ece6;
-width: 100%;
-max-width: 360px;
-height: auto;
-max-height: 90vh;
-border-radius: 24px;
-padding: 24px 22px;
-text-align: center;
-display: flex;
-flex-direction: column;
-gap: 16px;
-box-sizing: border-box;
-box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-}
+.modal { background: var(--card-white); border: 3px solid #f2ece6; width: 100%; max-width: 360px; height: auto; max-height: 90vh; border-radius: 24px; padding: 24px 22px; text-align: center; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
 .modal-sub-title { font-size: 12px; font-weight: bold; color: #ff5266; margin-bottom: 2px; }
 .modal-title { font-size: 17px; font-weight: 900; word-break: keep-all; }
 .map-options { display: flex; flex-direction: column; gap: 10px; }
 .map-btn { width: 100%; padding: 14px; border: none; border-radius: 16px; font-size: 14px; font-weight: bold; cursor: pointer; }
 .map-btn.kakao { background: #fee500; color: #3c1e1e; box-shadow: 0 4px 0 #ebd100; }
 .map-btn.naver { background: #03c75a; color: white; box-shadow: 0 4px 0 #02a64a; }
-
-/* 닫기 버튼 간격 넓힘 */
 .modal-close { background: none; border: none; color: var(--text-muted); margin-top: 12px; cursor: pointer; text-decoration: underline; font-size: 12px; font-weight: bold; }
 
 /* 🎯 동민's Pick 플로팅 아이콘 */
@@ -156,51 +125,15 @@ box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 .floating-btn-pick .text { font-size: 9px; font-weight: 900; color: white; margin-top: 2px; text-align: center; white-space: nowrap; }
 
 /* 🎰 동민's Pick 슬롯 영역 */
-#slotContentWrapper {
-width: 100%;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-overflow: hidden;
-}
-
+#slotContentWrapper { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
 .slot-intro-text { font-size: 13px; font-weight: bold; color: #555; line-height: 1.6; word-break: keep-all; text-align: center; padding: 20px 0; }
-
-/* 이미지 영역 박스 확장 고정 */
-.slot-thumb-container {
-width: 150px;
-height: 150px;
-border-radius: 20px;
-border: 3px solid #f2ece6;
-margin: 0 auto 10px auto;
-overflow: hidden;
-display: flex;
-align-items: center;
-justify-content: center;
-background: #fffdfa;
-font-size: 64px;
-flex-shrink: 0;
-}
+.slot-thumb-container { width: 150px; height: 150px; border-radius: 20px; border: 3px solid #f2ece6; margin: 0 auto 10px auto; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #fffdfa; font-size: 64px; flex-shrink: 0; }
 .slot-thumb-container img { width: 100%; height: 100%; object-fit: cover; }
-
 .badge-menu-pick { display: inline-block; background: #fff0f2; color: #ff5266; font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 6px; margin-bottom: 6px; border: 1px solid #ffccd3; }
-
-/* 한줄평 박스 */
 .slot-line { font-size: 13px; font-weight: 500; color: #5a6263; background: #faf8f5; padding: 10px 14px; border-radius: 12px; margin-top: 6px; border: 1px dashed #eeded1; display: block; text-align: center; width: 100%; box-sizing: border-box; word-break: keep-all; white-space: normal; height: auto; }
-
 .slot-tags-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 8px; }
 .slot-hashtag { font-size: 10px; font-weight: bold; color: #ff5266; background: #fffdfd; padding: 2px 6px; border-radius: 5px; border: 1px solid #ffe5e8; }
-
-/* 결과 텍스트들을 롤링 중에는 숨기기 위한 스타일 */
-.slot-result-details {
-width: 100%;
-display: flex;
-flex-direction: column;
-align-items: center;
-display: none;
-}
-
+.slot-result-details { width: 100%; display: flex; flex-direction: column; align-items: center; display: none; }
 .slot-btn-group-flex { display: flex; gap: 10px; width: 100%; }
 .btn-slot-action { flex: 1; padding: 14px; border: none; border-radius: 14px; font-size: 14px; font-weight: 900; color: white; cursor: pointer; }
 .btn-slot-action.start { background: #e74c3c; box-shadow: 0 4px 0 #c0392b; }
@@ -336,7 +269,7 @@ display: none;
 </div>
 
 <script>
-// 전역 변수 초기화 안전 진단 보정
+// 전역 변수 선언
 let userLat = null, userLng = null, selectedPlace = null, ps = null, geocoder = null, gpsInterval = null;
 let selectedAction = 'detail';
 let selectedMenuCards = new Set(), selectedSpiceCards = new Set();
@@ -355,50 +288,74 @@ let loadingIntervalId = null;
 
 const cardData = {
 menu: [
-{text:"한식", emoji:"🍲"},
-{text:"중식", emoji:"🥟"},
-{text:"일식", emoji:"🍣"},
-{text:"양식", emoji:"🍝"},
-{text:"아시안", emoji:"🌴"},
-{text:"분식", emoji:"🍛"},
-{text:"고기구이", emoji:"🥩"},
-{text:"치킨/패스트푸드", emoji:"🍗"},
-{text:"🥗샐러드/포케", emoji:"🥗"},
-{text:"카페/디저트", emoji:"☕"}
+{text:"한식", emoji:"🍲"}, {text:"중식", emoji:"🥟"}, {text:"일식", emoji:"🍣"},
+{text:"양식", emoji:"🍝"}, {text:"아시안", emoji:"🌴"}, {text:"분식", emoji:"🍛"},
+{text:"고기구이", emoji:"🥩"}, {text:"치킨/패스트푸드", emoji:"🍗"},
+{text:"🥗샐러드/포케", emoji:"🥗"}, {text:"카페/디저트", emoji:"☕"}
  ],
 spice: [
-{text:"매운 요리", emoji:"🌶️"},
-{text:"국물/탕/찌개", emoji:"🍲"},
-{text:"면 요리", emoji:"🍜"},
-{text:"밥/덮밥", emoji:"🍚"},
-{text:"돼지/소고기", emoji:"🐷"},
-{text:"닭/오리", emoji:"🐔"},
-{text:"해산물/생선", emoji:"🍤"},
-{text:"빵/샌드위치", emoji:"🍞"},
-{text:"술안주/포차", emoji:"🍺"}
+{text:"매운 요리", emoji:"🌶️"}, {text:"국물/탕/찌개", emoji:"🍲"}, {text:"면 요리", emoji:"🍜"},
+{text:"밥/덮밥", emoji:"🍚"}, {text:"돼지/소고기", emoji:"🐷"}, {text:"닭/오리", emoji:"🐔"},
+{text:"해산물/생선", emoji:"🍤"}, {text:"빵/샌드위치", emoji:"🍞"}, {text:"술안주/포차", emoji:"🍺"}
  ]
 };
 
-// 🎯 [핵심 패치] 비동기 kakao SDK의 안정적인 보장 실행 구조 확립
+// ⚡ [순서 꼬임 완전 정복] 브라우저 로드가 끝난 후 카카오맵이 안전하게 준비될 때까지 순차 검증
 window.onload = function() {
-if (typeof kakao !== 'undefined') {
-kakao.maps.load(() => {
+initKakaoMapSecure();
+};
+
+function initKakaoMapSecure() {
+if (typeof kakao !== 'undefined' && kakao.maps) {
+// 스크립트 태그가 로드되었으므로 내부 map 모듈을 명시적 로드
+kakao.maps.load(function() {
 if (kakao.maps.services) {
 ps = new kakao.maps.services.Places();
 geocoder = new kakao.maps.services.Geocoder();
-getGPSLocation(); // 지도 준비 완료 후 GPS 추적 실행
+getGPSLocation(); // 정상 활성화 시 GPS 연동 시작
 } else {
-console.error("카카오 지도 서비스 라이브러리가 로드되지 않았습니다.");
+fallbackLocationMode("라이브러리 로딩 지연");
 }
 });
 } else {
-console.error("카카오 맵 SDK 스크립트를 불러오지 못했습니다. AppKey 또는 브라우저 콘솔을 확인하세요.");
+// 간혹 네트워크 속도에 따라 지연 호출되는 경우를 대비해 0.3초 후 단 1회 재시도
+setTimeout(function() {
+if (typeof kakao !== 'undefined' && kakao.maps) {
+kakao.maps.load(function() {
+ps = new kakao.maps.services.Places();
+geocoder = new kakao.maps.services.Geocoder();
+getGPSLocation();
+});
+} else {
+fallbackLocationMode("카카오 객체 누락");
+}
+}, 300);
+}
+}
+
+function fallbackLocationMode(reason) {
+console.log("카카오맵 초기 스캔 보류 -> 일반 GPS 모드로 우회 적용: " + reason);
+const btn = document.getElementById('gpsBtn');
+if (btn) {
+btn.innerText = "기본 위치 탐색 모드 (연결 대기 중)";
+btn.style.background = "#faf8f5";
+btn.style.color = "#a69b91";
+btn.style.borderColor = "#ebdcd0";
+}
+if (navigator.geolocation) {
+navigator.geolocation.getCurrentPosition(function(pos) {
+userLat = pos.coords.latitude;
+userLng = pos.coords.longitude;
+if(btn) btn.innerText = "내 위치 좌표 수집 완료 📌";
+}, function() {
+if(btn) btn.innerText = "위치 탐색을 시작하려면 권한을 허용해주세요.";
+});
 }
 }
 
 function openDongminPickModal() {
 if (typeof dongminPicks === 'undefined' || !dongminPicks || dongminPicks.length === 0) {
-alert("dongmin-picks.js 파일을 읽을 수 없거나 데이터가 비어 있습니다!");
+alert("dongmin-picks.js 데이터를 읽을 수 없습니다. 파일 경로를 확인해 주세요!");
 return;
 }
 slotStatus = 'ready';
@@ -406,7 +363,6 @@ finalPickedItem = null;
 clearTimeout(slotTimeoutId);
 
 document.getElementById('dongminModal').querySelector('.modal-title').innerText = "동민's Pick 추천!";
-
 document.getElementById('slotIntroText').style.display = "block";
 document.getElementById('slotThumb').style.display = "none";
 document.getElementById('slotResultDetails').style.display = "none";
@@ -439,7 +395,6 @@ btn.className = "btn-slot-action stop";
 document.getElementById('slotRouteBtn').style.display = "none";
 
 document.getElementById('dongminModal').querySelector('.modal-title').innerText = "어디로 갈까요? 🤔";
-
 document.getElementById('slotIntroText').style.display = "none";
 document.getElementById('slotResultDetails').style.display = "none";
 document.getElementById('slotThumb').style.display = "flex";
@@ -449,6 +404,7 @@ runSlotLoop();
 }
 
 function runSlotLoop() {
+if (typeof dongminPicks === 'undefined' || !dongminPicks.length) return;
 const currentItem = dongminPicks[currentSlotIdx % dongminPicks.length];
 const thumbBox = document.getElementById('slotThumb');
 
@@ -467,8 +423,6 @@ document.getElementById('slotComment').innerText = currentItem.comment;
 const tagsBox = document.getElementById('slotTags');
 if(tagsBox && currentItem.tags) {
 tagsBox.innerHTML = currentItem.tags.map(t => <span class="slot-hashtag"&gt;#${t}</span>`).join('');
-} else if(tagsBox) {
-tagsBox.innerHTML = '';
 }
 
 finalPickedItem = currentItem;
@@ -476,9 +430,7 @@ currentSlotIdx++;
 
 if (slotStatus === 'accelerating') {
 currentIntervalSpeed = Math.max(120, currentIntervalSpeed - 40);
-if (currentIntervalSpeed <= 120) {
-slotStatus = 'running';
-}
+if (currentIntervalSpeed <= 120) slotStatus = 'running';
 slotTimeoutId = setTimeout(runSlotLoop, currentIntervalSpeed);
 }
 else if (slotStatus === 'running') {
@@ -513,16 +465,7 @@ function handleSlotRouteClick() {
 if (!finalPickedItem) return;
 const targetItem = finalPickedItem;
 closeDongminPickModal();
-
-openRoutingModal(
-'route',
-targetItem.name,
-targetItem.x || "",
-targetItem.y || "",
-"",
-targetItem.kakaoId || "",
-targetItem.naverId || ""
- );
+openRoutingModal('route', targetItem.name, targetItem.x || "", targetItem.y || "", "", targetItem.kakaoId || "", targetItem.naverId || "");
 }
 
 function closeDongminPickModal() {
@@ -533,6 +476,7 @@ document.getElementById('dongminModal').style.display = "none";
 
 function getGPSLocation() {
 const btn = document.getElementById('gpsBtn');
+if(!btn) return;
 btn.disabled = false;
 let dots = 0;
 clearInterval(gpsInterval);
@@ -549,7 +493,7 @@ btn.disabled = true;
 }
 }, () => {
 clearInterval(gpsInterval);
-btn.innerText = "위치를 찾을 수 없습니다 (권한 허용 필요)";
+btn.innerText = "위치를 가져올 수 없습니다 (권한 허용 필요)";
 });
 } else {
 clearInterval(gpsInterval);
@@ -563,9 +507,7 @@ document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active')
 document.getElementById('stepDot-' + type).classList.add('active');
 
 const isMenu = type === 'menu';
-document.getElementById('sheetTitle').innerText = isMenu
-? "🥦 Step 1. 어떤 종류를 먹고 싶나요? (복수 선택 가능)"
-: "🔥 Step 2. 세부 취향을 골라주세요. (복수 선택 가능)";
+document.getElementById('sheetTitle').innerText = isMenu ? "🥦 Step 1. 어떤 종류를 먹고 싶나요?" : "🔥 Step 2. 세부 취향을 골라주세요.";
 document.getElementById('sheetBackBtn').style.display = isMenu ? "none" : "block";
 document.getElementById('sheetConfirmBtn').innerText = isMenu ? "다음 단계로 ➡️" : "선택 완료";
 
@@ -645,15 +587,20 @@ document.getElementById('tick-' + val)?.classList.add('active');
 }
 
 function startCardCasting() {
-if (!userLat) { alert("위치 설정이 아직 완료되지 않았어요! 잠시만 기다려주시거나 상단 '재탐색'을 눌러주세요."); return; }
-if (!ps) { alert("지도 라이브러리가 준비 중입니다. 잠시 후 다시 시도해 주세요."); return; }
+if (!ps) {
+alert("카카오 지도 라이브러리가 준비 상태가 아닙니다. 잠시 후 다시 조회를 누르거나 하단 '동민's Pick' 슬롯머신을 이용해 주세요!");
+return;
+}
+if (!userLat) {
+alert("위치 좌표 탐색이 진행 중입니다. 잠시 후 다시 눌러주세요.");
+return;
+}
 
 document.getElementById('resultSection').style.display = "none";
 document.getElementById('castingOverlay').style.display = "flex";
 
 let emojiIdx = 0;
 const emojiBox = document.getElementById('foodEmojiDisplay');
-
 loadingIntervalId = setInterval(() => {
 emojiIdx = (emojiIdx + 1) % loadingEmojis.length;
 emojiBox.innerText = loadingEmojis[emojiIdx];
@@ -683,41 +630,31 @@ let finalQuery = searchQueries.slice(0, 2).join(" ") || "음식점";
 
 ps.keywordSearch(finalQuery, (data, status) => {
 if (status !== kakao.maps.services.Status.OK) {
-currentFetchedPlaces = [];
-renderList([]);
-return;
+currentFetchedPlaces = []; renderList([]); return;
 }
 
 currentFetchedPlaces = data.map(p => {
-let score = 0;
-let keywords = [];
-let categoryString = p.category_name || "";
-let nameString = p.place_name || "";
+let score = 0, keywords = [];
+let categoryString = p.category_name || "", nameString = p.place_name || "";
 
 selectedMenuCards.forEach(c => {
-if(categoryString.includes(c) || nameString.includes(c)) {
-score += 2;
-keywords.push(c);
-}
+if(categoryString.includes(c) || nameString.includes(c)) { score += 2; keywords.push(c); }
 });
 
 selectedSpiceCards.forEach(c => {
 let lookups = [];
 if(c === "매운 요리") lookups = ["매운", "짬뽕", "낙지", "떡볶이", "마라", "닭발"];
-else if(c === "국물/탕/찌개") lookups = ["탕", "찌개", "국밥", "전골", "국수", "칼국수", "해장"];
-else if(c === "면 요리") lookups = ["면", "국수", "우동", "라멘", "파스타", "밀면", "냉면"];
-else if(c === "밥/덮밥") lookups = ["밥", "덮밥", "볶음밥", "비빔밥", "한식"];
-else if(c === "돼지/소고기") lookups = ["돈가스", "삼겹살", "갈비", "고기", "육류", "제육"];
-else if(c === "닭/오리") lookups = ["치킨", "닭", "찜닭", "오리"];
-else if(c === "해산물/생선") lookups = ["회", "스시", "초밥", "생선", "해물", "아구찜"];
-else if(c === "빵/샌드위치") lookups = ["빵", "샌드위치", "베이커리", "토스트", "디저트"];
-else if(c === "술안주/포차") lookups = ["포차", "술집", "호프", "이자카야", "요리주점"];
+else if(c === "국물/탕/찌개") lookups = ["탕", "찌개", "국밥", "전골", "국수"];
+else if(c === "면 요리") lookups = ["면", "국수", "우동", "라멘", "파스타"];
+else if(c === "밥/덮밥") lookups = ["밥", "덮밥", "볶음밥", "한식"];
+else if(c === "돼지/소고기") lookups = ["돈가스", "삼겹살", "갈비", "고기"];
+else if(c === "닭/오리") lookups = ["치킨", "닭", "찜닭"];
+else if(c === "해산물/생선") lookups = ["회", "스시", "초밥", "생선"];
+else if(c === "빵/샌드위치") lookups = ["빵", "샌드위치", "베이커리"];
+else if(c === "술안주/포차") lookups = ["포차", "술집", "호프", "이자카야"];
 else lookups = [c];
 
-if(lookups.some(lk => categoryString.includes(lk) || nameString.includes(lk))) {
-score += 1;
-keywords.push(c);
-}
+if(lookups.some(lk => categoryString.includes(lk) || nameString.includes(lk))) { score += 1; keywords.push(c); }
 });
 
 return { ...p, matchScore: score, matchedKeywords: [...new Set(keywords)] };
@@ -749,28 +686,15 @@ sorted.sort((a, b) => parseInt(a.distance) - parseInt(b.distance));
 renderList(sorted);
 }
 
-function getFirstSelectedEmoji() {
-if (selectedMenuCards.size > 0) {
-const firstKeyword = Array.from(selectedMenuCards)[0];
-const found = cardData.menu.find(item => item.text === firstKeyword);
-return found ? found.emoji : "✍️";
-}
-if (selectedSpiceCards.size > 0) {
-const firstKeyword = Array.from(selectedSpiceCards)[0];
-const found = cardData.spice.find(item => item.text === firstKeyword);
-return found ? found.emoji : "✍️";
-}
-return "🍴";
-}
-
 function renderList(places) {
 const container = document.getElementById('restaurantContainer');
 container.innerHTML = "";
 
 if (!places.length) {
-container.innerHTML = &lt;div style="text-align:center; padding:35px 20px; color:var(--text-muted); font-size:13.5px; line-height:1.6; word-break:keep-all;"&gt; 조건에 맞는 식당을 찾지 못했어요 😥&lt;br&gt; 반경 또는 조건을 변경하거나 &lt;strong&gt;🎯 동민's Pick&lt;/strong&gt; 을 이용해보세요! &lt;/div>;
+container.innerHTML = &lt;div style="text-align:center; padding:35px 20px; color:var(--text-muted); font-size:13.5px; line-height:1.6; word-break:keep-all;"&gt; 조건에 맞는 식당을 찾지 못했어요 😥&lt;br&gt;반경 또는 조건을 변경하거나 하단 &lt;strong&gt;🎯 동민's Pick&lt;/strong&gt; 을 돌려보세요! &lt;/div>;
 } else {
-const currentRepresentativeEmoji = getFirstSelectedEmoji();
+let menuCardsArr = Array.from(selectedMenuCards);
+let currentRepresentativeEmoji = menuCardsArr.length ? (cardData.menu.find(m=>m.text===menuCardsArr[0])?.emoji || "🍲") : "🍲";
 
 places.forEach((p, idx) => {
 let card = document.createElement('div');
@@ -803,15 +727,12 @@ container.appendChild(card);
 }
 
 document.getElementById('resultSection').style.display = "block";
-setTimeout(() => {
-document.getElementById('sortFilterBar').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}, 50);
+setTimeout(() => { document.getElementById('sortFilterBar').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
 }
 
 function openRoutingModal(type, name, x, y, placeUrl, kakaoId, naverId) {
 selectedAction = type;
 selectedPlace = { name, x, y, placeUrl, kakaoId, naverId };
-
 document.getElementById('modalActionType').innerText = type === 'detail' ? "🔍 상세 페이지 열기" : "🧭 도보 길 찾기 시작";
 document.getElementById('modalTargetName').innerText = name;
 document.getElementById('mapModal').style.display = "flex";
@@ -822,9 +743,7 @@ function closeMapModal() { document.getElementById('mapModal').style.display = "
 function openMapApp(provider) {
 if (!selectedPlace) return;
 const { name, x, y, kakaoId, naverId } = selectedPlace;
-
-let appUrl = "";
-let webUrl = "";
+let appUrl = "", webUrl = "";
 
 if (provider === 'kakao') {
 if (selectedAction === 'detail') {
@@ -832,37 +751,21 @@ appUrl = kakaomap://place?id=${kakaoId}; webUrl =https://place.map.kakao.com/${k
 } else {
 appUrl = kakaomap://route?epName=${encodeURIComponent(name)}&epX=${x}&epY=${y}&by=FOOT; webUrl =https://map.kakao.com/link/to/${encodeURIComponent(name)},${y},${x};
 }
-}
-else {
+} else {
 if (selectedAction === 'detail') {
-if (naverId && naverId.trim() !== "") {
+if (naverId) {
 appUrl = nmap://place?id=${naverId}; webUrl =https://place.map.naver.com/${naverId};
 } else {
 appUrl = nmap://search?query=${encodeURIComponent(name)}; webUrl =https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)};
 }
 } else {
-appUrl = nmap://route/walk?dlat=${y}&dlng=${x}&dname=${encodeURIComponent(name)}`;
-
-// 🎯 [방어 패치] 기기 위치 권한 비허용 시 네이버 길찾기 URL이 망가지는 현상 예방 보정
-const sLng = userLng || x;
-const sLat = userLat || y;
-webUrl = https://m.map.naver.com/route/walk.naver?sname=${encodeURIComponent('내 위치')}&sx=
-
-{sLat}&ename=
-
-{x}&ey=${y}`;
+appUrl = nmap://route/walk?dlat=${y}&dlng=${x}&dname=${encodeURIComponent(name)}; const sLng = userLng || x; const sLat = userLat || y; webUrl =https://m.map.naver.com/route/walk.naver?sname=${encodeURIComponent('내 위치')}&sx=${sLng}&sy=${sLat}&ename=${encodeURIComponent(name)}&ex=${x}&ey=${y};
 }
 }
 
 const startTime = Date.now();
 window.location.href = appUrl;
-
-setTimeout(() => {
-if (Date.now() - startTime < 800) {
-window.location.href = webUrl;
-}
-}, 500);
-
+setTimeout(() => { if (Date.now() - startTime < 800) window.location.href = webUrl; }, 500);
 closeMapModal();
 }
 </script>
