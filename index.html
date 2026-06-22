@@ -368,13 +368,12 @@ if (typeof kakao !== 'undefined' && kakao.maps) {
 kakao.maps.load(() => {
 ps = new kakao.maps.services.Places();
 geocoder = new kakao.maps.services.Geocoder();
-getGPSLocation(); // 🎯 진입 즉시 GPS 탐색 가동
+getGPSLocation();
 });
 } else {
-// 카카오 객체가 일시 지연 로드될 경우 대비한 우회 실행
 getGPSLocation();
 }
-}
+};
 
 function openDongminPickModal() {
 if (typeof dongminPicks === 'undefined' || !dongminPicks || dongminPicks.length === 0) {
@@ -497,7 +496,6 @@ slotStatus = 'ready';
 document.getElementById('dongminModal').style.display = "none";
 }
 
-// 🎯 핵심 보정: 최초 진입 자동화 및 미작동 사유별 유저 대안 가이드 매핑
 function getGPSLocation() {
 const btn = document.getElementById('gpsBtn');
 if(!btn) return;
@@ -513,7 +511,6 @@ btn.innerText = "현재 위치를 조회하고 있습니다" + ".".repeat(dots++
 
 if (navigator.geolocation) {
 navigator.geolocation.getCurrentPosition(
-// 1. GPS 활성화 및 좌표 수집 성공 케이스
 pos => {
 clearInterval(gpsInterval);
 userLat = pos.coords.latitude;
@@ -526,16 +523,13 @@ btn.innerText = status === kakao.maps.services.Status.OK
 btn.disabled = true;
 }
 },
-// 2. 하드웨어/OS 설정 오류 세부 케이스 핸들링
 err => {
 clearInterval(gpsInterval);
 btn.classList.add('error');
 
 if (err.code === err.PERMISSION_DENIED) {
-// 유저가 고의 혹은 실수로 차단한 경우
 btn.innerText = "❌ 위치 권한 차단됨 (브라우저 주소창 좌측 자물쇠를 눌러 권한을 허용해주세요)";
 } else if (err.code === err.POSITION_UNAVAILABLE || err.code === err.TIMEOUT) {
-// 스마트폰 GPS/기기 자체가 꺼진 경우
 btn.innerText = "❌ 기기 GPS 비활성 상태 (휴대폰 상단바에서 위치/GPS를 켜고 재탐색을 눌러주세요)";
 } else {
 btn.innerText = "❌ 위치 정보를 가져올 수 없습니다. (클릭하여 재시도)";
@@ -588,7 +582,11 @@ node.className = select-item-card${activeSet.has(text) ? 'selected' : ''}; node.
 
 {text}</span>`;
 node.onclick = () => {
-activeSet.has(text) ? activeSet.delete(text) : activeSet.add(text);
+if(activeSet.has(text)) {
+activeSet.delete(text);
+} else {
+activeSet.add(text);
+}
 node.classList.toggle('selected');
 };
 grid.appendChild(node);
@@ -600,11 +598,16 @@ let text = input.value.trim();
 if(!text) return;
 (currentTargetSlotType === 'menu' ? selectedMenuCards : selectedSpiceCards).add(text);
 (currentTargetSlotType === 'menu' ? customMenuCards : customSpiceCards).push(text);
-input.value = ""; renderBottomSheetStep(currentTargetSlotType);
+input.value = "";
+renderBottomSheetStep(currentTargetSlotType);
 }
 
 function handleSheetConfirm() {
-currentTargetSlotType === 'menu' ? renderBottomSheetStep('spice') : closeBottomSheet();
+if(currentTargetSlotType === 'menu') {
+renderBottomSheetStep('spice');
+} else {
+closeBottomSheet();
+}
 }
 
 function closeBottomSheet() {
@@ -617,18 +620,27 @@ function renderCombinedChips() {
 const board = document.getElementById('chipsBoard');
 const btn = document.getElementById('masterAddBtn');
 if (!selectedMenuCards.size && !selectedSpiceCards.size) {
-board.innerHTML = ""; board.style.display = "none";
+board.innerHTML = "";
+board.style.display = "none";
 btn.innerText = "➕ 여기를 눌러 먹켓 채우기";
 return;
 }
 btn.innerText = "🔄 구성 다시 변경하기";
 let html = "";
-selectedMenuCards.forEach(t => html += <div class="equipped-chip"&gt;&lt;span&gt;${cardData.menu.find(c=>c.text===t)?.emoji || "✍️"} ${t}&lt;/span&gt;&lt;span class="chip-remove" onclick="removeCard('menu','${t}')">×</span></div>); selectedSpiceCards.forEach(t =&gt; html +=<div class="equipped-chip" style="border-color:#66dbb2; color:#1abc9c;"><span>${cardData.spice.find(c=&gt;c.text===t)?.emoji || "✍️"} ${t}</span><span class="chip-remove" onclick="removeCard('spice','${t}')"&gt;×&lt;/span&gt;&lt;/div>);
-board.innerHTML = html; board.style.display = "flex";
+selectedMenuCards.forEach(t => {
+let menuObj = cardData.menu.find(c => c.text === t);
+html += <div class="equipped-chip"&gt;&lt;span&gt;${menuObj ? menuObj.emoji : "✍️"} ${t}&lt;/span&gt;&lt;span class="chip-remove" onclick="removeCard('menu','${t}')">×</span></div>; }); selectedSpiceCards.forEach(t =&gt; { let spiceObj = cardData.spice.find(c =&gt; c.text === t); html +=<div class="equipped-chip" style="border-color:#66dbb2; color:#1abc9c;"><span>${spiceObj ? spiceObj.emoji : "✍️"} ${t}</span><span class="chip-remove" onclick="removeCard('spice','${t}')"&gt;×&lt;/span&gt;&lt;/div>;
+});
+board.innerHTML = html;
+board.style.display = "flex";
 }
 
 function removeCard(type, text) {
-type === 'menu' ? selectedMenuCards.delete(text) : selectedSpiceCards.delete(text);
+if(type === 'menu') {
+selectedMenuCards.delete(text);
+} else {
+selectedSpiceCards.delete(text);
+}
 renderCombinedChips();
 }
 
@@ -767,7 +779,11 @@ places.forEach((p, idx) => {
 let card = document.createElement('div');
 card.className = "restaurant-card";
 card.style.animationDelay = ${idx * 0.04}s`;
-card.onclick = (e) => { if(e.target.tagName !== 'BUTTON') openRoutingModal('detail', p.place_name, p.x, p.y, p.place_url, p.id, ""); };
+card.onclick = (e) => {
+if(e.target.tagName !== 'BUTTON') {
+openRoutingModal('detail', p.place_name, p.x, p.y, p.place_url, p.id, "");
+}
+};
 
 let cat = p.category_name ? p.category_name.split(' > ').pop() : "음식점";
 let badgeHTML = <span class="badge-cat"&gt;${cat}</span>+ (p.matchedKeywords.length ?<span class="badge-match">${p.matchedKeywords.join(', ')}&lt;/span> : "");
@@ -781,9 +797,7 @@ card.innerHTML = &lt;div class="restaurant-thumb"&gt;${currentRepresentativeEmoj
 </div>
 <div class="restaurant-meta">
 <span class="distance">📍 
-
-{p.place_name}', '
-
+{p.place_name.replace(/'/g, "\'")}', '
 {p.y}', '
 
 {p.id}', '')">길 찾기 🧭</button>
@@ -807,7 +821,9 @@ document.getElementById('modalTargetName').innerText = name;
 document.getElementById('mapModal').style.display = "flex";
 }
 
-function closeMapModal() { document.getElementById('mapModal').style.display = "none"; }
+function closeMapModal() {
+document.getElementById('mapModal').style.display = "none";
+}
 
 function openMapApp(provider) {
 if (!selectedPlace) return;
@@ -818,7 +834,10 @@ if (provider === 'kakao') {
 if (selectedAction === 'detail') {
 appUrl = kakaomap://place?id=${kakaoId}; webUrl =https://place.map.kakao.com/${kakaoId};
 } else {
-appUrl = kakaomap://route?epName=${encodeURIComponent(name)}&epX=${x}&epY=${y}&by=FOOT; webUrl =https://map.kakao.com/link/to/${encodeURIComponent(name)},${y},${x};
+if (kakaoId && kakaoId.trim() !== "") {
+appUrl = kakaomap://route?epX=${y}&epY=${x}&epName=${encodeURIComponent(name)}&id=${kakaoId}&by=FOOT;
+} else {
+appUrl = kakaomap://route?epX=${y}&epY=${x}&epName=${encodeURIComponent(name)}&by=FOOT; } webUrl =https://map.kakao.com/link/to/${encodeURIComponent(name)},${y},${x};
 }
 }
 else {
@@ -835,7 +854,11 @@ appUrl = nmap://route/walk?dlat=${y}&dlng=${x}&dname=${encodeURIComponent(name)}
 
 const startTime = Date.now();
 window.location.href = appUrl;
-setTimeout(() => { if (Date.now() - startTime < 800) { window.location.href = webUrl; } }, 500);
+setTimeout(() => {
+if (Date.now() - startTime < 800) {
+window.location.href = webUrl;
+}
+}, 500);
 closeMapModal();
 }
 </script>
