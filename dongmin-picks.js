@@ -14,7 +14,7 @@ const dongminPicks = [
         menu: "돼지국밥, 수육정식",
         img: "https://img1.kakaocdn.net/cthumb/local/C800x800.q50/?fname=https%3A%2F%2Fpostfiles.pstatic.net%2FMjAyNjAxMjZfMTM1%2FMDAxNzY5NDA3NDkyOTEw.4mvpUtZrdmuoatLSQrahQqNtdBz76VC8lplrtmWyPqwg.hNFHaBgn08mqBtKNvcda1gY8pOzCGy-9Wuh3NVYGV-Ag.JPEG%2FIMG%25EF%25BC%25BF5364.JPG%3Ftype%3Dw966", 
         comment: "부산보다 더 맛있는 진짜 돼지국밥. ",
-        tags: ["잡내없음", "오늘은 내가 국밥부장관", "합석가능"],
+        tags: ["부산아님", "잡내없음", "오늘은 내가 국밥부장관"],
         x: "126.987977303758", y: "37.5720448973922",
         kakaoId: "1630483489",
         naverId: "1636084766"
@@ -28,5 +28,35 @@ const dongminPicks = [
         x: "126.988133763054", y: "37.5733519866702",
         kakaoId: "1694116928",
         naverId: "37852829"
+    },
+    {
+        name: "육미",
+        menu: "물회, 회덮밥",
+        img: "https://img1.kakaocdn.net/cthumb/local/C800x800.q50/?fname=https%3A%2F%2Fpostfiles.pstatic.net%2FMjAyMzA3MzBfNTgg%2FMDAxNjkwNzEzMDMyMzk2._ZLoappctrG5EXF0lCNHnGUBh5pbOpMbQf-lvzMOqaMg.pfYjrsC6jxhHjRlCrYSRsAJr02qsETnGaSl_akwqoQ8g.JPEG.pbkimje0321%2F20230727%25EF%25BC%25BF195921.jpg%3Ftype%3Dw966",
+        comment: "이름만 들으면 고기집 같으나 사실은 해산물 전문점. 다양한 식사류와 안주류가 가득한 곳",
+        tags: ["1인물회", "저녁엔 K-이자카야"],
+        x: "126.9845361", y: "37.5710058",
+        kakaoId: "27008882",
+        naverId: "37392265"
+    },
+    {
+        name: "아키나이제면",
+        menu: "우동류",
+        img: "https://img1.kakaocdn.net/cthumb/local/C800x800.q50/?fname=https%3A%2F%2Fpostfiles.pstatic.net%2FMjAyNjA1MThfODIg%2FMDAxNzc5MDY1MTI0MDUx.P9fKNwujS1gPr5JfP5TcmBkPyJl9uNx9jXAbDkTP-w4g.kmEWmGa4ywTOiDSdFEzfghyH9YH_gP8jeZorAQmMcegg.JPEG%2Foutput%25EF%25BC%25BF3002420086.jpg%3Ftype%3Dw773",
+        comment: "꽤나 현지스러운 시스템의 쫠깃한 자가제면 우동면을 맛볼 수 있는 곳",
+        tags: ["종류많음", "중국대사관앞", "혼밥성지"],
+        x: "126.982338995439", y: "37.5629604390884",
+        kakaoId: "302836751",
+        naverId: "1431435897"
+    },
+    {
+        name: "이북만두",
+        menu: "만두국, 김치말이국수/밥",
+        img: "https://img1.kakaocdn.net/cthumb/local/C800x800.q50/?fname=https%3A%2F%2Fpostfiles.pstatic.net%2FMjAyNDA4MTRfOTkg%2FMDAxNzIzNTY3Mjk4OTgx.mXFlCNRciXHHu-iggES0_1Oi6XEKGeAMFhAChT64ZNEg.gfnnhCM0BfFYdFVHVp0vmIbP9ZLICMfQeT_womSsww8g.JPEG%2Foutput_157376015.jpg%3Ftype%3Dw773",
+        comment: "평냉 같이 슴슴하지만 그 속에 깊은 울림이 있는 맛. 오늘부로 내 소원은 통일이다",
+        tags: ["북조선핫플", "미아방지 태그 필참"],
+        x: "126.978543133682", y: "37.5672517054203",
+        kakaoId: "7855268",
+        naverId: "11356993"
     }
 ];
