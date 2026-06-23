@@ -142,12 +142,12 @@
         }
         .modal-close { background: none; border: none; color: var(--text-muted); margin-top: 12px; cursor: pointer; text-decoration: underline; font-size: 12px; font-weight: bold; }
 
-        /* 🎯 동민's Pick 플로팅 아이콘 */
+        /* 동민's Pick 플로팅 아이콘 */
         .floating-btn-pick { position: fixed; bottom: 20px; right: 20px; width: 68px; height: 68px; background: linear-gradient(135deg, #2c3e50, #e74c3c); border: 3px solid white; border-radius: 50%; box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 2500; animation: bounce 0.8s infinite alternate; }
         .floating-btn-pick .emoji { font-size: 22px; line-height: 1; }
         .floating-btn-pick .text { font-size: 9px; font-weight: 900; color: white; margin-top: 2px; text-align: center; white-space: nowrap; }
         
-        /* 🎰 동민's Pick 슬롯 영역 */
+        /* 동민's Pick 슬롯 영역 */
         #slotContentWrapper { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
         .slot-intro-text { font-size: 13px; font-weight: bold; color: #555; line-height: 1.6; word-break: keep-all; text-align: center; padding: 20px 0; }
         .slot-thumb-container { width: 150px; height: 150px; border-radius: 20px; border: 3px solid #f2ece6; margin: 0 auto 10px auto; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #fffdfa; font-size: 64px; flex-shrink: 0; }
@@ -296,7 +296,10 @@
     let selectedMenuCards = new Set(), selectedSpiceCards = new Set();
     let currentTargetSlotType = 'menu';
     let customMenuCards = [], customSpiceCards = [];
-    let currentFetchedPlaces = [], isDistanceFilterOn = false, isMatchFilterOn = false;
+    let currentFetchedPlaces = [];
+    
+    // 🎯 디폴트 복합 정렬 상태 지정을 위한 필터 토글 플래그 관리
+    let isDistanceFilterOn = false, isMatchFilterOn = true;
 
     let slotStatus = 'ready'; 
     let slotTimeoutId = null;
@@ -334,7 +337,6 @@
         ]
     };
 
-    // 카카오맵 검색용 서브 키워드 맵핑 리스트
     const apiQueryMap = {
         "아시안푸드": ["태국음식", "베트남음식", "아시아음식", "쌀국수"],
         "고기": ["고기구이", "삼겹살", "갈비", "고깃집"],
@@ -512,11 +514,9 @@
         setTimeout(() => { clearInterval(loadingIntervalId); document.getElementById('castingOverlay').style.display = "none"; fetchRestaurants(); }, 1800);
     }
 
-    // 🚀 비동기 병렬 구조 처리로 완벽한 '진짜 OR 조건 검색' 로직 구현
     function fetchRestaurants() {
         let singleSearchKeywords = [];
 
-        // 대분류 카드에서 검색 타겟 수집
         if (selectedMenuCards.size > 0) {
             selectedMenuCards.forEach(v => {
                 if (apiQueryMap[v]) { singleSearchKeywords.push(...apiQueryMap[v]); } 
@@ -524,7 +524,6 @@
             });
         }
 
-        // 소분류 카드 보완
         if (singleSearchKeywords.length === 0 && selectedSpiceCards.size > 0) {
             selectedSpiceCards.forEach(v => {
                 let lookups = [];
@@ -555,7 +554,6 @@
             });
         });
 
-        // 모든 키워드 검색을 비동기로 병렬 처리하여 병합 및 중복제거
         Promise.all(promises).then(results => {
             let combined = [];
             let seenIds = new Set();
@@ -569,7 +567,6 @@
                 });
             });
 
-            // 점수 부여 로직 (통합 매칭 확인)
             currentFetchedPlaces = combined.map(p => {
                 let score = 0; let keywords = [];
                 let categoryString = p.category_name || ""; let nameString = p.place_name || "";
@@ -602,23 +599,42 @@
                 return { ...p, matchScore: score, matchedKeywords: [...new Set(keywords)] };
             });
 
+            // 🎯 초기 렌더링 시 상단 정렬 바 활성화 스타일 연동 동기화
+            document.getElementById('sortDistanceBtn').classList.toggle('active', isDistanceFilterOn);
+            document.getElementById('sortMatchBtn').classList.toggle('active', isMatchFilterOn);
+
             applySortAndRender();
         });
     }
 
+    // 🎯 정렬 버튼 탭 조작 핸들러
     function handleSortClick(type) {
-        if(type === 'distance') isDistanceFilterOn = !isDistanceFilterOn;
-        if(type === 'match') isMatchFilterOn = !isMatchFilterOn;
+        if(type === 'distance') {
+            isDistanceFilterOn = true;
+            isMatchFilterOn = false;
+        } else if(type === 'match') {
+            isDistanceFilterOn = false;
+            isMatchFilterOn = true;
+        }
         document.getElementById('sortDistanceBtn').classList.toggle('active', isDistanceFilterOn);
         document.getElementById('sortMatchBtn').classList.toggle('active', isMatchFilterOn);
         applySortAndRender();
     }
 
+    // 🎯 복합 정렬 구현 핵심 스크립트
     function applySortAndRender() {
         let sorted = [...currentFetchedPlaces];
+        
         if (isMatchFilterOn) {
-            sorted.sort((a, b) => b.matchScore !== a.matchScore ? b.matchScore - a.matchScore : parseInt(a.distance) - parseInt(b.distance));
+            // 1순위: 매칭 점수가 높은 순(b - a) -> 2순위: 거리가 짧은 순(a - b)
+            sorted.sort((a, b) => {
+                if (b.matchScore !== a.matchScore) {
+                    return b.matchScore - a.matchScore;
+                }
+                return parseInt(a.distance) - parseInt(b.distance);
+            });
         } else {
+            // 순수 단일 정렬(거리순) 선택 시
             sorted.sort((a, b) => parseInt(a.distance) - parseInt(b.distance));
         }
         renderList(sorted);
