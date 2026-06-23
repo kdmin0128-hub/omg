@@ -1,852 +1,871 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>오늘 뭐 먹지? | OMG</title>
-    
-    <script src="dongmin-picks.js"></script>
-    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=566c59003be0a7db1292fbbc43b0fad0&libraries=services&autoload=false"></script>
-    
-    <style>
-        :root {
-            --bg-sweet: #fbf9f6;
-            --card-white: #ffffff;
-            --text-main: #3a3a3a;
-            --text-muted: #b0a69f;
-            --primary-pink: #ff7888;
-            --shadow-color: #ebdcd0;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>오늘 뭐 먹지? | OMG</title>
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-sweet); color: var(--text-main); padding-bottom: 50px; overflow-x: hidden; }
-        .container { max-width: 500px; margin: 0 auto; padding: 10px 16px; }
+<script src="dongmin-picks.js"></script>
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=566c59003be0a7db1292fbbc43b0fad0&libraries=services&autoload=false"></script>
 
-        /* 헤더 패딩값 */
-        .omg-image-header { padding: 0 0 10px 0; text-align: center; cursor: pointer; }
-        .omg-header-img { width: 50%; max-width: 220px; height: auto; }
+<style>
+:root {
+--bg-sweet: #fbf9f6;
+--card-white: #ffffff;
+--text-main: #3a3a3a;
+--text-muted: #b0a69f;
+--primary-pink: #ff7888;
+--shadow-color: #ebdcd0;
+}
 
-        /* 카드 공통 */
-        .cute-card { background: var(--card-white); border: 3px solid #f2ece6; border-radius: 26px; padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 0px var(--shadow-color); }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .section-title { font-size: 16px; font-weight: 900; color: #ff5266; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+body { background-color: var(--bg-sweet); color: var(--text-main); padding-bottom: 50px; overflow-x: hidden; }
+.container { max-width: 500px; margin: 0 auto; padding: 10px 16px; }
 
-        /* GPS 컴포넌트 */
-        .btn-gps { width: 100%; background: #e8fcf4; color: #1abc9c; border: 2px dashed #a3ecd4; padding: 14px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; }
-        .btn-gps:disabled { border: 3px solid #1abc9c; color: white; background: #1abc9c; cursor: default; box-shadow: 0 4px 0 #148f77; }
-        .btn-retry { background: #f2ece6; border: none; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: bold; color: #666; cursor: pointer; box-shadow: 0 2px 0 #d5c8bd; }
-        .privacy-note { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 10px; font-weight: bold; }
-        
-        /* 반경 슬라이더와 텍스트 위치 정렬 일치화 */
-        .range-container { margin-top: 16px; width: 100%; padding: 0; }
-        .range-slider { width: 100%; height: 10px; -webkit-appearance: none; background: #ebdcd0; border-radius: 5px; outline: none; margin: 0; }
-        .range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #ff5266; border: 3px solid white; box-shadow: 0 3px 0px #cf3c4e; cursor: pointer; }
-        
-        .range-ticks { display: flex; justify-content: space-between; margin: 12px 12px 0 12px; }
-        .tick-item { width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; white-space: nowrap; }
-        .tick-label { font-size: 11px; color: var(--text-muted); font-weight: bold; }
-        .tick-kcal { font-size: 9px; color: #b5aaa0; margin-top: 2px; }
-        .tick-item.active .tick-label { color: #ff5266; font-weight: 900; }
-        .tick-item.active .tick-kcal { color: #e67e22; font-weight: bold; }
+/* 헤더 패딩값 */
+.omg-image-header { padding: 0 0 10px 0; text-align: center; cursor: pointer; }
+.omg-header-img { width: 50%; max-width: 220px; height: auto; }
 
-        /* 먹켓리스트 */
-        .deck-slots-flex { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-        .slot-add-trigger { width: 100%; background: #faf8f5; border: 3px dashed #ebdcd0; border-radius: 22px; padding: 20px 10px; text-align: center; cursor: pointer; font-size: 15px; font-weight: bold; color: var(--primary-pink); min-height: 70px; display: flex; align-items: center; justify-content: center; }
-        .selected-chips-board { display: none; flex-wrap: wrap; gap: 8px; justify-content: center; background: #fffdfa; border: 2px solid #f2ece6; border-radius: 20px; padding: 14px; }
-        .equipped-chip { background: white; border: 2px solid var(--primary-pink); color: #ff5266; font-size: 12px; font-weight: bold; padding: 6px 12px; border-radius: 14px; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 0 #ffbcc4; }
-        .chip-remove { font-size: 14px; cursor: pointer; color: var(--text-muted); font-weight: bold; }
+/* 카드 공통 */
+.cute-card { background: var(--card-white); border: 3px solid #f2ece6; border-radius: 26px; padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 0px var(--shadow-color); }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.section-title { font-size: 16px; font-weight: 900; color: #ff5266; }
 
-        /* 바텀 시트 */
-        .bottom-sheet-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; z-index: 2000; backdrop-filter: blur(2px); }
-        .bottom-sheet { position: fixed; bottom: -100%; left: 0; right: 0; background: white; border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 24px 16px; max-height: 85vh; overflow-y: auto; z-index: 2001; transition: bottom 0.3s ease-out; }
-        .bottom-sheet.show { bottom: 0; }
-        .step-indicator { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
-        .step-dot { font-size: 11px; font-weight: bold; background: #eeded1; color: var(--text-muted); padding: 4px 12px; border-radius: 10px; }
-        .step-dot.active { background: #ff5266; color: white; }
-        .sheet-title { font-size: 15px; font-weight: 900; text-align: center; margin-bottom: 16px; }
-        .card-selection-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
-        .select-item-card { background: #faf8f5; border: 2.5px solid #f0ede8; border-radius: 18px; padding: 12px 4px; text-align: center; cursor: pointer; box-shadow: 0 4px 0 #eeded1; position: relative; }
-        .select-item-card.selected { background: #fff0f2; border-color: #ff5266; box-shadow: 0 4px 0 #ffbcc4; }
-        .select-item-card.selected::after { content: '✓'; position: absolute; top: 4px; right: 8px; color: #ff5266; font-weight: bold; font-size: 12px; }
-        .select-item-emoji { font-size: 26px; margin-bottom: 4px; display: block; }
-        .select-item-text { font-size: 12px; font-weight: bold; }
+/* GPS 컴포넌트 */
+.btn-gps { width: 100%; background: #e8fcf4; color: #1abc9c; border: 2px dashed #a3ecd4; padding: 14px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; }
+.btn-gps:disabled { border: 3px solid #1abc9c; color: white; background: #1abc9c; cursor: default; box-shadow: 0 4px 0 #148f77; }
+.btn-retry { background: #f2ece6; border: none; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: bold; color: #666; cursor: pointer; box-shadow: 0 2px 0 #d5c8bd; }
+.privacy-note { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 10px; font-weight: bold; }
 
-        /* 커스텀 입력창 */
-        .custom-input-box { background: #fffdf9; border: 2px dashed #ffcc99; border-radius: 16px; padding: 10px; margin-bottom: 16px; display: none; align-items: center; gap: 8px; }
-        .custom-input-box input { flex: 1; border: 2px solid #f2ece6; padding: 8px 12px; border-radius: 12px; font-size: 13px; outline: none; }
-        .custom-input-box button { background: #ffcc99; border: none; color: #d35400; font-weight: bold; padding: 8px 14px; border-radius: 12px; cursor: pointer; }
-        .sheet-btn-group { display: flex; gap: 10px; }
-        .btn-sheet-back, .btn-sheet-confirm { flex: 1; border: none; padding: 14px 8px; border-radius: 16px; font-size: 13px; font-weight: bold; cursor: pointer; text-align: center; }
-        .btn-sheet-back { background: #f2ece6; color: #5a5a5a; box-shadow: 0 4px 0 #d5c8bd; display: none; }
-        .btn-sheet-confirm { background: #ff5266; color: white; box-shadow: 0 4px 0 #cf3c4e; }
+/* 반경 슬라이더와 텍스트 위치 정렬 일치화 */
+.range-container { margin-top: 16px; width: 100%; padding: 0; }
+.range-slider { width: 100%; height: 10px; -webkit-appearance: none; background: #ebdcd0; border-radius: 5px; outline: none; margin: 0; }
+.range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #ff5266; border: 3px solid white; box-shadow: 0 3px 0px #cf3c4e; cursor: pointer; }
 
-        /* 오버레이 딤 처리 */
-        .casting-overlay { 
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-            background: rgba(0, 0, 0, 0.65); 
-            display: none; justify-content: center; align-items: center; 
-            z-index: 4000; backdrop-filter: blur(2px); 
-        }
-        
-        .food-emoji-display { 
-            font-size: 72px; 
-            display: flex; align-items: center; justify-content: center; 
-            animation: emojiFade 0.4s ease-in-out infinite alternate; 
-            user-select: none;
-        }
+.range-ticks { display: flex; justify-content: space-between; margin: 12px 12px 0 12px; }
+.tick-item { width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; white-space: nowrap; }
+.tick-label { font-size: 11px; color: var(--text-muted); font-weight: bold; }
+.tick-kcal { font-size: 9px; color: #b5aaa0; margin-top: 2px; }
+.tick-item.active .tick-label { color: #ff5266; font-weight: 900; }
+.tick-item.active .tick-kcal { color: #e67e22; font-weight: bold; }
 
-        @keyframes emojiFade {
-            0% { opacity: 0.7; transform: scale(0.9); }
-            100% { opacity: 1; transform: scale(1.1); }
-        }
+/* 먹켓리스트 */
+.deck-slots-flex { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.slot-add-trigger { width: 100%; background: #faf8f5; border: 3px dashed #ebdcd0; border-radius: 22px; padding: 20px 10px; text-align: center; cursor: pointer; font-size: 15px; font-weight: bold; color: var(--primary-pink); min-height: 70px; display: flex; align-items: center; justify-content: center; }
+.selected-chips-board { display: none; flex-wrap: wrap; gap: 8px; justify-content: center; background: #fffdfa; border: 2px solid #f2ece6; border-radius: 20px; padding: 14px; }
+.equipped-chip { background: white; border: 2px solid var(--primary-pink); color: #ff5266; font-size: 12px; font-weight: bold; padding: 6px 12px; border-radius: 14px; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 0 #ffbcc4; }
+.chip-remove { font-size: 14px; cursor: pointer; color: var(--text-muted); font-weight: bold; }
 
-        .btn-submit { width: 100%; background: linear-gradient(135deg, #ff5266, var(--primary-pink)); color: white; border: none; padding: 16px; border-radius: 22px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 0px #d6384b; margin-top: 10px; }
+/* 바텀 시트 */
+.bottom-sheet-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; z-index: 2000; backdrop-filter: blur(2px); }
+.bottom-sheet { position: fixed; bottom: -100%; left: 0; right: 0; background: white; border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 24px 16px; max-height: 85vh; overflow-y: auto; z-index: 2001; transition: bottom 0.3s ease-out; }
+.bottom-sheet.show { bottom: 0; }
+.step-indicator { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
+.step-dot { font-size: 11px; font-weight: bold; background: #eeded1; color: var(--text-muted); padding: 4px 12px; border-radius: 10px; }
+.step-dot.active { background: #ff5266; color: white; }
+.sheet-title { font-size: 15px; font-weight: 900; text-align: center; margin-bottom: 16px; }
+.card-selection-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+.select-item-card { background: #faf8f5; border: 2.5px solid #f0ede8; border-radius: 18px; padding: 12px 4px; text-align: center; cursor: pointer; box-shadow: 0 4px 0 #eeded1; position: relative; }
+.select-item-card.selected { background: #fff0f2; border-color: #ff5266; box-shadow: 0 4px 0 #ffbcc4; }
+.select-item-card.selected::after { content: '✓'; position: absolute; top: 4px; right: 8px; color: #ff5266; font-weight: bold; font-size: 12px; }
+.select-item-emoji { font-size: 26px; margin-bottom: 4px; display: block; }
+.select-item-text { font-size: 12px; font-weight: bold; }
 
-        /* 결과 리스트 */
-        .result-section { margin-top: 24px; display: none; scroll-margin-top: 20px; }
-        .sort-filter-bar { display: flex; justify-content: flex-end; padding: 4px 2px; margin-bottom: 14px; gap: 8px; scroll-margin-top: 16px; }
-        .btn-sort { background: white; border: 1.5px solid #eeded1; padding: 8px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; color: #666; cursor: pointer; box-shadow: 0 2px 0 #f2ece6; }
-        .btn-sort.active { border-color: #ff5266; color: #ff5266; background: #fff0f2; box-shadow: 0 2px 0 #ffbcc4; }
-        .restaurant-list { display: flex; flex-direction: column; gap: 14px; }
-        .restaurant-card { background: var(--card-white); border: 3px solid #f2ece6; border-radius: 22px; padding: 14px; display: flex; gap: 12px; position: relative; box-shadow: 0 6px 0 var(--shadow-color); opacity: 0; transform: translateY(20px); animation: slideUp 0.4s forwards; cursor: pointer; }
-        .restaurant-card::before { content: 'MATCH'; position: absolute; top: 0; left: 0; background: #ffebcc; color: #d35400; font-size: 9px; font-weight: 900; padding: 3px 8px; border-bottom-right-radius: 12px; }
-        .restaurant-thumb { width: 66px; height: 66px; border-radius: 16px; background: #fffdfa; border: 2px solid #eeded1; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; overflow: hidden; }
-        .restaurant-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .restaurant-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; padding-top: 4px; }
-        .restaurant-name { font-size: 16px; font-weight: 900; color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .restaurant-category-group { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; min-height: 20px; }
-        .badge-cat { background: #f2ece6; color: #7f8c8d; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 8px; }
-        .badge-match { background: #fff0f2; color: #ff5266; border: 1px solid #ffccd3; font-size: 10px; font-weight: bold; padding: 1px 7px; border-radius: 8px; }
-        .restaurant-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
-        .distance { font-size: 12px; color: #ff5266; font-weight: 900; }
-        .btn-map-trigger { background: #fff0f2; border: 1px solid #ffccd3; color: #ff5266; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: bold; cursor: pointer; }
+/* 커스텀 입력창 */
+.custom-input-box { background: #fffdf9; border: 2px dashed #ffcc99; border-radius: 16px; padding: 10px; margin-bottom: 16px; display: none; align-items: center; gap: 8px; }
+.custom-input-box input { flex: 1; border: 2px solid #f2ece6; padding: 8px 12px; border-radius: 12px; font-size: 13px; outline: none; }
+.custom-input-box button { background: #ffcc99; border: none; color: #d35400; font-weight: bold; padding: 8px 14px; border-radius: 12px; cursor: pointer; }
+.sheet-btn-group { display: flex; gap: 10px; }
+.btn-sheet-back, .btn-sheet-confirm { flex: 1; border: none; padding: 14px 8px; border-radius: 16px; font-size: 13px; font-weight: bold; cursor: pointer; text-align: center; }
+.btn-sheet-back { background: #f2ece6; color: #5a5a5a; box-shadow: 0 4px 0 #d5c8bd; display: none; }
+.btn-sheet-confirm { background: #ff5266; color: white; box-shadow: 0 4px 0 #cf3c4e; }
 
-        /* 팝업 오버레이 및 모달 스타일 공통 */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 3000; backdrop-filter: blur(2px); padding: 16px; }
-        
-        .modal { 
-            background: var(--card-white); 
-            border: 3px solid #f2ece6; 
-            width: 100%; 
-            max-width: 360px;
-            height: auto; 
-            max-height: 90vh; 
-            border-radius: 24px; 
-            padding: 24px 22px; 
-            text-align: center; 
-            display: flex;
-            flex-direction: column;
-            gap: 16px; 
-            box-sizing: border-box;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-        .modal-sub-title { font-size: 12px; font-weight: bold; color: #ff5266; margin-bottom: 2px; }
-        .modal-title { font-size: 17px; font-weight: 900; word-break: keep-all; }
-        .map-options { display: flex; flex-direction: column; gap: 10px; }
-        .map-btn { width: 100%; padding: 14px; border: none; border-radius: 16px; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .map-btn.kakao { background: #fee500; color: #3c1e1e; box-shadow: 0 4px 0 #ebd100; }
-        .map-btn.naver { background: #03c75a; color: white; box-shadow: 0 4px 0 #02a64a; }
-        
-        /* 닫기 버튼 간격 넓힘 */
-        .modal-close { background: none; border: none; color: var(--text-muted); margin-top: 12px; cursor: pointer; text-decoration: underline; font-size: 12px; font-weight: bold; }
+/* 오버레이 딤 처리 */
+.casting-overlay {
+position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+background: rgba(0, 0, 0, 0.65);
+display: none; justify-content: center; align-items: center;
+z-index: 4000; backdrop-filter: blur(2px);
+}
 
-        /* 🎯 동민's Pick 플로팅 아이콘 */
-        .floating-btn-pick { position: fixed; bottom: 20px; right: 20px; width: 68px; height: 68px; background: linear-gradient(135deg, #2c3e50, #e74c3c); border: 3px solid white; border-radius: 50%; box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 2500; animation: bounce 0.8s infinite alternate; }
-        .floating-btn-pick .emoji { font-size: 22px; line-height: 1; }
-        .floating-btn-pick .text { font-size: 9px; font-weight: 900; color: white; margin-top: 2px; text-align: center; white-space: nowrap; }
-        
-        /* 🎰 동민's Pick 슬롯 영역 */
-        #slotContentWrapper {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden; 
-        }
+.food-emoji-display {
+font-size: 72px;
+display: flex; align-items: center; justify-content: center;
+animation: emojiFade 0.4s ease-in-out infinite alternate;
+user-select: none;
+}
 
-        .slot-intro-text { font-size: 13px; font-weight: bold; color: #555; line-height: 1.6; word-break: keep-all; text-align: center; padding: 20px 0; }
-        
-        /* 이미지 영역 박스 확장 고정 */
-        .slot-thumb-container { 
-            width: 150px; 
-            height: 150px; 
-            border-radius: 20px; 
-            border: 3px solid #f2ece6; 
-            margin: 0 auto 10px auto; 
-            overflow: hidden; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            background: #fffdfa; 
-            font-size: 64px; 
-            flex-shrink: 0; 
-        }
-        .slot-thumb-container img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .badge-menu-pick { display: inline-block; background: #fff0f2; color: #ff5266; font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 6px; margin-bottom: 6px; border: 1px solid #ffccd3; }
-        
-        /* 한줄평 박스 */
-        .slot-line { font-size: 13px; font-weight: 500; color: #5a6263; background: #faf8f5; padding: 10px 14px; border-radius: 12px; margin-top: 6px; border: 1px dashed #eeded1; display: block; text-align: center; width: 100%; box-sizing: border-box; word-break: keep-all; white-space: normal; height: auto; }
-        
-        .slot-tags-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 8px; }
-        .slot-hashtag { font-size: 10px; font-weight: bold; color: #ff5266; background: #fffdfd; padding: 2px 6px; border-radius: 5px; border: 1px solid #ffe5e8; }
+@keyframes emojiFade {
+0% { opacity: 0.7; transform: scale(0.9); }
+100% { opacity: 1; transform: scale(1.1); }
+}
 
-        /* 결과 텍스트들을 롤링 중에는 숨기기 위한 스타일 */
-        .slot-result-details {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            display: none; 
-        }
+.btn-submit { width: 100%; background: linear-gradient(135deg, #ff5266, var(--primary-pink)); color: white; border: none; padding: 16px; border-radius: 22px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 0px #d6384b; margin-top: 10px; }
 
-        .slot-btn-group-flex { display: flex; gap: 10px; width: 100%; }
-        .btn-slot-action { flex: 1; padding: 14px; border: none; border-radius: 14px; font-size: 14px; font-weight: 900; color: white; cursor: pointer; }
-        .btn-slot-action.start { background: #e74c3c; box-shadow: 0 4px 0 #c0392b; }
-        .btn-slot-action.stop { background: #ff5266; box-shadow: 0 4px 0 #cf3c4e; }
-        .btn-slot-action.retry { background: #1abc9c; box-shadow: 0 4px 0 #148f77; }
-        .btn-slot-action.route { background: #3498db; box-shadow: 0 4px 0 #2980b9; display: none; } 
-        .btn-slot-action:disabled { background: #d5c8bd !important; box-shadow: 0 4px 0 #b0a69f !important; cursor: not-allowed; }
+/* 결과 리스트 */
+.result-section { margin-top: 24px; display: none; scroll-margin-top: 20px; }
+.sort-filter-bar { display: flex; justify-content: flex-end; padding: 4px 2px; margin-bottom: 14px; gap: 8px; scroll-margin-top: 16px; }
+.btn-sort { background: white; border: 1.5px solid #eeded1; padding: 8px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; color: #666; cursor: pointer; box-shadow: 0 2px 0 #f2ece6; }
+.btn-sort.active { border-color: #ff5266; color: #ff5266; background: #fff0f2; box-shadow: 0 2px 0 #ffbcc4; }
+.restaurant-list { display: flex; flex-direction: column; gap: 14px; }
+.restaurant-card { background: var(--card-white); border: 3px solid #f2ece6; border-radius: 22px; padding: 14px; display: flex; gap: 12px; position: relative; box-shadow: 0 6px 0 var(--shadow-color); opacity: 0; transform: translateY(20px); animation: slideUp 0.4s forwards; cursor: pointer; }
+.restaurant-card::before { content: 'MATCH'; position: absolute; top: 0; left: 0; background: #ffebcc; color: #d35400; font-size: 9px; font-weight: 900; padding: 3px 8px; border-bottom-right-radius: 12px; }
+.restaurant-thumb { width: 66px; height: 66px; border-radius: 16px; background: #fffdfa; border: 2px solid #eeded1; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; overflow: hidden; }
+.restaurant-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.restaurant-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; padding-top: 4px; }
+.restaurant-name { font-size: 16px; font-weight: 900; color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.restaurant-category-group { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; min-height: 20px; }
+.badge-cat { background: #f2ece6; color: #7f8c8d; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 8px; }
+.badge-match { background: #fff0f2; color: #ff5266; border: 1px solid #ffccd3; font-size: 10px; font-weight: bold; padding: 1px 7px; border-radius: 8px; }
+.restaurant-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+.distance { font-size: 12px; color: #ff5266; font-weight: 900; }
+.btn-map-trigger { background: #fff0f2; border: 1px solid #ffccd3; color: #ff5266; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: bold; cursor: pointer; }
 
-        @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-5px); } }
-        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
-    </style>
+/* 팝업 오버레이 및 모달 스타일 공통 */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 3000; backdrop-filter: blur(2px); padding: 16px; }
+
+.modal {
+background: var(--card-white);
+border: 3px solid #f2ece6;
+width: 100%;
+max-width: 360px;
+height: auto;
+max-height: 90vh;
+border-radius: 24px;
+padding: 24px 22px;
+text-align: center;
+display: flex;
+flex-direction: column;
+gap: 16px;
+box-sizing: border-box;
+box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+.modal-sub-title { font-size: 12px; font-weight: bold; color: #ff5266; margin-bottom: 2px; }
+.modal-title { font-size: 17px; font-weight: 900; word-break: keep-all; }
+.map-options { display: flex; flex-direction: column; gap: 10px; }
+.map-btn { width: 100%; padding: 14px; border: none; border-radius: 16px; font-size: 14px; font-weight: bold; cursor: pointer; }
+.map-btn.kakao { background: #fee500; color: #3c1e1e; box-shadow: 0 4px 0 #ebd100; }
+.map-btn.naver { background: #03c75a; color: white; box-shadow: 0 4px 0 #02a64a; }
+
+/* 닫기 버튼 간격 넓힘 */
+.modal-close { background: none; border: none; color: var(--text-muted); margin-top: 12px; cursor: pointer; text-decoration: underline; font-size: 12px; font-weight: bold; }
+
+/* 🎯 동민's Pick 플로팅 아이콘 */
+.floating-btn-pick { position: fixed; bottom: 20px; right: 20px; width: 68px; height: 68px; background: linear-gradient(135deg, #2c3e50, #e74c3c); border: 3px solid white; border-radius: 50%; box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 2500; animation: bounce 0.8s infinite alternate; }
+.floating-btn-pick .emoji { font-size: 22px; line-height: 1; }
+.floating-btn-pick .text { font-size: 9px; font-weight: 900; color: white; margin-top: 2px; text-align: center; white-space: nowrap; }
+
+/* 🎰 동민's Pick 슬롯 영역 */
+#slotContentWrapper {
+width: 100%;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+overflow: hidden;
+}
+
+.slot-intro-text { font-size: 13px; font-weight: bold; color: #555; line-height: 1.6; word-break: keep-all; text-align: center; padding: 20px 0; }
+
+/* 이미지 영역 박스 확장 고정 */
+.slot-thumb-container {
+width: 150px;
+height: 150px;
+border-radius: 20px;
+border: 3px solid #f2ece6;
+margin: 0 auto 10px auto;
+overflow: hidden;
+display: flex;
+align-items: center;
+justify-content: center;
+background: #fffdfa;
+font-size: 64px;
+flex-shrink: 0;
+}
+.slot-thumb-container img { width: 100%; height: 100%; object-fit: cover; }
+
+.badge-menu-pick { display: inline-block; background: #fff0f2; color: #ff5266; font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 6px; margin-bottom: 6px; border: 1px solid #ffccd3; }
+
+/* 한줄평 박스 */
+.slot-line { font-size: 13px; font-weight: 500; color: #5a6263; background: #faf8f5; padding: 10px 14px; border-radius: 12px; margin-top: 6px; border: 1px dashed #eeded1; display: block; text-align: center; width: 100%; box-sizing: border-box; word-break: keep-all; white-space: normal; height: auto; }
+
+.slot-tags-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 8px; }
+.slot-hashtag { font-size: 10px; font-weight: bold; color: #ff5266; background: #fffdfd; padding: 2px 6px; border-radius: 5px; border: 1px solid #ffe5e8; }
+
+/* 결과 텍스트들을 롤링 중에는 숨기기 위한 스타일 */
+.slot-result-details {
+width: 100%;
+display: flex;
+flex-direction: column;
+align-items: center;
+display: none;
+}
+
+.slot-btn-group-flex { display: flex; gap: 10px; width: 100%; }
+.btn-slot-action { flex: 1; padding: 14px; border: none; border-radius: 14px; font-size: 14px; font-weight: 900; color: white; cursor: pointer; }
+.btn-slot-action.start { background: #e74c3c; box-shadow: 0 4px 0 #c0392b; }
+.btn-slot-action.stop { background: #ff5266; box-shadow: 0 4px 0 #cf3c4e; }
+.btn-slot-action.retry { background: #1abc9c; box-shadow: 0 4px 0 #148f77; }
+.btn-slot-action.route { background: #3498db; box-shadow: 0 4px 0 #2980b9; display: none; }
+.btn-slot-action:disabled { background: #d5c8bd !important; box-shadow: 0 4px 0 #b0a69f !important; cursor: not-allowed; }
+
+@keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-5px); } }
+@keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+</style>
 </head>
 <body>
 
 <div class="container">
-    <div class="omg-image-header" onclick="window.location.reload();">
-        <img src="omg.png" alt="OMG" class="omg-header-img">
-    </div>
+<div class="omg-image-header" onclick="window.location.reload();">
+<img src="omg.png" alt="OMG" class="omg-header-img">
+</div>
 
-    <div class="cute-card">
-        <div class="section-header">
-            <div class="section-title">📍 탐색 반경</div>
-            <button class="btn-retry" onclick="getGPSLocation()">재탐색</button>
-        </div>
-        <button class="btn-gps" id="gpsBtn" onclick="getGPSLocation()">현재 위치를 찾고 있어요</button>
-        <div class="privacy-note">⚠️ 괜찮아요! 위치 정보를 수집하지 않아요.</div>
-        
-        <div class="range-container">
-            <input type="range" class="range-slider" id="radiusRange" min="200" max="1000" step="200" value="400" oninput="changeRadiusValue(this.value)">
-            <div class="range-ticks">
-                <div class="tick-item" id="tick-200"><span class="tick-label">200m</span><span class="tick-kcal">약 22kcal</span></div>
-                <div class="tick-item active" id="tick-400"><span class="tick-label">400m</span><span class="tick-kcal">약 45kcal</span></div>
-                <div class="tick-item" id="tick-600"><span class="tick-label">600m</span><span class="tick-kcal">약 67kcal</span></div>
-                <div class="tick-item" id="tick-800"><span class="tick-label">800m</span><span class="tick-kcal">약 90kcal</span></div>
-                <div class="tick-item" id="tick-1000"><span class="tick-label">1km</span><span class="tick-kcal">약 112kcal</span></div>
-            </div>
-        </div>
-    </div>
+<div class="cute-card">
+<div class="section-header">
+<div class="section-title">📍 탐색 반경</div>
+<button class="btn-retry" onclick="getGPSLocation()">재탐색</button>
+</div>
+<button class="btn-gps" id="gpsBtn" onclick="getGPSLocation()">현재 위치를 찾고 있어요</button>
+<div class="privacy-note">⚠️ 괜찮아요! 위치 정보를 수집하지 않아요.</div>
 
-    <div class="cute-card">
-        <div class="section-title">📝 나만의 먹켓리스트</div>
-        <div class="deck-slots-flex">
-            <div class="slot-add-trigger" id="masterAddBtn" onclick="renderBottomSheetStep('menu')">➕ 여기를 눌러 먹켓 채우기</div>
-            <div class="selected-chips-board" id="chipsBoard"></div>
-        </div>
-    </div>
+<div class="range-container">
+<input type="range" class="range-slider" id="radiusRange" min="200" max="1000" step="200" value="400" oninput="changeRadiusValue(this.value)">
+<div class="range-ticks">
+<div class="tick-item" id="tick-200"><span class="tick-label">200m</span><span class="tick-kcal">약 22kcal</span></div>
+<div class="tick-item active" id="tick-400"><span class="tick-label">400m</span><span class="tick-kcal">약 45kcal</span></div>
+<div class="tick-item" id="tick-600"><span class="tick-label">600m</span><span class="tick-kcal">약 67kcal</span></div>
+<div class="tick-item" id="tick-800"><span class="tick-label">800m</span><span class="tick-kcal">약 90kcal</span></div>
+<div class="tick-item" id="tick-1000"><span class="tick-label">1km</span><span class="tick-kcal">약 112kcal</span></div>
+</div>
+</div>
+</div>
 
-    <button class="btn-submit" id="submitBtn" onclick="startCardCasting()">AI 추천 식당 검색✨</button>
+<div class="cute-card">
+<div class="section-title">📝 나만의 먹켓리스트</div>
+<div class="deck-slots-flex">
+<div class="slot-add-trigger" id="masterAddBtn" onclick="renderBottomSheetStep('menu')">➕ 여기를 눌러 먹켓 채우기</div>
+<div class="selected-chips-board" id="chipsBoard"></div>
+</div>
+</div>
 
-    <div class="result-section" id="resultSection">
-        <div class="sort-filter-bar" id="sortFilterBar">
-            <button class="btn-sort" id="sortDistanceBtn" onclick="handleSortClick('distance')">거리순</button>
-            <button class="btn-sort" id="sortMatchBtn" onclick="handleSortClick('match')">매칭순</button>
-        </div>
-        <div class="restaurant-list" id="restaurantContainer"></div>
-    </div>
+<button class="btn-submit" id="submitBtn" onclick="startCardCasting()">AI 추천 식당 검색✨</button>
+
+<div class="result-section" id="resultSection">
+<div class="sort-filter-bar" id="sortFilterBar">
+<button class="btn-sort" id="sortDistanceBtn" onclick="handleSortClick('distance')">거리순</button>
+<button class="btn-sort" id="sortMatchBtn" onclick="handleSortClick('match')">매칭순</button>
+</div>
+<div class="restaurant-list" id="restaurantContainer"></div>
+</div>
 </div>
 
 <div class="casting-overlay" id="castingOverlay">
-    <div class="food-emoji-display" id="foodEmojiDisplay">🍲</div>
+<div class="food-emoji-display" id="foodEmojiDisplay">🍲</div>
 </div>
 
 <div class="bottom-sheet-overlay" id="sheetOverlay" onclick="closeBottomSheet()"></div>
 <div class="bottom-sheet" id="bottomSheet" style="height:auto;">
-    <div class="step-indicator">
-        <div class="step-dot" id="stepDot-menu">Step 1. 종류</div>
-        <div class="step-dot" id="stepDot-spice">Step 2. 취향</div>
-    </div>
-    <div class="sheet-title" id="sheetTitle">카드를 골라주세요</div>
-    
-    <div class="custom-input-box" id="customInputWrapper">
-        <input type="text" id="customCardInput" placeholder="원하는 키워드 직접 입력...">
-        <button onclick="addCustomKeywordCard()">추가</button>
-    </div>
-    <div class="card-selection-grid" id="sheetGrid"></div>
-    
-    <div class="sheet-btn-group">
-        <button class="btn-sheet-back" id="sheetBackBtn" onclick="renderBottomSheetStep('menu')">⬅️ 이전 단계로</button>
-        <button class="btn-sheet-confirm" id="sheetConfirmBtn" onclick="handleSheetConfirm()">다음 단계로 ➡️</button>
-    </div>
+<div class="step-indicator">
+<div class="step-dot" id="stepDot-menu">Step 1. 종류</div>
+<div class="step-dot" id="stepDot-spice">Step 2. 취향</div>
+</div>
+<div class="sheet-title" id="sheetTitle">카드를 골라주세요</div>
+
+<div class="custom-input-box" id="customInputWrapper">
+<input type="text" id="customCardInput" placeholder="원하는 키워드 직접 입력...">
+<button onclick="addCustomKeywordCard()">추가</button>
+</div>
+<div class="card-selection-grid" id="sheetGrid"></div>
+
+<div class="sheet-btn-group">
+<button class="btn-sheet-back" id="sheetBackBtn" onclick="renderBottomSheetStep('menu')">⬅️ 이전 단계로</button>
+<button class="btn-sheet-confirm" id="sheetConfirmBtn" onclick="handleSheetConfirm()">다음 단계로 ➡️</button>
+</div>
 </div>
 
 <div class="modal-overlay" id="mapModal">
-    <div class="modal">
-        <div>
-            <div class="modal-sub-title" id="modalActionType">페이지 열기</div>
-            <div class="modal-title" id="modalTargetName">식당 이름</div>
-        </div>
-        <div class="map-options">
-            <button class="map-btn kakao" onclick="openMapApp('kakao')">카카오맵 열기</button>
-            <button class="map-btn naver" onclick="openMapApp('naver')">네이버지도 열기</button>
-        </div>
-        <button class="modal-close" onclick="closeMapModal()">닫을래요</button>
-    </div>
+<div class="modal">
+<div>
+<div class="modal-sub-title" id="modalActionType">페이지 열기</div>
+<div class="modal-title" id="modalTargetName">식당 이름</div>
+</div>
+<div class="map-options">
+<button class="map-btn kakao" onclick="openMapApp('kakao')">카카오맵 열기</button>
+<button class="map-btn naver" onclick="openMapApp('naver')">네이버지도 열기</button>
+</div>
+<button class="modal-close" onclick="closeMapModal()">닫을래요</button>
+</div>
 </div>
 
 <div class="floating-btn-pick" onclick="openDongminPickModal()">
-    <span class="emoji">🎯</span>
-    <span class="text">동민's Pick</span>
+<span class="emoji">🎯</span>
+<span class="text">동민's Pick</span>
 </div>
 
 <div class="modal-overlay" id="dongminModal">
-    <div class="modal">
-        <div>
-            <div class="modal-sub-title" style="color: #e74c3c;">실패 없는 진짜 맛집</div>
-            <div class="modal-title">동민's Pick 추천!</div>
-        </div>
-        
-        <div id="slotContentWrapper">
-            <div class="slot-thumb-container" id="slotThumb" style="display: none;">🍴</div>
-            
-            <div class="slot-result-details" id="slotResultDetails">
-                <div id="slotMenuBadgeContainer"><span class="badge-menu-pick" id="slotMenu">추천 메뉴</span></div>
-                <div class="restaurant-name" id="slotName" style="font-size: 17px; text-align:center; width:100%; font-weight:900; color:#2c3e50; margin-bottom:4px;">식당 이름</div>
-                <div class="slot-line" id="slotComment">한줄평</div>
-                <div class="slot-tags-container" id="slotTags"></div>
-            </div>
+<div class="modal">
+<div>
+<div class="modal-sub-title" style="color: #e74c3c;">실패 없는 진짜 맛집</div>
+<div class="modal-title">동민's Pick 추천!</div>
+</div>
 
-            <div class="slot-intro-text" id="slotIntroText">
-                원하는 식당을 찾지 못했나요?<br>걱정하지 마세요. 진짜 맛집은 여기에 있어요.<br>
-                <span style="display: block; margin-top: 8px; color: #ff5266; font-size: 12px;">🎯 동민's Pick 은 꾸준히 업데이트 중입니다.</span>
-            </div>
-        </div>
+<div id="slotContentWrapper">
+<div class="slot-thumb-container" id="slotThumb" style="display: none;">🍴</div>
 
-        <div>
-            <div class="slot-btn-group-flex">
-                <button class="btn-slot-action start" id="slotActionBtn" onclick="handleSlotActionClick()">시작</button>
-                <button class="btn-slot-action route" id="slotRouteBtn" onclick="handleSlotRouteClick()">길 찾기</button>
-            </div>
-            <button class="modal-close" id="slotCloseBtn" onclick="closeDongminPickModal()">닫을래요</button>
-        </div>
-    </div>
+<div class="slot-result-details" id="slotResultDetails">
+<div id="slotMenuBadgeContainer"><span class="badge-menu-pick" id="slotMenu">추천 메뉴</span></div>
+<div class="restaurant-name" id="slotName" style="font-size: 17px; text-align:center; width:100%; font-weight:900; color:#2c3e50; margin-bottom:4px;">식당 이름</div>
+<div class="slot-line" id="slotComment">한줄평</div>
+<div class="slot-tags-container" id="slotTags"></div>
+</div>
+
+<div class="slot-intro-text" id="slotIntroText">
+원하는 식당을 찾지 못했나요?<br>걱정하지 마세요. 진짜 맛집은 여기에 있어요.<br>
+<span style="display: block; margin-top: 8px; color: #ff5266; font-size: 12px;">🎯 동민's Pick 은 꾸준히 업데이트 중입니다.</span>
+</div>
+</div>
+
+<div>
+<div class="slot-btn-group-flex">
+<button class="btn-slot-action start" id="slotActionBtn" onclick="handleSlotActionClick()">시작</button>
+<button class="btn-slot-action route" id="slotRouteBtn" onclick="handleSlotRouteClick()">길 찾기</button>
+</div>
+<button class="modal-close" id="slotCloseBtn" onclick="closeDongminPickModal()">닫을래요</button>
+</div>
+</div>
 </div>
 
 <script>
-    let userLat, userLng, selectedPlace, ps, geocoder, gpsInterval;
-    let selectedAction = 'detail';
-    let selectedMenuCards = new Set(), selectedSpiceCards = new Set();
-    let currentTargetSlotType = 'menu';
-    let customMenuCards = [], customSpiceCards = [];
-    let currentFetchedPlaces = [], isDistanceFilterOn = false, isMatchFilterOn = false;
+let userLat, userLng, selectedPlace, ps, geocoder, gpsInterval;
+let selectedAction = 'detail';
+let selectedMenuCards = new Set(), selectedSpiceCards = new Set();
+let currentTargetSlotType = 'menu';
+let customMenuCards = [], customSpiceCards = [];
+let currentFetchedPlaces = [], isDistanceFilterOn = false, isMatchFilterOn = false;
 
-    let slotStatus = 'ready'; 
-    let slotTimeoutId = null;
-    let currentSlotIdx = 0;
-    let currentIntervalSpeed = 300; 
-    let finalPickedItem = null; 
+let slotStatus = 'ready';
+let slotTimeoutId = null;
+let currentSlotIdx = 0;
+let currentIntervalSpeed = 300;
+let finalPickedItem = null;
 
-    const loadingEmojis = ["🍲", "🥟", "🍣", "🍝", "🍔", "🍕", "🍗", "🥪", "🍛", "🍩", "🥗", "🍱", "🍢"];
-    let loadingIntervalId = null;
+const loadingEmojis = ["🍲", "🥟", "🍣", "🍝", "🍔", "🍕", "🍗", "🥪", "🍛", "🍩", "🥗", "🍱", "🍢"];
+let loadingIntervalId = null;
 
-    const cardData = {
-        menu: [
-            {text:"한식", emoji:"🍲"},
-            {text:"중식", emoji:"🥟"},
-            {text:"일식", emoji:"🍣"},
-            {text:"양식", emoji:"🍝"},
-            {text:"아시안", emoji:"🌴"},
-            {text:"분식", emoji:"🍛"},
-            {text:"고기구이", emoji:"🥩"},
-            {text:"치킨/패스트푸드", emoji:"🍗"},
-            {text:"🥗샐러드/포케", emoji:"🥗"},
-            {text:"카페/디저트", emoji:"☕"}
-        ],
-        spice: [
-            {text:"매운 요리", emoji:"🌶️"},
-            {text:"국물/탕/찌개", emoji:"🍲"},
-            {text:"면 요리", emoji:"🍜"},
-            {text:"밥/덮밥", emoji:"🍚"},
-            {text:"돼지/소고기", emoji:"🐷"},
-            {text:"닭/오리", emoji:"🐔"},
-            {text:"해산물/생선", emoji:"🍤"},
-            {text:"빵/샌드위치", emoji:"🍞"},
-            {text:"술안주/포차", emoji:"🍺"}
-        ]
-    };
+const cardData = {
+menu: [
+{text:"한식", emoji:"🍲"},
+{text:"중식", emoji:"🥟"},
+{text:"일식", emoji:"🍣"},
+{text:"양식", emoji:"🍝"},
+{text:"아시안", emoji:"🌴"},
+{text:"분식", emoji:"🍛"},
+{text:"고기구이", emoji:"🥩"},
+{text:"치킨/패스트푸드", emoji:"🍗"},
+{text:"🥗샐러드/포케", emoji:"🥗"},
+{text:"카페/디저트", emoji:"☕"}
+ ],
+spice: [
+{text:"매운 요리", emoji:"🌶️"},
+{text:"국물/탕/찌개", emoji:"🍲"},
+{text:"면 요리", emoji:"🍜"},
+{text:"밥/덮밥", emoji:"🍚"},
+{text:"돼지/소고기", emoji:"🐷"},
+{text:"닭/오리", emoji:"🐔"},
+{text:"해산물/생선", emoji:"🍤"},
+{text:"빵/샌드위치", emoji:"🍞"},
+{text:"술안주/포차", emoji:"🍺"}
+ ]
+};
 
-    window.onload = function() {
-        if (typeof kakao !== 'undefined' && kakao.maps) {
-            kakao.maps.load(() => {
-                ps = new kakao.maps.services.Places();
-                geocoder = new kakao.maps.services.Geocoder();
-                getGPSLocation();
-            });
-        }
-    }
+window.onload = function() {
+if (typeof kakao !== 'undefined' && kakao.maps) {
+kakao.maps.load(() => {
+ps = new kakao.maps.services.Places();
+geocoder = new kakao.maps.services.Geocoder();
+getGPSLocation();
+});
+}
+}
 
-    function openDongminPickModal() {
-        if (typeof dongminPicks === 'undefined' || !dongminPicks || dongminPicks.length === 0) {
-            alert("dongmin-picks.js 파일을 읽을 수 없거나 데이터가 비어 있습니다!");
-            return;
-        }
-        slotStatus = 'ready';
-        finalPickedItem = null;
-        clearTimeout(slotTimeoutId);
-        
-        document.getElementById('dongminModal').querySelector('.modal-title').innerText = "동민's Pick 추천!";
-        
-        document.getElementById('slotIntroText').style.display = "block";
-        document.getElementById('slotThumb').style.display = "none";
-        document.getElementById('slotResultDetails').style.display = "none";
-        
-        const btn = document.getElementById('slotActionBtn');
-        btn.innerText = "시작";
-        btn.className = "btn-slot-action start";
-        btn.disabled = false;
-        
-        document.getElementById('slotRouteBtn').style.display = "none";
-        document.getElementById('slotCloseBtn').disabled = false;
-        document.getElementById('dongminModal').style.display = "flex";
-    }
+function openDongminPickModal() {
+if (typeof dongminPicks === 'undefined' || !dongminPicks || dongminPicks.length === 0) {
+alert("dongmin-picks.js 파일을 읽을 수 없거나 데이터가 비어 있습니다!");
+return;
+}
+slotStatus = 'ready';
+finalPickedItem = null;
+clearTimeout(slotTimeoutId);
 
-    function handleSlotActionClick() {
-        if (slotStatus === 'ready' || slotStatus === 'stopped') {
-            startSlotAccelerating();
-        } else if (slotStatus === 'running') {
-            startSlotDecelerating();
-        }
-    }
+document.getElementById('dongminModal').querySelector('.modal-title').innerText = "동민's Pick 추천!";
 
-    function startSlotAccelerating() {
-        slotStatus = 'accelerating';
-        finalPickedItem = null;
-        
-        const btn = document.getElementById('slotActionBtn');
-        btn.innerText = "멈추기";
-        btn.className = "btn-slot-action stop";
-        document.getElementById('slotRouteBtn').style.display = "none";
-        
-        document.getElementById('dongminModal').querySelector('.modal-title').innerText = "어디로 갈까요? 🤔";
+document.getElementById('slotIntroText').style.display = "block";
+document.getElementById('slotThumb').style.display = "none";
+document.getElementById('slotResultDetails').style.display = "none";
 
-        document.getElementById('slotIntroText').style.display = "none";
-        document.getElementById('slotResultDetails').style.display = "none";
-        document.getElementById('slotThumb').style.display = "flex";
+const btn = document.getElementById('slotActionBtn');
+btn.innerText = "시작";
+btn.className = "btn-slot-action start";
+btn.disabled = false;
 
-        currentIntervalSpeed = 350; 
-        runSlotLoop();
-    }
+document.getElementById('slotRouteBtn').style.display = "none";
+document.getElementById('slotCloseBtn').disabled = false;
+document.getElementById('dongminModal').style.display = "flex";
+}
 
-    function runSlotLoop() {
-        const currentItem = dongminPicks[currentSlotIdx % dongminPicks.length];
-        const thumbBox = document.getElementById('slotThumb');
-        
-        if(thumbBox) {
-            if(currentItem.img && (currentItem.img.startsWith('http') || currentItem.img.startsWith('.'))) {
-                thumbBox.innerHTML = `<img src="${currentItem.img}" alt="slot-thumb">`;
-            } else {
-                thumbBox.innerHTML = currentItem.img || "🍴";
-            }
-        }
+function handleSlotActionClick() {
+if (slotStatus === 'ready' || slotStatus === 'stopped') {
+startSlotAccelerating();
+} else if (slotStatus === 'running') {
+startSlotDecelerating();
+}
+}
 
-        document.getElementById('slotMenu').innerText = "추천메뉴: " + currentItem.menu;
-        document.getElementById('slotName').innerText = currentItem.name;
-        document.getElementById('slotComment').innerText = currentItem.comment;
-        
-        const tagsBox = document.getElementById('slotTags');
-        if(tagsBox && currentItem.tags) {
-            tagsBox.innerHTML = currentItem.tags.map(t => `<span class="slot-hashtag">#${t}</span>`).join('');
-        } else if(tagsBox) {
-            tagsBox.innerHTML = '';
-        }
+function startSlotAccelerating() {
+slotStatus = 'accelerating';
+finalPickedItem = null;
 
-        finalPickedItem = currentItem;
-        currentSlotIdx++;
+const btn = document.getElementById('slotActionBtn');
+btn.innerText = "멈추기";
+btn.className = "btn-slot-action stop";
+document.getElementById('slotRouteBtn').style.display = "none";
 
-        if (slotStatus === 'accelerating') {
-            currentIntervalSpeed = Math.max(120, currentIntervalSpeed - 40); 
-            if (currentIntervalSpeed <= 120) {
-                slotStatus = 'running'; 
-            }
-            slotTimeoutId = setTimeout(runSlotLoop, currentIntervalSpeed);
-        } 
-        else if (slotStatus === 'running') {
-            slotTimeoutId = setTimeout(runSlotLoop, 120); 
-        } 
-        else if (slotStatus === 'decelerating') {
-            currentIntervalSpeed += 60; 
-            if (currentIntervalSpeed >= 450) {
-                slotStatus = 'stopped';
-                document.getElementById('slotResultDetails').style.display = "flex";
-                
-                const btn = document.getElementById('slotActionBtn');
-                btn.innerText = "다시 돌리기";
-                btn.className = "btn-slot-action retry";
-                btn.disabled = false;
-                
-                document.getElementById('slotRouteBtn').style.display = "block";
-                document.getElementById('slotCloseBtn').disabled = false;
-            } else {
-                slotTimeoutId = setTimeout(runSlotLoop, currentIntervalSpeed);
-            }
-        }
-    }
+document.getElementById('dongminModal').querySelector('.modal-title').innerText = "어디로 갈까요? 🤔";
 
-    function startSlotDecelerating() {
-        slotStatus = 'decelerating';
-        document.getElementById('slotActionBtn').disabled = true;
-        document.getElementById('slotCloseBtn').disabled = true;
-    }
+document.getElementById('slotIntroText').style.display = "none";
+document.getElementById('slotResultDetails').style.display = "none";
+document.getElementById('slotThumb').style.display = "flex";
 
-    function handleSlotRouteClick() {
-        if (!finalPickedItem) return;
-        const targetItem = finalPickedItem; 
-        closeDongminPickModal(); 
-        
-        openRoutingModal(
-            'route', 
-            targetItem.name, 
-            targetItem.x || "", 
-            targetItem.y || "", 
-            "", 
-            targetItem.kakaoId || "", 
-            targetItem.naverId || ""  
-        );
-    }
+currentIntervalSpeed = 350;
+runSlotLoop();
+}
 
-    function closeDongminPickModal() {
-        clearTimeout(slotTimeoutId);
-        slotStatus = 'ready';
-        document.getElementById('dongminModal').style.display = "none";
-    }
+function runSlotLoop() {
+const currentItem = dongminPicks[currentSlotIdx % dongminPicks.length];
+const thumbBox = document.getElementById('slotThumb');
 
-    function getGPSLocation() {
-        const btn = document.getElementById('gpsBtn');
-        btn.disabled = false;
-        let dots = 0;
-        clearInterval(gpsInterval);
-        gpsInterval = setInterval(() => { btn.innerText = "현재 위치를 찾고 있어요" + ".".repeat(dots++ % 4); }, 400);
-        
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(pos => {
-                clearInterval(gpsInterval);
-                userLat = pos.coords.latitude; userLng = pos.coords.longitude;
-                geocoder.coord2RegionCode(userLng, userLat, (res, status) => {
-                    btn.innerText = status === kakao.maps.services.Status.OK ? `현재 위치 : ${res.find(r=>r.region_type==='H')?.address_name || '확인됨'}` : `위치 설정 완료`;
-                    btn.disabled = true;
-                });
-            }, () => { clearInterval(gpsInterval); btn.innerText = "위치를 찾을 수 없습니다."; });
-        }
-    }
+if(thumbBox) {
+if(currentItem.img && (currentItem.img.startsWith('http') || currentItem.img.startsWith('.'))) {
+thumbBox.innerHTML = <img src="${currentItem.img}" alt="slot-thumb">`;
+} else {
+thumbBox.innerHTML = currentItem.img || "🍴";
+}
+}
 
-    function renderBottomSheetStep(type) {
-        currentTargetSlotType = type;
-        document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active'));
-        document.getElementById('stepDot-' + type).classList.add('active');
+document.getElementById('slotMenu').innerText = "추천메뉴: " + currentItem.menu;
+document.getElementById('slotName').innerText = currentItem.name;
+document.getElementById('slotComment').innerText = currentItem.comment;
 
-        const isMenu = type === 'menu';
-        document.getElementById('sheetTitle').innerText = isMenu 
-            ? "🥦 Step 1. 어떤 종류를 먹고 싶나요? (복수 선택 가능)" 
-            : "🔥 Step 2. 세부 취향을 골라주세요. (복수 선택 가능)";
-        document.getElementById('sheetBackBtn').style.display = isMenu ? "none" : "block";
-        document.getElementById('sheetConfirmBtn').innerText = isMenu ? "다음 단계로 ➡️" : "선택 완료";
+const tagsBox = document.getElementById('slotTags');
+if(tagsBox && currentItem.tags) {
+tagsBox.innerHTML = currentItem.tags.map(t => <span class="slot-hashtag"&gt;#${t}</span>`).join('');
+} else if(tagsBox) {
+tagsBox.innerHTML = '';
+}
 
-        const grid = document.getElementById('sheetGrid');
-        grid.innerHTML = "";
-        document.getElementById('customInputWrapper').style.display = "flex";
+finalPickedItem = currentItem;
+currentSlotIdx++;
 
-        const activeSet = isMenu ? selectedMenuCards : selectedSpiceCards;
-        const customs = isMenu ? customMenuCards : customSpiceCards;
+if (slotStatus === 'accelerating') {
+currentIntervalSpeed = Math.max(120, currentIntervalSpeed - 40);
+if (currentIntervalSpeed <= 120) {
+slotStatus = 'running';
+}
+slotTimeoutId = setTimeout(runSlotLoop, currentIntervalSpeed);
+}
+else if (slotStatus === 'running') {
+slotTimeoutId = setTimeout(runSlotLoop, 120);
+}
+else if (slotStatus === 'decelerating') {
+currentIntervalSpeed += 60;
+if (currentIntervalSpeed >= 450) {
+slotStatus = 'stopped';
+document.getElementById('slotResultDetails').style.display = "flex";
 
-        cardData[type].forEach(item => createGridItem(grid, item.text, item.emoji, activeSet));
-        customs.forEach(text => createGridItem(grid, text, "✍️", activeSet));
+const btn = document.getElementById('slotActionBtn');
+btn.innerText = "다시 돌리기";
+btn.className = "btn-slot-action retry";
+btn.disabled = false;
 
-        let directNode = document.createElement('div');
-        directNode.className = "select-item-card";
-        directNode.innerHTML = `<span class="select-item-emoji">✍️</span><span class="select-item-text" style="color:#bfa000;">직접 입력</span>`;
-        directNode.onclick = () => document.getElementById('customCardInput').focus();
-        grid.appendChild(directNode);
+document.getElementById('slotRouteBtn').style.display = "block";
+document.getElementById('slotCloseBtn').disabled = false;
+} else {
+slotTimeoutId = setTimeout(runSlotLoop, currentIntervalSpeed);
+}
+}
+}
 
-        document.getElementById('sheetOverlay').style.display = "block";
-        setTimeout(() => document.getElementById('bottomSheet').classList.add('show'), 10);
-    }
+function startSlotDecelerating() {
+slotStatus = 'decelerating';
+document.getElementById('slotActionBtn').disabled = true;
+document.getElementById('slotCloseBtn').disabled = true;
+}
 
-    function createGridItem(grid, text, emoji, activeSet) {
-        let node = document.createElement('div');
-        node.className = `select-item-card ${activeSet.has(text) ? 'selected' : ''}`;
-        node.innerHTML = `<span class="select-item-emoji">${emoji}</span><span class="select-item-text">${text}</span>`;
-        node.onclick = () => {
-            activeSet.has(text) ? activeSet.delete(text) : activeSet.add(text);
-            node.classList.toggle('selected');
-        };
-        grid.appendChild(node);
-    }
+function handleSlotRouteClick() {
+if (!finalPickedItem) return;
+const targetItem = finalPickedItem;
+closeDongminPickModal();
 
-    function addCustomKeywordCard() {
-        let input = document.getElementById('customCardInput');
-        let text = input.value.trim();
-        if(!text) return;
-        (currentTargetSlotType === 'menu' ? selectedMenuCards : selectedSpiceCards).add(text);
-        (currentTargetSlotType === 'menu' ? customMenuCards : customSpiceCards).push(text);
-        input.value = ""; renderBottomSheetStep(currentTargetSlotType);
-    }
+openRoutingModal(
+'route',
+targetItem.name,
+targetItem.x || "",
+targetItem.y || "",
+"",
+targetItem.kakaoId || "",
+targetItem.naverId || ""
+ );
+}
 
-    function handleSheetConfirm() {
-        currentTargetSlotType === 'menu' ? renderBottomSheetStep('spice') : closeBottomSheet();
-    }
+function closeDongminPickModal() {
+clearTimeout(slotTimeoutId);
+slotStatus = 'ready';
+document.getElementById('dongminModal').style.display = "none";
+}
 
-    function closeBottomSheet() {
-        document.getElementById('bottomSheet').classList.remove('show');
-        setTimeout(() => document.getElementById('sheetOverlay').style.display = "none", 300);
-        renderCombinedChips();
-    }
+function getGPSLocation() {
+const btn = document.getElementById('gpsBtn');
+btn.disabled = false;
+let dots = 0;
+clearInterval(gpsInterval);
+gpsInterval = setInterval(() => { btn.innerText = "현재 위치를 찾고 있어요" + ".".repeat(dots++ % 4); }, 400);
 
-    function renderCombinedChips() {
-        const board = document.getElementById('chipsBoard');
-        const btn = document.getElementById('masterAddBtn');
-        if (!selectedMenuCards.size && !selectedSpiceCards.size) {
-            board.innerHTML = ""; board.style.display = "none";
-            btn.innerText = "➕ 여기를 눌러 먹켓 채우기";
-            return;
-        }
-        btn.innerText = "🔄 구성 다시 변경하기";
-        let html = "";
-        selectedMenuCards.forEach(t => html += `<div class="equipped-chip"><span>${cardData.menu.find(c=>c.text===t)?.emoji || "✍️"} ${t}</span><span class="chip-remove" onclick="removeCard('menu','${t}')">×</span></div>`);
-        selectedSpiceCards.forEach(t => html += `<div class="equipped-chip" style="border-color:#66dbb2; color:#1abc9c;"><span>${cardData.spice.find(c=>c.text===t)?.emoji || "✍️"} ${t}</span><span class="chip-remove" onclick="removeCard('spice','${t}')">×</span></div>`);
-        board.innerHTML = html; board.style.display = "flex";
-    }
+if (navigator.geolocation) {
+navigator.geolocation.getCurrentPosition(pos => {
+clearInterval(gpsInterval);
+userLat = pos.coords.latitude; userLng = pos.coords.longitude;
+geocoder.coord2RegionCode(userLng, userLat, (res, status) => {
+btn.innerText = status === kakao.maps.services.Status.OK ? 현재 위치 : ${res.find(r=>r.region_type==='H')?.address_name || '확인됨'}:위치 설정 완료`;
+btn.disabled = true;
+});
+}, () => { clearInterval(gpsInterval); btn.innerText = "위치를 찾을 수 없습니다."; });
+}
+}
 
-    function removeCard(type, text) {
-        type === 'menu' ? selectedMenuCards.delete(text) : selectedSpiceCards.delete(text);
-        renderCombinedChips();
-    }
+function renderBottomSheetStep(type) {
+currentTargetSlotType = type;
+document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active'));
+document.getElementById('stepDot-' + type).classList.add('active');
 
-    function changeRadiusValue(val) {
-        document.querySelectorAll('.tick-item').forEach(i => i.classList.remove('active'));
-        document.getElementById('tick-' + val)?.classList.add('active');
-    }
+const isMenu = type === 'menu';
+document.getElementById('sheetTitle').innerText = isMenu
+? "🥦 Step 1. 어떤 종류를 먹고 싶나요? (복수 선택 가능)"
+: "🔥 Step 2. 세부 취향을 골라주세요. (복수 선택 가능)";
+document.getElementById('sheetBackBtn').style.display = isMenu ? "none" : "block";
+document.getElementById('sheetConfirmBtn').innerText = isMenu ? "다음 단계로 ➡️" : "선택 완료";
 
-    function startCardCasting() {
-        if (!userLat) { alert("위치 설정이 아직 완료되지 않았어요!"); return; }
-        document.getElementById('resultSection').style.display = "none";
-        document.getElementById('castingOverlay').style.display = "flex";
-        
-        let emojiIdx = 0;
-        const emojiBox = document.getElementById('foodEmojiDisplay');
-        
-        loadingIntervalId = setInterval(() => {
-            emojiIdx = (emojiIdx + 1) % loadingEmojis.length;
-            emojiBox.innerText = loadingEmojis[emojiIdx];
-        }, 400);
+const grid = document.getElementById('sheetGrid');
+grid.innerHTML = "";
+document.getElementById('customInputWrapper').style.display = "flex";
 
-        setTimeout(() => {
-            clearInterval(loadingIntervalId);
-            document.getElementById('castingOverlay').style.display = "none";
-            fetchRestaurants();
-        }, 1800);
-    }
+const activeSet = isMenu ? selectedMenuCards : selectedSpiceCards;
+const customs = isMenu ? customMenuCards : customSpiceCards;
 
-    function fetchRestaurants() {
-        let searchQueries = [];
-        if (selectedMenuCards.size > 0) {
-            selectedMenuCards.forEach(v => searchQueries.push(v));
-        } else if (selectedSpiceCards.size > 0) {
-            selectedSpiceCards.forEach(v => {
-                if(["돼지/소고기","닭/오리","해산물/생선","면 요리","밥/덮밥","빵/샌드위치"].includes(v)) {
-                    searchQueries.push(v.split('/')[0]);
-                }
-            });
-        }
-        
-        let finalQuery = searchQueries.slice(0, 2).join(" ") || "음식점";
-        
-        ps.keywordSearch(finalQuery, (data, status) => {
-            if (status !== kakao.maps.services.Status.OK) { 
-                currentFetchedPlaces = []; 
-                renderList([]); 
-                return; 
-            }
-            
-            currentFetchedPlaces = data.map(p => {
-                let score = 0;
-                let keywords = [];
-                let categoryString = p.category_name || "";
-                let nameString = p.place_name || "";
+cardData[type].forEach(item => createGridItem(grid, item.text, item.emoji, activeSet));
+customs.forEach(text => createGridItem(grid, text, "✍️", activeSet));
 
-                selectedMenuCards.forEach(c => {
-                    if(categoryString.includes(c) || nameString.includes(c)) { 
-                        score += 2; 
-                        keywords.push(c); 
-                    }
-                });
+let directNode = document.createElement('div');
+directNode.className = "select-item-card";
+directNode.innerHTML = <span class="select-item-emoji"&gt;✍️&lt;/span&gt;&lt;span class="select-item-text" style="color:#bfa000;"&gt;직접 입력&lt;/span>;
+directNode.onclick = () => document.getElementById('customCardInput').focus();
+grid.appendChild(directNode);
 
-                selectedSpiceCards.forEach(c => {
-                    let lookups = [];
-                    if(c === "매운 요리") lookups = ["매운", "짬뽕", "낙지", "떡볶이", "마라", "닭발"];
-                    else if(c === "국물/탕/찌개") lookups = ["탕", "찌개", "국밥", "전골", "국수", "칼국수", "해장"];
-                    else if(c === "면 요리") lookups = ["면", "국수", "우동", "라멘", "파스타", "밀면", "냉면"];
-                    else if(c === "밥/덮밥") lookups = ["밥", "덮밥", "볶음밥", "비빔밥", "한식"];
-                    else if(c === "돼지/소고기") lookups = ["돈가스", "삼겹살", "갈비", "고기", "육류", "제육"];
-                    else if(c === "닭/오리") lookups = ["치킨", "닭", "찜닭", "오리"];
-                    else if(c === "해산물/생선") lookups = ["회", "스시", "초밥", "생선", "해물", "아구찜"];
-                    else if(c === "빵/샌드위치") lookups = ["빵", "샌드위치", "베이커리", "토스트", "디저트"];
-                    else if(c === "술안주/포차") lookups = ["포차", "술집", "호프", "이자카야", "요리주점"];
-                    else lookups = [c];
+document.getElementById('sheetOverlay').style.display = "block";
+setTimeout(() => document.getElementById('bottomSheet').classList.add('show'), 10);
+}
 
-                    if(lookups.some(lk => categoryString.includes(lk) || nameString.includes(lk))) {
-                        score += 1;
-                        keywords.push(c);
-                    }
-                });
+function createGridItem(grid, text, emoji, activeSet) {
+let node = document.createElement('div');
+node.className = select-item-card${activeSet.has(text) ? 'selected' : ''}; node.innerHTML =<span class="select-item-emoji">
 
-                return { ...p, matchScore: score, matchedKeywords: [...new Set(keywords)] };
-            });
+{text}</span>`;
+node.onclick = () => {
+activeSet.has(text) ? activeSet.delete(text) : activeSet.add(text);
+node.classList.toggle('selected');
+};
+grid.appendChild(node);
+}
 
-            applySortAndRender();
-        }, { 
-            location: new kakao.maps.LatLng(userLat, userLng), 
-            radius: parseInt(document.getElementById('radiusRange').value), 
-            category_group_code: 'FD6' 
-        });
-    }
+function addCustomKeywordCard() {
+let input = document.getElementById('customCardInput');
+let text = input.value.trim();
+if(!text) return;
+(currentTargetSlotType === 'menu' ? selectedMenuCards : selectedSpiceCards).add(text);
+(currentTargetSlotType === 'menu' ? customMenuCards : customSpiceCards).push(text);
+input.value = ""; renderBottomSheetStep(currentTargetSlotType);
+}
 
-    function handleSortClick(type) {
-        if(type === 'distance') isDistanceFilterOn = !isDistanceFilterOn;
-        if(type === 'match') isMatchFilterOn = !isMatchFilterOn;
-        document.getElementById('sortDistanceBtn').classList.toggle('active', isDistanceFilterOn);
-        document.getElementById('sortMatchBtn').classList.toggle('active', isMatchFilterOn);
-        applySortAndRender();
-    }
+function handleSheetConfirm() {
+currentTargetSlotType === 'menu' ? renderBottomSheetStep('spice') : closeBottomSheet();
+}
 
-    function applySortAndRender() {
-        let sorted = [...currentFetchedPlaces];
-        if (isMatchFilterOn) {
-            sorted.sort((a, b) => b.matchScore !== a.matchScore ? b.matchScore - a.matchScore : parseInt(a.distance) - parseInt(b.distance));
-        } else {
-            sorted.sort((a, b) => parseInt(a.distance) - parseInt(b.distance));
-        }
-        renderList(sorted);
-    }
+function closeBottomSheet() {
+document.getElementById('bottomSheet').classList.remove('show');
+setTimeout(() => document.getElementById('sheetOverlay').style.display = "none", 300);
+renderCombinedChips();
+}
 
-    // 🎯 해결: 유저가 복수 선택한 키워드 중 첫 번째 키워드의 이모지를 찾아 추출하는 내부 헬퍼 함수
-    function getFirstSelectedEmoji() {
-        // Step 1(종류) 선택 순서 검사
-        if (selectedMenuCards.size > 0) {
-            const firstKeyword = Array.from(selectedMenuCards)[0];
-            const found = cardData.menu.find(item => item.text === firstKeyword);
-            return found ? found.emoji : "✍️"; 
-        }
-        // Step 2(취향) 선택 순서 검사
-        if (selectedSpiceCards.size > 0) {
-            const firstKeyword = Array.from(selectedSpiceCards)[0];
-            const found = cardData.spice.find(item => item.text === firstKeyword);
-            return found ? found.emoji : "✍️";
-        }
-        return "🍴"; // 선택된 키워드가 아예 없는 경우 기본 포크/스푼 고정
-    }
+function renderCombinedChips() {
+const board = document.getElementById('chipsBoard');
+const btn = document.getElementById('masterAddBtn');
+if (!selectedMenuCards.size && !selectedSpiceCards.size) {
+board.innerHTML = ""; board.style.display = "none";
+btn.innerText = "➕ 여기를 눌러 먹켓 채우기";
+return;
+}
+btn.innerText = "🔄 구성 다시 변경하기";
+let html = "";
+selectedMenuCards.forEach(t => html += <div class="equipped-chip"&gt;&lt;span&gt;${cardData.menu.find(c=>c.text===t)?.emoji || "✍️"} ${t}&lt;/span&gt;&lt;span class="chip-remove" onclick="removeCard('menu','${t}')">×</span></div>); selectedSpiceCards.forEach(t =&gt; html +=<div class="equipped-chip" style="border-color:#66dbb2; color:#1abc9c;"><span>${cardData.spice.find(c=&gt;c.text===t)?.emoji || "✍️"} ${t}</span><span class="chip-remove" onclick="removeCard('spice','${t}')"&gt;×&lt;/span&gt;&lt;/div>);
+board.innerHTML = html; board.style.display = "flex";
+}
 
-    function renderList(places) {
-        const container = document.getElementById('restaurantContainer');
-        container.innerHTML = "";
-        
-        if (!places.length) {
-            container.innerHTML = `
-                <div style="text-align:center; padding:35px 20px; color:var(--text-muted); font-size:13.5px; line-height:1.6; word-break:keep-all;">
-                    조건에 맞는 식당을 찾지 못했어요 😥<br>
-                    반경 또는 조건을 변경하거나 <strong>🎯 동민's Pick</strong> 을 이용해보세요!
-                </div>`;
-        } else {
-            // 현재 유저가 선택한 키워드들의 최선두 이모지를 연산
-            const currentRepresentativeEmoji = getFirstSelectedEmoji();
+function removeCard(type, text) {
+type === 'menu' ? selectedMenuCards.delete(text) : selectedSpiceCards.delete(text);
+renderCombinedChips();
+}
 
-            places.forEach((p, idx) => {
-                let card = document.createElement('div');
-                card.className = "restaurant-card";
-                card.style.animationDelay = `${idx * 0.04}s`;
-                card.onclick = (e) => { if(e.target.tagName !== 'BUTTON') openRoutingModal('detail', p.place_name, p.x, p.y, p.place_url, p.id, ""); };
-                
-                let cat = p.category_name ? p.category_name.split(' > ').pop() : "음식점";
-                let badgeHTML = `<span class="badge-cat">${cat}</span>` + (p.matchedKeywords.length ? `<span class="badge-match">${p.matchedKeywords.join(', ')}</span>` : "");
+function changeRadiusValue(val) {
+document.querySelectorAll('.tick-item').forEach(i => i.classList.remove('active'));
+document.getElementById('tick-' + val)?.classList.add('active');
+}
 
-                // 🎯 썸네일 영역에 불확실한 웹 이미지 대신 선택 키워드의 대표 이모지를 깔끔하게 렌더링
-                card.innerHTML = `
-                    <div class="restaurant-thumb">${currentRepresentativeEmoji}</div>
-                    <div class="restaurant-info">
-                        <div>
-                            <div class="restaurant-name">${p.place_name}</div>
-                            <div class="restaurant-category-group">${badgeHTML}</div>
-                        </div>
-                        <div class="restaurant-meta">
-                            <span class="distance">📍 ${p.distance}m</span>
-                            <button class="btn-map-trigger" onclick="openRoutingModal('route', '${p.place_name}', '${p.x}', '${p.y}', '${p.place_url}', '${p.id}', '')">길 찾기 🧭</button>
-                        </div>
-                    </div>`;
-                container.appendChild(card);
-            });
-        }
-        
-        document.getElementById('resultSection').style.display = "block";
-        setTimeout(() => {
-            document.getElementById('sortFilterBar').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 50);
-    }
+function startCardCasting() {
+if (!userLat) { alert("위치 설정이 아직 완료되지 않았어요!"); return; }
+document.getElementById('resultSection').style.display = "none";
+document.getElementById('castingOverlay').style.display = "flex";
 
-    function openRoutingModal(type, name, x, y, placeUrl, kakaoId, naverId) {
-        selectedAction = type; 
-        selectedPlace = { name, x, y, placeUrl, kakaoId, naverId };
-        
-        document.getElementById('modalActionType').innerText = type === 'detail' ? "🔍 상세 페이지 열기" : "🧭 도보 길 찾기 시작";
-        document.getElementById('modalTargetName').innerText = name;
-        document.getElementById('mapModal').style.display = "flex";
-    }
-    
-    function closeMapModal() { document.getElementById('mapModal').style.display = "none"; }
+let emojiIdx = 0;
+const emojiBox = document.getElementById('foodEmojiDisplay');
 
-    function openMapApp(provider) {
-        if (!selectedPlace) return;
-        const { name, x, y, kakaoId, naverId } = selectedPlace;
-        
-        let appUrl = "";
-        let webUrl = "";
+loadingIntervalId = setInterval(() => {
+emojiIdx = (emojiIdx + 1) % loadingEmojis.length;
+emojiBox.innerText = loadingEmojis[emojiIdx];
+}, 400);
 
-        if (provider === 'kakao') {
-            if (selectedAction === 'detail') {
-                appUrl = `kakaomap://place?id=${kakaoId}`;
-                webUrl = `https://place.map.kakao.com/${kakaoId}`;
-            } else {
-                appUrl = `kakaomap://route?epName=${encodeURIComponent(name)}&epX=${x}&epY=${y}&by=FOOT`;
-                webUrl = `https://map.kakao.com/link/to/${encodeURIComponent(name)},${y},${x}`;
-            }
-        } 
-        else {
-            if (selectedAction === 'detail') {
-                if (naverId && naverId.trim() !== "") {
-                    appUrl = `nmap://place?id=${naverId}`;
-                    webUrl = `https://place.map.naver.com/${naverId}`;
-                } else {
-                    appUrl = `nmap://search?query=${encodeURIComponent(name)}`;
-                    webUrl = `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}`;
-                }
-            } else {
-                appUrl = `nmap://route/walk?dlat=${y}&dlng=${x}&dname=${encodeURIComponent(name)}`;
-                webUrl = `https://m.map.naver.com/route/walk.naver?sname=${encodeURIComponent('내 위치')}&sx=${userLng}&sy=${userLat}&ename=${encodeURIComponent(name)}&ex=${x}&ey=${y}`;
-            }
-        }
+setTimeout(() => {
+clearInterval(loadingIntervalId);
+document.getElementById('castingOverlay').style.display = "none";
+fetchRestaurants();
+}, 1800);
+}
 
-        const startTime = Date.now();
-        window.location.href = appUrl;
+// 🎯 개선된 검색 및 카테고리 스위칭 함수
+function fetchRestaurants() {
+let searchQueries = [];
+let hasCafeSelected = false;
 
-        setTimeout(() => {
-            if (Date.now() - startTime < 800) {
-                window.location.href = webUrl;
-            }
-        }, 500);
+if (selectedMenuCards.size > 0) {
+selectedMenuCards.forEach(v => {
+if (v === "카페/디저트") {
+hasCafeSelected = true;
+searchQueries.push("카페");
+} else {
+searchQueries.push(v);
+}
+});
+} else if (selectedSpiceCards.size > 0) {
+selectedSpiceCards.forEach(v => {
+if(["돼지/소고기","닭/오리","해산물/생선","면 요리","밥/덮밥","빵/샌드위치"].includes(v)) {
+searchQueries.push(v.split('/')[0]);
+} else {
+searchQueries.push(v);
+}
+});
+}
 
-        closeMapModal();
-    }
+let finalQuery = searchQueries.slice(0, 2).join(" ") || "음식점";
+
+// 🎯 해결 포인트: 선택된 키워드에 카페가 포함되어 있다면 카테고리 그룹 코드를 비워두거나 'CE7' 처리 유도
+// 공통 검색어 필터링 처리를 위해 기본 카테고리 그룹 코드 지정을 유동적으로 변경
+let searchOptions = {
+location: new kakao.maps.LatLng(userLat, userLng),
+radius: parseInt(document.getElementById('radiusRange').value)
+};
+
+// 오직 음식점 성격의 키워드만 선택되고 카페는 선택되지 않았을 때만 FD6 그룹 적용
+if (!hasCafeSelected && selectedMenuCards.size > 0) {
+searchOptions.category_group_code = 'FD6';
+} else if (hasCafeSelected && selectedMenuCards.size === 1) {
+// 오직 카페/디저트만 선택되었다면 그룹코드를 카페(CE7)로 강제 지정하여 정확도 상승
+searchOptions.category_group_code = 'CE7';
+}
+
+ps.keywordSearch(finalQuery, (data, status) => {
+if (status !== kakao.maps.services.Status.OK) {
+currentFetchedPlaces = [];
+renderList([]);
+return;
+}
+
+currentFetchedPlaces = data.map(p => {
+let score = 0;
+let keywords = [];
+let categoryString = p.category_name || "";
+let nameString = p.place_name || "";
+
+selectedMenuCards.forEach(c => {
+// 카페 카테고리에 맞는 스코어 추가 검증 보완
+if (c === "카페/디저트") {
+if (categoryString.includes("카페") || categoryString.includes("디저트") || categoryString.includes("제과") || categoryString.includes("커피") || nameString.includes("카페")) {
+score += 2;
+keywords.push(c);
+}
+} else if(categoryString.includes(c) || nameString.includes(c)) {
+score += 2;
+keywords.push(c);
+}
+});
+
+selectedSpiceCards.forEach(c => {
+let lookups = [];
+if(c === "매운 요리") lookups = ["매운", "짬뽕", "낙지", "떡볶이", "마라", "닭발"];
+else if(c === "국물/탕/찌개") lookups = ["탕", "찌개", "국밥", "전골", "국수", "칼국수", "해장"];
+else if(c === "면 요리") lookups = ["면", "국수", "우동", "라멘", "파스타", "밀면", "냉면"];
+else if(c === "밥/덮밥") lookups = ["밥", "덮밥", "볶음밥", "비빔밥", "한식"];
+else if(c === "돼지/소고기") lookups = ["돈가스", "삼겹살", "갈비", "고기", "육류", "제육"];
+else if(c === "닭/오리") lookups = ["치킨", "닭", "찜닭", "오리"];
+else if(c === "해산물/생선") lookups = ["회", "스시", "초밥", "생선", "해물", "아구찜"];
+else if(c === "빵/샌드위치") lookups = ["빵", "샌드위치", "베이커리", "토스트", "디저트"];
+else if(c === "술안주/포차") lookups = ["포차", "술집", "호프", "이자카야", "요리주점"];
+else lookups = [c];
+
+if(lookups.some(lk => categoryString.includes(lk) || nameString.includes(lk))) {
+score += 1;
+keywords.push(c);
+}
+});
+
+return { ...p, matchScore: score, matchedKeywords: [...new Set(keywords)] };
+});
+
+applySortAndRender();
+}, searchOptions);
+}
+
+function handleSortClick(type) {
+if(type === 'distance') isDistanceFilterOn = !isDistanceFilterOn;
+if(type === 'match') isMatchFilterOn = !isMatchFilterOn;
+document.getElementById('sortDistanceBtn').classList.toggle('active', isDistanceFilterOn);
+document.getElementById('sortMatchBtn').classList.toggle('active', isMatchFilterOn);
+applySortAndRender();
+}
+
+function applySortAndRender() {
+let sorted = [...currentFetchedPlaces];
+if (isMatchFilterOn) {
+sorted.sort((a, b) => b.matchScore !== a.matchScore ? b.matchScore - a.matchScore : parseInt(a.distance) - parseInt(b.distance));
+} else {
+sorted.sort((a, b) => parseInt(a.distance) - parseInt(b.distance));
+}
+renderList(sorted);
+}
+
+function getFirstSelectedEmoji() {
+if (selectedMenuCards.size > 0) {
+const firstKeyword = Array.from(selectedMenuCards)[0];
+const found = cardData.menu.find(item => item.text === firstKeyword);
+return found ? found.emoji : "✍️";
+}
+if (selectedSpiceCards.size > 0) {
+const firstKeyword = Array.from(selectedSpiceCards)[0];
+const found = cardData.spice.find(item => item.text === firstKeyword);
+return found ? found.emoji : "✍️";
+}
+return "🍴";
+}
+
+function renderList(places) {
+const container = document.getElementById('restaurantContainer');
+container.innerHTML = "";
+
+if (!places.length) {
+container.innerHTML = &lt;div style="text-align:center; padding:35px 20px; color:var(--text-muted); font-size:13.5px; line-height:1.6; word-break:keep-all;"&gt; 조건에 맞는 식당을 찾지 못했어요 😥&lt;br&gt; 반경 또는 조건을 변경하거나 &lt;strong&gt;🎯 동민's Pick&lt;/strong&gt; 을 이용해보세요! &lt;/div>;
+} else {
+const currentRepresentativeEmoji = getFirstSelectedEmoji();
+
+places.forEach((p, idx) => {
+let card = document.createElement('div');
+card.className = "restaurant-card";
+card.style.animationDelay = ${idx * 0.04}s`;
+card.onclick = (e) => { if(e.target.tagName !== 'BUTTON') openRoutingModal('detail', p.place_name, p.x, p.y, p.place_url, p.id, ""); };
+
+let cat = p.category_name ? p.category_name.split(' > ').pop() : "음식점";
+let badgeHTML = <span class="badge-cat"&gt;${cat}</span>+ (p.matchedKeywords.length ?<span class="badge-match">${p.matchedKeywords.join(', ')}&lt;/span> : "");
+
+card.innerHTML = &lt;div class="restaurant-thumb"&gt;${currentRepresentativeEmoji}</div>
+<div class="restaurant-info">
+<div>
+<div class="restaurant-name">
+
+{badgeHTML}</div>
+</div>
+<div class="restaurant-meta">
+<span class="distance">📍 
+{p.place_name}', '
+
+{p.y}', '
+
+{p.id}', '')">길 찾기 🧭</button>
+</div>
+</div>`;
+container.appendChild(card);
+});
+}
+
+document.getElementById('resultSection').style.display = "block";
+setTimeout(() => {
+document.getElementById('sortFilterBar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}, 50);
+}
+
+function openRoutingModal(type, name, x, y, placeUrl, kakaoId, naverId) {
+selectedAction = type;
+selectedPlace = { name, x, y, placeUrl, kakaoId, naverId };
+
+document.getElementById('modalActionType').innerText = type === 'detail' ? "🔍 상세 페이지 열기" : "🧭 도보 길 찾기 시작";
+document.getElementById('modalTargetName').innerText = name;
+document.getElementById('mapModal').style.display = "flex";
+}
+
+function closeMapModal() { document.getElementById('mapModal').style.display = "none"; }
+
+function openMapApp(provider) {
+if (!selectedPlace) return;
+const { name, x, y, kakaoId, naverId } = selectedPlace;
+
+let appUrl = "";
+let webUrl = "";
+
+if (provider === 'kakao') {
+if (selectedAction === 'detail') {
+appUrl = kakaomap://place?id=${kakaoId}; webUrl =https://place.map.kakao.com/${kakaoId};
+} else {
+appUrl = kakaomap://route?epName=${encodeURIComponent(name)}&epX=${x}&epY=${y}&by=FOOT; webUrl =https://map.kakao.com/link/to/${encodeURIComponent(name)},${y},${x};
+}
+}
+else {
+if (selectedAction === 'detail') {
+if (naverId && naverId.trim() !== "") {
+appUrl = nmap://place?id=${naverId}; webUrl =https://place.map.naver.com/${naverId};
+} else {
+appUrl = nmap://search?query=${encodeURIComponent(name)}; webUrl =https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)};
+}
+} else {
+appUrl = nmap://route/walk?dlat=${y}&dlng=${x}&dname=${encodeURIComponent(name)}; webUrl =https://m.map.naver.com/route/walk.naver?sname=${encodeURIComponent('내 위치')}&sx=${userLng}&sy=${userLat}&ename=${encodeURIComponent(name)}&ex=${x}&ey=${y};
+}
+}
+
+const startTime = Date.now();
+window.location.href = appUrl;
+
+setTimeout(() => {
+if (Date.now() - startTime < 800) {
+window.location.href = webUrl;
+}
+}, 500);
+
+closeMapModal();
+}
 </script>
 </body>
 </html>
