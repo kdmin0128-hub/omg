@@ -140,14 +140,6 @@
             box-sizing: border-box;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
-        .modal-sub-title { font-size: 12px; font-weight: bold; color: #ff5266; margin-bottom: 2px; }
-        .modal-title { font-size: 17px; font-weight: 900; word-break: keep-all; }
-        .map-options { display: flex; flex-direction: column; gap: 10px; }
-        .map-btn { width: 100%; padding: 14px; border: none; border-radius: 16px; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .map-btn.kakao { background: #fee500; color: #3c1e1e; box-shadow: 0 4px 0 #ebd100; }
-        .map-btn.naver { background: #03c75a; color: white; box-shadow: 0 4px 0 #02a64a; }
-        
-        /* 닫기 버튼 간격 넓힘 */
         .modal-close { background: none; border: none; color: var(--text-muted); margin-top: 12px; cursor: pointer; text-decoration: underline; font-size: 12px; font-weight: bold; }
 
         /* 🎯 동민's Pick 플로팅 아이콘 */
@@ -156,50 +148,15 @@
         .floating-btn-pick .text { font-size: 9px; font-weight: 900; color: white; margin-top: 2px; text-align: center; white-space: nowrap; }
         
         /* 🎰 동민's Pick 슬롯 영역 */
-        #slotContentWrapper {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden; 
-        }
-
+        #slotContentWrapper { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
         .slot-intro-text { font-size: 13px; font-weight: bold; color: #555; line-height: 1.6; word-break: keep-all; text-align: center; padding: 20px 0; }
-        
-        /* 이미지 영역 박스 확장 고정 */
-        .slot-thumb-container { 
-            width: 150px; 
-            height: 150px; 
-            border-radius: 20px; 
-            border: 3px solid #f2ece6; 
-            margin: 0 auto 10px auto; 
-            overflow: hidden; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            background: #fffdfa; 
-            font-size: 64px; 
-            flex-shrink: 0; 
-        }
+        .slot-thumb-container { width: 150px; height: 150px; border-radius: 20px; border: 3px solid #f2ece6; margin: 0 auto 10px auto; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #fffdfa; font-size: 64px; flex-shrink: 0; }
         .slot-thumb-container img { width: 100%; height: 100%; object-fit: cover; }
-        
         .badge-menu-pick { display: inline-block; background: #fff0f2; color: #ff5266; font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 6px; margin-bottom: 6px; border: 1px solid #ffccd3; }
-        
-        /* 한줄평 박스 */
         .slot-line { font-size: 13px; font-weight: 500; color: #5a6263; background: #faf8f5; padding: 10px 14px; border-radius: 12px; margin-top: 6px; border: 1px dashed #eeded1; display: block; text-align: center; width: 100%; box-sizing: border-box; word-break: keep-all; white-space: normal; height: auto; }
-        
         .slot-tags-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 8px; }
         .slot-hashtag { font-size: 10px; font-weight: bold; color: #ff5266; background: #fffdfd; padding: 2px 6px; border-radius: 5px; border: 1px solid #ffe5e8; }
-
-        /* 결과 텍스트들을 롤링 중에는 숨기기 위한 스타일 */
-        .slot-result-details {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            display: none; 
-        }
+        .slot-result-details { width: 100%; display: flex; flex-direction: column; align-items: center; display: none; }
 
         .slot-btn-group-flex { display: flex; gap: 10px; width: 100%; }
         .btn-slot-action { flex: 1; padding: 14px; border: none; border-radius: 14px; font-size: 14px; font-weight: 900; color: white; cursor: pointer; }
@@ -311,14 +268,12 @@
         
         <div id="slotContentWrapper">
             <div class="slot-thumb-container" id="slotThumb" style="display: none;">🍴</div>
-            
             <div class="slot-result-details" id="slotResultDetails">
                 <div id="slotMenuBadgeContainer"><span class="badge-menu-pick" id="slotMenu">추천 메뉴</span></div>
                 <div class="restaurant-name" id="slotName" style="font-size: 17px; text-align:center; width:100%; font-weight:900; color:#2c3e50; margin-bottom:4px;">식당 이름</div>
                 <div class="slot-line" id="slotComment">한줄평</div>
                 <div class="slot-tags-container" id="slotTags"></div>
             </div>
-
             <div class="slot-intro-text" id="slotIntroText">
                 원하는 식당을 찾지 못했나요?<br>걱정하지 마세요. 진짜 맛집은 여기에 있어요.<br>
                 <span style="display: block; margin-top: 8px; color: #ff5266; font-size: 12px;">🎯 동민's Pick 은 꾸준히 업데이트 중입니다.</span>
@@ -352,7 +307,6 @@
     const loadingEmojis = ["🍲", "🥟", "🍣", "🍝", "🍔", "🍕", "🍗", "🥪", "🍛", "🍩", "🥗", "🍱", "🍢"];
     let loadingIntervalId = null;
 
-    // 키워드를 수정하고 이모지를 정리했습니다.
     const cardData = {
         menu: [
             {text:"한식", emoji:"🍲"},
@@ -380,14 +334,14 @@
         ]
     };
 
-    // 카카오맵 검색에 가장 효과적으로 대응하는 확장 키워드 매핑 테이블
+    // 카카오맵 검색용 서브 키워드 맵핑 리스트
     const apiQueryMap = {
-        "아시안푸드": ["아시안", "태국", "베트남", "인도", "아시아"],
-        "고기": ["고기구이", "삼겹살", "갈비", "고깃집", "육류"],
+        "아시안푸드": ["태국음식", "베트남음식", "아시아음식", "쌀국수"],
+        "고기": ["고기구이", "삼겹살", "갈비", "고깃집"],
         "치킨": ["치킨", "통닭", "닭강정"],
-        "패스트푸드": ["햄버거", "패스트푸드", "피자", "샌드위치"],
+        "패스트푸드": ["햄버거", "피자", "패스트푸드"],
         "샐러드/포케": ["샐러드", "포케", "다이어트"],
-        "카페/디저트": ["카페", "디저트", "베이커리", "커피"]
+        "카페/디저트": ["카페", "디저트", "베이커리"]
     };
 
     window.onload = function() {
@@ -405,105 +359,67 @@
             alert("dongmin-picks.js 파일을 읽을 수 없거나 데이터가 비어 있습니다!");
             return;
         }
-        slotStatus = 'ready';
-        finalPickedItem = null;
-        clearTimeout(slotTimeoutId);
-        
+        slotStatus = 'ready'; finalPickedItem = null; clearTimeout(slotTimeoutId);
         document.getElementById('dongminModal').querySelector('.modal-title').innerText = "동민's Pick 추천!";
-        
         document.getElementById('slotIntroText').style.display = "block";
         document.getElementById('slotThumb').style.display = "none";
         document.getElementById('slotResultDetails').style.display = "none";
-        
         const btn = document.getElementById('slotActionBtn');
-        btn.innerText = "시작";
-        btn.className = "btn-slot-action start";
-        btn.disabled = false;
-        
+        btn.innerText = "시작"; btn.className = "btn-slot-action start"; btn.disabled = false;
         document.getElementById('slotRouteBtn').style.display = "none";
         document.getElementById('slotCloseBtn').disabled = false;
         document.getElementById('dongminModal').style.display = "flex";
     }
 
     function handleSlotActionClick() {
-        if (slotStatus === 'ready' || slotStatus === 'stopped') {
-            startSlotAccelerating();
-        } else if (slotStatus === 'running') {
-            startSlotDecelerating();
-        }
+        if (slotStatus === 'ready' || slotStatus === 'stopped') startSlotAccelerating();
+        else if (slotStatus === 'running') startSlotDecelerating();
     }
 
     function startSlotAccelerating() {
-        slotStatus = 'accelerating';
-        finalPickedItem = null;
-        
+        slotStatus = 'accelerating'; finalPickedItem = null;
         const btn = document.getElementById('slotActionBtn');
-        btn.innerText = "멈추기";
-        btn.className = "btn-slot-action stop";
+        btn.innerText = "멈추기"; btn.className = "btn-slot-action stop";
         document.getElementById('slotRouteBtn').style.display = "none";
-        
         document.getElementById('dongminModal').querySelector('.modal-title').innerText = "어디로 갈까요? 🤔";
-
         document.getElementById('slotIntroText').style.display = "none";
         document.getElementById('slotResultDetails').style.display = "none";
         document.getElementById('slotThumb').style.display = "flex";
-
-        currentIntervalSpeed = 350; 
-        runSlotLoop();
+        currentIntervalSpeed = 350; runSlotLoop();
     }
 
     function runSlotLoop() {
         const currentItem = dongminPicks[currentSlotIdx % dongminPicks.length];
         const thumbBox = document.getElementById('slotThumb');
-        
         if(thumbBox) {
             if(currentItem.img && (currentItem.img.startsWith('http') || currentItem.img.startsWith('.'))) {
                 thumbBox.innerHTML = `<img src="${currentItem.img}" alt="slot-thumb">`;
-            } else {
-                thumbBox.innerHTML = currentItem.img || "🍴";
-            }
+            } else { thumbBox.innerHTML = currentItem.img || "🍴"; }
         }
-
         document.getElementById('slotMenu').innerText = "추천메뉴: " + currentItem.menu;
         document.getElementById('slotName').innerText = currentItem.name;
         document.getElementById('slotComment').innerText = currentItem.comment;
-        
         const tagsBox = document.getElementById('slotTags');
-        if(tagsBox && currentItem.tags) {
-            tagsBox.innerHTML = currentItem.tags.map(t => `<span class="slot-hashtag">#${t}</span>`).join('');
-        } else if(tagsBox) {
-            tagsBox.innerHTML = '';
-        }
-
-        finalPickedItem = currentItem;
-        currentSlotIdx++;
+        if(tagsBox && currentItem.tags) { tagsBox.innerHTML = currentItem.tags.map(t => `<span class="slot-hashtag">#${t}</span>`).join(''); }
+        else if(tagsBox) { tagsBox.innerHTML = ''; }
+        finalPickedItem = currentItem; currentSlotIdx++;
 
         if (slotStatus === 'accelerating') {
-            currentIntervalSpeed = Math.max(120, currentIntervalSpeed - 40); 
-            if (currentIntervalSpeed <= 120) {
-                slotStatus = 'running'; 
-            }
+            currentIntervalSpeed = Math.max(120, currentIntervalSpeed - 40);
+            if (currentIntervalSpeed <= 120) slotStatus = 'running';
             slotTimeoutId = setTimeout(runSlotLoop, currentIntervalSpeed);
-        } 
-        else if (slotStatus === 'running') {
-            slotTimeoutId = setTimeout(runSlotLoop, 120); 
-        } 
-        else if (slotStatus === 'decelerating') {
-            currentIntervalSpeed += 60; 
+        } else if (slotStatus === 'running') {
+            slotTimeoutId = setTimeout(runSlotLoop, 120);
+        } else if (slotStatus === 'decelerating') {
+            currentIntervalSpeed += 60;
             if (currentIntervalSpeed >= 450) {
                 slotStatus = 'stopped';
                 document.getElementById('slotResultDetails').style.display = "flex";
-                
                 const btn = document.getElementById('slotActionBtn');
-                btn.innerText = "다시 돌리기";
-                btn.className = "btn-slot-action retry";
-                btn.disabled = false;
-                
+                btn.innerText = "다시 돌리기"; btn.className = "btn-slot-action retry"; btn.disabled = false;
                 document.getElementById('slotRouteBtn').style.display = "block";
                 document.getElementById('slotCloseBtn').disabled = false;
-            } else {
-                slotTimeoutId = setTimeout(runSlotLoop, currentIntervalSpeed);
-            }
+            } else { slotTimeoutId = setTimeout(runSlotLoop, currentIntervalSpeed); }
         }
     }
 
@@ -515,79 +431,44 @@
 
     function handleSlotRouteClick() {
         if (!finalPickedItem) return;
-        const targetItem = finalPickedItem; 
-        closeDongminPickModal(); 
-        
-        openRoutingModal(
-            'route', 
-            targetItem.name, 
-            targetItem.x || "", 
-            targetItem.y || "", 
-            "", 
-            targetItem.kakaoId || "", 
-            targetItem.naverId || ""  
-        );
+        const targetItem = finalPickedItem; closeDongminPickModal();
+        openRoutingModal('route', targetItem.name, targetItem.x || "", targetItem.y || "", "", targetItem.kakaoId || "", targetItem.naverId || "");
     }
 
-    function closeDongminPickModal() {
-        clearTimeout(slotTimeoutId);
-        slotStatus = 'ready';
-        document.getElementById('dongminModal').style.display = "none";
-    }
+    function closeDongminPickModal() { clearTimeout(slotTimeoutId); slotStatus = 'ready'; document.getElementById('dongminModal').style.display = "none"; }
 
     function getGPSLocation() {
-        const btn = document.getElementById('gpsBtn');
-        btn.disabled = false;
-        let dots = 0;
-        clearInterval(gpsInterval);
+        const btn = document.getElementById('gpsBtn'); btn.disabled = false; let dots = 0; clearInterval(gpsInterval);
         gpsInterval = setInterval(() => { btn.innerText = "현재 위치를 찾고 있어요" + ".".repeat(dots++ % 4); }, 400);
-        
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(pos => {
-                clearInterval(gpsInterval);
-                userLat = pos.coords.latitude; userLng = pos.coords.longitude;
+                clearInterval(gpsInterval); userLat = pos.coords.latitude; userLng = pos.coords.longitude;
                 geocoder.coord2RegionCode(userLng, userLat, (res, status) => {
                     btn.innerText = status === kakao.maps.services.Status.OK ? `현재 위치 : ${res.find(r=>r.region_type==='H')?.address_name || '확인됨'}` : `위치 설정 완료`;
                     btn.disabled = true;
                 });
-            }, (error) => { 
-                clearInterval(gpsInterval); 
-                btn.innerText = "위치를 활성화 하거나 위치 권한을 허용해주세요."; 
-            });
-        } else {
-            clearInterval(gpsInterval);
-            btn.innerText = "위치를 활성화 하거나 위치 권한을 허용해주세요.";
-        }
+            }, (error) => { clearInterval(gpsInterval); btn.innerText = "위치를 활성화 하거나 위치 권한을 허용해주세요."; });
+        } else { clearInterval(gpsInterval); btn.innerText = "위치를 활성화 하거나 위치 권한을 허용해주세요."; }
     }
 
     function renderBottomSheetStep(type) {
         currentTargetSlotType = type;
         document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active'));
         document.getElementById('stepDot-' + type).classList.add('active');
-
         const isMenu = type === 'menu';
-        document.getElementById('sheetTitle').innerText = isMenu 
-            ? "🥦 Step 1. 어떤 종류를 먹고 싶나요? (복수 선택 가능)" 
-            : "🔥 Step 2. 세부 취향을 골라주세요. (복수 선택 가능)";
+        document.getElementById('sheetTitle').innerText = isMenu ? "🥦 Step 1. 어떤 종류를 먹고 싶나요? (복수 선택 가능)" : "🔥 Step 2. 세부 취향을 골라주세요. (복수 선택 가능)";
         document.getElementById('sheetBackBtn').style.display = isMenu ? "none" : "block";
         document.getElementById('sheetConfirmBtn').innerText = isMenu ? "다음 단계로 ➡️" : "선택 완료";
-
-        const grid = document.getElementById('sheetGrid');
-        grid.innerHTML = "";
+        const grid = document.getElementById('sheetGrid'); grid.innerHTML = "";
         document.getElementById('customInputWrapper').style.display = "flex";
-
         const activeSet = isMenu ? selectedMenuCards : selectedSpiceCards;
         const customs = isMenu ? customMenuCards : customSpiceCards;
-
         cardData[type].forEach(item => createGridItem(grid, item.text, item.emoji, activeSet));
         customs.forEach(text => createGridItem(grid, text, "✍️", activeSet));
-
-        let directNode = document.createElement('div');
-        directNode.className = "select-item-card";
+        let directNode = document.createElement('div'); directNode.className = "select-item-card";
         directNode.innerHTML = `<span class="select-item-emoji">✍️</span><span class="select-item-text" style="color:#bfa000;">직접 입력</span>`;
         directNode.onclick = () => document.getElementById('customCardInput').focus();
         grid.appendChild(directNode);
-
         document.getElementById('sheetOverlay').style.display = "block";
         setTimeout(() => document.getElementById('bottomSheet').classList.add('show'), 10);
     }
@@ -596,158 +477,125 @@
         let node = document.createElement('div');
         node.className = `select-item-card ${activeSet.has(text) ? 'selected' : ''}`;
         node.innerHTML = `<span class="select-item-emoji">${emoji}</span><span class="select-item-text">${text}</span>`;
-        node.onclick = () => {
-            activeSet.has(text) ? activeSet.delete(text) : activeSet.add(text);
-            node.classList.toggle('selected');
-        };
+        node.onclick = () => { activeSet.has(text) ? activeSet.delete(text) : activeSet.add(text); node.classList.toggle('selected'); };
         grid.appendChild(node);
     }
 
     function addCustomKeywordCard() {
-        let input = document.getElementById('customCardInput');
-        let text = input.value.trim();
-        if(!text) return;
+        let input = document.getElementById('customCardInput'); let text = input.value.trim(); if(!text) return;
         (currentTargetSlotType === 'menu' ? selectedMenuCards : selectedSpiceCards).add(text);
         (currentTargetSlotType === 'menu' ? customMenuCards : customSpiceCards).push(text);
         input.value = ""; renderBottomSheetStep(currentTargetSlotType);
     }
 
-    function handleSheetConfirm() {
-        currentTargetSlotType === 'menu' ? renderBottomSheetStep('spice') : closeBottomSheet();
-    }
-
-    function closeBottomSheet() {
-        document.getElementById('bottomSheet').classList.remove('show');
-        setTimeout(() => document.getElementById('sheetOverlay').style.display = "none", 300);
-        renderCombinedChips();
-    }
+    function handleSheetConfirm() { currentTargetSlotType === 'menu' ? renderBottomSheetStep('spice') : closeBottomSheet(); }
+    function closeBottomSheet() { document.getElementById('bottomSheet').classList.remove('show'); setTimeout(() => document.getElementById('sheetOverlay').style.display = "none", 300); renderCombinedChips(); }
 
     function renderCombinedChips() {
-        const board = document.getElementById('chipsBoard');
-        const btn = document.getElementById('masterAddBtn');
-        if (!selectedMenuCards.size && !selectedSpiceCards.size) {
-            board.innerHTML = ""; board.style.display = "none";
-            btn.innerText = "➕ 여기를 눌러 먹켓 채우기";
-            return;
-        }
-        btn.innerText = "🔄 구성 다시 변경하기";
-        let html = "";
+        const board = document.getElementById('chipsBoard'); const btn = document.getElementById('masterAddBtn');
+        if (!selectedMenuCards.size && !selectedSpiceCards.size) { board.innerHTML = ""; board.style.display = "none"; btn.innerText = "➕ 여기를 눌러 먹켓 채우기"; return; }
+        btn.innerText = "🔄 구성 다시 변경하기"; let html = "";
         selectedMenuCards.forEach(t => html += `<div class="equipped-chip"><span>${cardData.menu.find(c=>c.text===t)?.emoji || "✍️"} ${t}</span><span class="chip-remove" onclick="removeCard('menu','${t}')">×</span></div>`);
         selectedSpiceCards.forEach(t => html += `<div class="equipped-chip" style="border-color:#66dbb2; color:#1abc9c;"><span>${cardData.spice.find(c=>c.text===t)?.emoji || "✍️"} ${t}</span><span class="chip-remove" onclick="removeCard('spice','${t}')">×</span></div>`);
         board.innerHTML = html; board.style.display = "flex";
     }
 
-    function removeCard(type, text) {
-        type === 'menu' ? selectedMenuCards.delete(text) : selectedSpiceCards.delete(text);
-        renderCombinedChips();
-    }
-
-    function changeRadiusValue(val) {
-        document.querySelectorAll('.tick-item').forEach(i => i.classList.remove('active'));
-        document.getElementById('tick-' + val)?.classList.add('active');
-    }
+    function removeCard(type, text) { type === 'menu' ? selectedMenuCards.delete(text) : selectedSpiceCards.delete(text); renderCombinedChips(); }
+    function changeRadiusValue(val) { document.querySelectorAll('.tick-item').forEach(i => i.classList.remove('active')); document.getElementById('tick-' + val)?.classList.add('active'); }
 
     function startCardCasting() {
         if (!userLat) { alert("위치 설정이 아직 완료되지 않았어요!"); return; }
         document.getElementById('resultSection').style.display = "none";
         document.getElementById('castingOverlay').style.display = "flex";
-        
-        let emojiIdx = 0;
-        const emojiBox = document.getElementById('foodEmojiDisplay');
-        
-        loadingIntervalId = setInterval(() => {
-            emojiIdx = (emojiIdx + 1) % loadingEmojis.length;
-            emojiBox.innerText = loadingEmojis[emojiIdx];
-        }, 400);
-
-        setTimeout(() => {
-            clearInterval(loadingIntervalId);
-            document.getElementById('castingOverlay').style.display = "none";
-            fetchRestaurants();
-        }, 1800);
+        let emojiIdx = 0; const emojiBox = document.getElementById('foodEmojiDisplay');
+        loadingIntervalId = setInterval(() => { emojiIdx = (emojiIdx + 1) % loadingEmojis.length; emojiBox.innerText = loadingEmojis[emojiIdx]; }, 400);
+        setTimeout(() => { clearInterval(loadingIntervalId); document.getElementById('castingOverlay').style.display = "none"; fetchRestaurants(); }, 1800);
     }
 
-    // 🌟 핵심 검색 최적화 로직 및 OR 구조 강화
+    // 🚀 비동기 병렬 구조 처리로 완벽한 '진짜 OR 조건 검색' 로직 구현
     function fetchRestaurants() {
-        let rawQueries = [];
-        
-        // 1. 선택된 대분류 카드들을 쿼리 배열에 병합 (OR 성격을 띄게 함)
+        let singleSearchKeywords = [];
+
+        // 대분류 카드에서 검색 타겟 수집
         if (selectedMenuCards.size > 0) {
             selectedMenuCards.forEach(v => {
-                if (apiQueryMap[v]) {
-                    // 특수 지정 키워드는 매핑 리스트 통째로 추가
-                    rawQueries.push(...apiQueryMap[v]);
-                } else {
-                    rawQueries.push(v);
-                }
+                if (apiQueryMap[v]) { singleSearchKeywords.push(...apiQueryMap[v]); } 
+                else { singleSearchKeywords.push(v); }
             });
-        } 
-        
-        // 2. 만약 소분류(취향) 카드만 골랐을 경우 처리
-        if (rawQueries.length === 0 && selectedSpiceCards.size > 0) {
+        }
+
+        // 소분류 카드 보완
+        if (singleSearchKeywords.length === 0 && selectedSpiceCards.size > 0) {
             selectedSpiceCards.forEach(v => {
                 let lookups = [];
-                if(v === "돼지/소고기") lookups = ["고기구이", "삼겹살", "갈비"];
-                else if(v === "닭/오리") lookups = ["치킨", "닭요리"];
-                else if(v === "해산물/생선") lookups = ["횟집", "초밥", "해물"];
-                else if(v === "면 요리") lookups = ["국수", "라멘", "파스타"];
-                else if(v === "밥/덮밥") lookups = ["덮밥", "한식"];
+                if(v === "돼지/소고기") lookups = ["고기집", "삼겹살"];
+                else if(v === "닭/오리") lookups = ["치킨", "찜닭"];
+                else if(v === "해산물/생선") lookups = ["횟집", "초밥"];
+                else if(v === "면 요리") lookups = ["국수", "파스타"];
+                else if(v === "밥/덮밥") lookups = ["덮밥", "백반"];
                 else if(v === "빵/샌드위치") lookups = ["베이커리", "샌드위치"];
                 else lookups = [v.split('/')[0]];
-                rawQueries.push(...lookups);
+                singleSearchKeywords.push(...lookups);
             });
         }
 
-        // 아무것도 없을 땐 기본 검색어 지정
-        if (rawQueries.length === 0) {
-            rawQueries.push("음식점");
-        }
+        if (singleSearchKeywords.length === 0) { singleSearchKeywords.push("음식점"); }
+        let targetKeywords = [...new Set(singleSearchKeywords)];
 
-        // 💡 중복 제거 후 카카오 API 특징에 맞춰 상위 2~3개의 키워드를 공백 분리하여 전달 (OR 매칭 극대화)
-        let finalUniqueQueries = [...new Set(rawQueries)];
-        let finalQueryString = finalUniqueQueries.slice(0, 3).join(" "); 
+        let promises = targetKeywords.map(keyword => {
+            return new Promise((resolve) => {
+                ps.keywordSearch(keyword, (data, status) => {
+                    if (status === kakao.maps.services.Status.OK) { resolve(data); } 
+                    else { resolve([]); }
+                }, {
+                    location: new kakao.maps.LatLng(userLat, userLng),
+                    radius: parseInt(document.getElementById('radiusRange').value),
+                    category_group_code: 'FD6'
+                });
+            });
+        });
 
-        ps.keywordSearch(finalQueryString, (data, status) => {
-            if (status !== kakao.maps.services.Status.OK) { 
-                currentFetchedPlaces = []; 
-                renderList([]); 
-                return; 
-            }
-            
-            // 데이터 매칭 점수 산정 (사용자가 고른 키워드 중 하나라도 걸리면 보정)
-            currentFetchedPlaces = data.map(p => {
-                let score = 0;
-                let keywords = [];
-                let categoryString = p.category_name || "";
-                let nameString = p.place_name || "";
+        // 모든 키워드 검색을 비동기로 병렬 처리하여 병합 및 중복제거
+        Promise.all(promises).then(results => {
+            let combined = [];
+            let seenIds = new Set();
 
-                // 대분류 매칭 스코어 체크
+            results.forEach(arr => {
+                arr.forEach(p => {
+                    if (!seenIds.has(p.id)) {
+                        seenIds.add(p.id);
+                        combined.push(p);
+                    }
+                });
+            });
+
+            // 점수 부여 로직 (통합 매칭 확인)
+            currentFetchedPlaces = combined.map(p => {
+                let score = 0; let keywords = [];
+                let categoryString = p.category_name || ""; let nameString = p.place_name || "";
+
                 selectedMenuCards.forEach(c => {
                     let searchTargets = apiQueryMap[c] ? apiQueryMap[c] : [c];
-                    let isMatched = searchTargets.some(target => categoryString.includes(target) || nameString.includes(target));
-                    if (isMatched) {
-                        score += 2;
-                        keywords.push(c);
+                    if (searchTargets.some(target => categoryString.includes(target) || nameString.includes(target))) {
+                        score += 2; keywords.push(c);
                     }
                 });
 
-                // 소분류 매칭 스코어 체크
                 selectedSpiceCards.forEach(c => {
                     let lookups = [];
                     if(c === "매운 요리") lookups = ["매운", "짬뽕", "낙지", "떡볶이", "마라", "닭발"];
-                    else if(c === "국물/탕/찌개") lookups = ["탕", "찌개", "국밥", "전골", "국수", "칼국수", "해장"];
-                    else if(c === "면 요리") lookups = ["면", "국수", "우동", "라멘", "파스타", "밀면", "냉면"];
-                    else if(c === "밥/덮밥") lookups = ["밥", "덮밥", "볶음밥", "비빔밥", "한식"];
-                    else if(c === "돼지/소고기") lookups = ["돈가스", "삼겹살", "갈비", "고기", "육류", "제육"];
-                    else if(c === "닭/오리") lookups = ["치킨", "닭", "찜닭", "오리"];
-                    else if(c === "해산물/생선") lookups = ["회", "스시", "초밥", "생선", "해물", "아구찜"];
-                    else if(c === "빵/샌드위치") lookups = ["빵", "샌드위치", "베이커리", "토스트", "디저트"];
-                    else if(c === "술안주/포차") lookups = ["포차", "술집", "호프", "이자카야", "요리주점"];
+                    else if(c === "국물/탕/찌개") lookups = ["탕", "찌개", "국밥", "전골", "해장"];
+                    else if(c === "면 요리") lookups = ["면", "국수", "우동", "라멘", "파스타"];
+                    else if(c === "밥/덮밥") lookups = ["밥", "덮밥", "볶음밥"];
+                    else if(c === "돼지/소고기") lookups = ["돈가스", "삼겹살", "갈비", "고기"];
+                    else if(c === "닭/오리") lookups = ["치킨", "닭", "찜닭"];
+                    else if(c === "해산물/생선") lookups = ["회", "스시", "초밥", "생선", "해물"];
+                    else if(c === "빵/샌드위치") lookups = ["빵", "샌드위치", "베이커리", "토스트"];
+                    else if(c === "술안주/포차") lookups = ["포차", "술집", "호프", "이자카야"];
                     else lookups = [c];
 
                     if(lookups.some(lk => categoryString.includes(lk) || nameString.includes(lk))) {
-                        score += 1;
-                        keywords.push(c);
+                        score += 1; keywords.push(c);
                     }
                 });
 
@@ -755,10 +603,6 @@
             });
 
             applySortAndRender();
-        }, { 
-            location: new kakao.maps.LatLng(userLat, userLng), 
-            radius: parseInt(document.getElementById('radiusRange').value), 
-            category_group_code: 'FD6' 
         });
     }
 
@@ -795,27 +639,20 @@
     }
 
     function renderList(places) {
-        const container = document.getElementById('restaurantContainer');
-        container.innerHTML = "";
-        
+        const container = document.getElementById('restaurantContainer'); container.innerHTML = "";
         if (!places.length) {
             container.innerHTML = `
                 <div style="text-align:center; padding:35px 20px; color:var(--text-muted); font-size:13.5px; line-height:1.6; word-break:keep-all;">
-                    조건에 맞는 식당을 찾지 못했어요 😥<br>
-                    반경 또는 조건을 변경하거나 <strong>🎯 동민's Pick</strong> 을 이용해보세요!
+                    조건에 맞는 식당을 찾지 못했어요 😥<br>반경 또는 조건을 변경하거나 <strong>🎯 동민's Pick</strong> 을 이용해보세요!
                 </div>`;
         } else {
             const currentRepresentativeEmoji = getFirstSelectedEmoji();
-
             places.forEach((p, idx) => {
-                let card = document.createElement('div');
-                card.className = "restaurant-card";
+                let card = document.createElement('div'); card.className = "restaurant-card";
                 card.style.animationDelay = `${idx * 0.04}s`;
                 card.onclick = (e) => { if(e.target.tagName !== 'BUTTON') openRoutingModal('detail', p.place_name, p.x, p.y, p.place_url, p.id, ""); };
-                
                 let cat = p.category_name ? p.category_name.split(' > ').pop() : "음식점";
                 let badgeHTML = `<span class="badge-cat">${cat}</span>` + (p.matchedKeywords.length ? `<span class="badge-match">${p.matchedKeywords.join(', ')}</span>` : "");
-
                 card.innerHTML = `
                     <div class="restaurant-thumb">${currentRepresentativeEmoji}</div>
                     <div class="restaurant-info">
@@ -831,64 +668,32 @@
                 container.appendChild(card);
             });
         }
-        
         document.getElementById('resultSection').style.display = "block";
-        setTimeout(() => {
-            document.getElementById('sortFilterBar').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 50);
+        setTimeout(() => { document.getElementById('sortFilterBar').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
     }
 
     function openRoutingModal(type, name, x, y, placeUrl, kakaoId, naverId) {
-        selectedAction = type; 
-        selectedPlace = { name, x, y, placeUrl, kakaoId, naverId };
-        
+        selectedAction = type; selectedPlace = { name, x, y, placeUrl, kakaoId, naverId };
         document.getElementById('modalActionType').innerText = type === 'detail' ? "🔍 상세 페이지 열기" : "🧭 도보 길 찾기 시작";
         document.getElementById('modalTargetName').innerText = name;
         document.getElementById('mapModal').style.display = "flex";
     }
-    
     function closeMapModal() { document.getElementById('mapModal').style.display = "none"; }
 
     function openMapApp(provider) {
-        if (!selectedPlace) return;
-        const { name, x, y, kakaoId, naverId } = selectedPlace;
-        
-        let appUrl = "";
-        let webUrl = "";
-
+        if (!selectedPlace) return; const { name, x, y, kakaoId, naverId } = selectedPlace;
+        let appUrl = ""; let webUrl = "";
         if (provider === 'kakao') {
+            if (selectedAction === 'detail') { appUrl = `kakaomap://place?id=${kakaoId}`; webUrl = `https://place.map.kakao.com/${kakaoId}`; } 
+            else { appUrl = `kakaomap://route?epName=${encodeURIComponent(name)}&epX=${x}&epY=${y}&by=FOOT`; webUrl = `https://map.kakao.com/link/to/${encodeURIComponent(name)},${y},${x}`; }
+        } else {
             if (selectedAction === 'detail') {
-                appUrl = `kakaomap://place?id=${kakaoId}`;
-                webUrl = `https://place.map.kakao.com/${kakaoId}`;
-            } else {
-                appUrl = `kakaomap://route?epName=${encodeURIComponent(name)}&epX=${x}&epY=${y}&by=FOOT`;
-                webUrl = `https://map.kakao.com/link/to/${encodeURIComponent(name)},${y},${x}`;
-            }
-        } 
-        else {
-            if (selectedAction === 'detail') {
-                if (naverId && naverId.trim() !== "") {
-                    appUrl = `nmap://place?id=${naverId}`;
-                    webUrl = `https://place.map.naver.com/${naverId}`;
-                } else {
-                    appUrl = `nmap://search?query=${encodeURIComponent(name)}`;
-                    webUrl = `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}`;
-                }
-            } else {
-                appUrl = `nmap://route/walk?dlat=${y}&dlng=${x}&dname=${encodeURIComponent(name)}`;
-                webUrl = `https://m.map.naver.com/route/walk.naver?sname=${encodeURIComponent('내 위치')}&sx=${userLng}&sy=${userLat}&ename=${encodeURIComponent(name)}&ex=${x}&ey=${y}`;
-            }
+                if (naverId && naverId.trim() !== "") { appUrl = `nmap://place?id=${naverId}`; webUrl = `https://place.map.naver.com/${naverId}`; } 
+                else { appUrl = `nmap://search?query=${encodeURIComponent(name)}`; webUrl = `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(name)}`; }
+            } else { appUrl = `nmap://route/walk?dlat=${y}&dlng=${x}&dname=${encodeURIComponent(name)}`; webUrl = `https://m.map.naver.com/route/walk.naver?sname=${encodeURIComponent('내 위치')}&sx=${userLng}&sy=${userLat}&ename=${encodeURIComponent(name)}&ex=${x}&ey=${y}`; }
         }
-
-        const startTime = Date.now();
-        window.location.href = appUrl;
-
-        setTimeout(() => {
-            if (Date.now() - startTime < 800) {
-                window.location.href = webUrl;
-            }
-        }, 500);
-
+        const startTime = Date.now(); window.location.href = appUrl;
+        setTimeout(() => { if (Date.now() - startTime < 800) { window.location.href = webUrl; } }, 500);
         closeMapModal();
     }
 </script>
