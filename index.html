@@ -383,7 +383,7 @@
             kakao.maps.load(() => {
                 ps = new kakao.maps.services.Places();
                 geocoder = new kakao.maps.services.Geocoder();
-                getGPSLocation();
+                getGPSLocation(); // 페이지 진입 시 자동으로 위치 확인 시작
             });
         }
     }
@@ -538,7 +538,14 @@
                     btn.innerText = status === kakao.maps.services.Status.OK ? `현재 위치 : ${res.find(r=>r.region_type==='H')?.address_name || '확인됨'}` : `위치 설정 완료`;
                     btn.disabled = true;
                 });
-            }, () => { clearInterval(gpsInterval); btn.innerText = "위치를 찾을 수 없습니다."; });
+            }, (error) => { 
+                clearInterval(gpsInterval); 
+                // gps가 꺼져있거나 위치 권한이 없을 경우 지정된 문구 노출
+                btn.innerText = "위치를 활성화 하거나 위치 권한을 허용해주세요."; 
+            });
+        } else {
+            clearInterval(gpsInterval);
+            btn.innerText = "위치를 활성화 하거나 위치 권한을 허용해주세요.";
         }
     }
 
@@ -731,21 +738,18 @@
         renderList(sorted);
     }
 
-    // 🎯 해결: 유저가 복수 선택한 키워드 중 첫 번째 키워드의 이모지를 찾아 추출하는 내부 헬퍼 함수
     function getFirstSelectedEmoji() {
-        // Step 1(종류) 선택 순서 검사
         if (selectedMenuCards.size > 0) {
             const firstKeyword = Array.from(selectedMenuCards)[0];
             const found = cardData.menu.find(item => item.text === firstKeyword);
             return found ? found.emoji : "✍️"; 
         }
-        // Step 2(취향) 선택 순서 검사
         if (selectedSpiceCards.size > 0) {
             const firstKeyword = Array.from(selectedSpiceCards)[0];
             const found = cardData.spice.find(item => item.text === firstKeyword);
             return found ? found.emoji : "✍️";
         }
-        return "🍴"; // 선택된 키워드가 아예 없는 경우 기본 포크/스푼 고정
+        return "🍴"; 
     }
 
     function renderList(places) {
@@ -759,7 +763,6 @@
                     반경 또는 조건을 변경하거나 <strong>🎯 동민's Pick</strong> 을 이용해보세요!
                 </div>`;
         } else {
-            // 현재 유저가 선택한 키워드들의 최선두 이모지를 연산
             const currentRepresentativeEmoji = getFirstSelectedEmoji();
 
             places.forEach((p, idx) => {
@@ -771,7 +774,6 @@
                 let cat = p.category_name ? p.category_name.split(' > ').pop() : "음식점";
                 let badgeHTML = `<span class="badge-cat">${cat}</span>` + (p.matchedKeywords.length ? `<span class="badge-match">${p.matchedKeywords.join(', ')}</span>` : "");
 
-                // 🎯 썸네일 영역에 불확실한 웹 이미지 대신 선택 키워드의 대표 이모지를 깔끔하게 렌더링
                 card.innerHTML = `
                     <div class="restaurant-thumb">${currentRepresentativeEmoji}</div>
                     <div class="restaurant-info">
